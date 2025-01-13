@@ -40,4 +40,23 @@ Tech Stack that i will cover in Devops
               |=====Database----------------> Mysql
 
 
+Git Commands:
+1.git init
+2.git clone
+3.git pull
+4.git push
+5.git commit
+6.git status
+7.git log
+8.git diff
+9.git config
+10.git merge
+11.git pull
+12.git checkout
+13.git add .
+14.git cherypick
+15.git fetch
+16.git rebase
+17.git revert
+
 
