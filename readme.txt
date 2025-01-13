@@ -12,3 +12,23 @@ Devops/Platform Engineer::                       SRE(Site Reliability Engineer:
 |           |             |      |                |               |            |           |           |          
 Tools Linux/networking  cloud  scability   coding(pythong)    efficiency monitoring   Reliablity   AWS/AZURE
     
+
+Tech Stack that i will cover in Devops
+==========================================
+              |====Git/Github        
+              |====Linux            |----Trivy
+              |====Security-------- |----SonarQube
+              |                     |----Blackduck
+              |                     |----Fortify
+              |====CICD------> Jenkins/ArgoCD
+              |====Containerzation------> Docker
+              |====Orchestration--------> Kubernets
+              |=====Cloud----------------> AWS/AZURE
+              |=====Automation-----------> Python/Shell
+              |=====Coding----------------> Python
+              |=====Monitoring ----------->|-- Prometheus
+                                           |-- Grapahana
+                                           |-- kiale/Istio
+                                           |-- Joeger
+                                           |-- Splunk
+              |===== 
