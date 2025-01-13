@@ -6,6 +6,9 @@ Devops/Platform Engineer::                       SRE(Site Reliability Engineer:
 4. Integration of the tools                      4.Site reliability enginerring
 5. Efficiceny                                    5.Oncall activities
      |                                                  |
-(Pre Deployment)                                   (Post Deployment)
-
-
+(Pre Deployment)=========================|=====================(Post Deployment)
+                                         |
+==========================================================================================================
+|           |             |      |                |               |            |           |           |          
+Tools Linux/networking  cloud  scability   coding(pythong)    efficiency monitoring   Reliablity   AWS/AZURE
+    
