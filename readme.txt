@@ -68,6 +68,10 @@ Git basic Commands:
 20.git branch -a ( To list the branches )
 
 
+Git Automation:
+https://docs.github.com/en/rest/branches?apiVersion=2022-11-28
+https://github.com/praveen1994dec/Knowledge_Base/blob/main/Jenkins/Jenkins%20Notes.pdf
+
 
 
 
