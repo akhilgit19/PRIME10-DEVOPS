@@ -31,4 +31,13 @@ Tech Stack that i will cover in Devops
                                            |-- kiale/Istio
                                            |-- Joeger
                                            |-- Splunk
-              |===== 
+              |=====IAC--------------------> Terraform
+              |=====Repository-------------> Jfrog/Dockerhub/ECR
+              |=====ConfigurationManagement-> Ansible
+              |=====JAVA/POM.XML/DEPENDENCY Check
+              |=====Github actions/Maven Tool
+              |=====Helm
+              |=====Database----------------> Mysql
+
+
+
