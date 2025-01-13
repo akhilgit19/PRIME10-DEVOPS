@@ -40,26 +40,39 @@ Tech Stack that i will cover in Devops
               |=====Database----------------> Mysql
 
 
+Branching Stragies:
+========================
+
+
 Git basic Commands:
 =======================
 1.git init
 2.git clone
 3.git pull
-4.git push
-5.git commit
+4.git push   
+5.git commit -m "message" 
 6.git status
 7.git log
 8.git diff
 9.git config
 10.git merge
-11.git pull
-12.git checkout
-13.git add .
+11.git pull   (To get the difference of changes in the respository)
+12.git checkout -b branch_name (To create a branch)
+13.git add .       ( To add all the files to 
 14.git cherypick
 15.git fetch
 16.git rebase
 17.git revert
-18.git switch
+18.git switch  branch_name
+19.git branch -d branch_name
+20.git branch -a ( To list the branches )
+
+
+Git Automation:
+https://docs.github.com/en/rest/branches?apiVersion=2022-11-28
+https://github.com/praveen1994dec/Knowledge_Base/blob/main/Jenkins/Jenkins%20Notes.pdf
+
+
 
 
 
