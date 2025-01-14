@@ -1,3 +1,6 @@
+                                                  GIT   
+                                              ==============
+
 Devops/Platform Engineer::                       SRE(Site Reliability Engineer:   
 ============================                     ==================================
 1. Managing the tools stack                      1.Monitoring
@@ -159,6 +162,11 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
     "protection_url": "https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches/main/protection"
   }
 ]
+
+                                                     LINUX
+                                                  ==============
+
+
 
 
 
