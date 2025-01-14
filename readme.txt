@@ -170,9 +170,30 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
      SSL/TLS             UDP/TCP/
 User----------> Request------------------> Regional server---------> DNS Server
 
+Important networking tools for Devops Engineering
+=======================================================
+1.PING Command: ping google.com
+=============== 
+akhilpagadapoola@Akhils-MacBook-Air Jenkins % ping google.com
+PING google.com (142.250.193.46): 56 data bytes
+64 bytes from 142.250.193.46: icmp_seq=0 ttl=112 time=56.100 ms
+64 bytes from 142.250.193.46: icmp_seq=1 ttl=112 time=53.291 ms
+64 bytes from 142.250.193.46: icmp_seq=2 ttl=112 time=51.908 ms
 
+2.Traceroute Command:  traceroute google.com 
+====================
+akhilpagadapoola@Akhils-MacBook-Air Jenkins % traceroute google.com 
+traceroute to google.com (142.250.192.206), 64 hops max, 52 byte packets
+ 1  reliance.reliance (192.168.29.1)  9.278 ms  4.754 ms  4.402 ms
+ 2  10.14.240.1 (10.14.240.1)  9.956 ms  9.464 ms  8.910 ms
+ 3  172.31.2.102 (172.31.2.102)  18.370 ms
+    172.31.2.120 (172.31.2.120)  21.698 ms  21.247 ms
+ 4  192.168.59.122 (192.168.59.122)  16.644 ms
+    192.168.59.120 (192.168.59.120)  33.227 ms
+    192.168.59.124 (192.168.59.124)  23.655 ms
 
-
+3.Netstat Command: netstat -a
+4.Nmap Command: nmap -p 1-1000 target
 
 
 
