@@ -166,6 +166,10 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
                                                      LINUX
                                                   ==============
 
+         
+     SSL/TLS             UDP/TCP/
+User----------> Request------------------> Regional server---------> DNS Server
+
 
 
 
