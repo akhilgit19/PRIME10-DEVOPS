@@ -1,3 +1,6 @@
+                                                  GIT   
+                                              ==============
+
 Devops/Platform Engineer::                       SRE(Site Reliability Engineer:   
 ============================                     ==================================
 1. Managing the tools stack                      1.Monitoring
@@ -73,6 +76,97 @@ https://docs.github.com/en/rest/branches?apiVersion=2022-11-28
 https://github.com/praveen1994dec/Knowledge_Base/blob/main/Jenkins/Jenkins%20Notes.pdf
 
 Github rest API'S
+
+
+
+Example:
+
+Code:
+------
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer <YOUR-TOKEN>" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/repos/OWNER/REPO/branches
+
+Response:
+----------
+akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer $GITHUB_TOKEN" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches
+
+[
+  {
+    "name": "gitdocuments",
+    "commit": {
+      "sha": "e238e759993499e527b1652c475a0213132cd640",
+      "url": "https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/commits/e238e759993499e527b1652c475a0213132cd640"
+    },
+    "protected": false,
+    "protection": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [
+
+        ],
+        "checks": [
+
+        ]
+      }
+    },
+    "protection_url": "https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches/gitdocuments/protection"
+  },
+  {
+    "name": "jenkins",
+    "commit": {
+      "sha": "ab20fe86ade9fb4993f8a6285e151fba2dd10801",
+      "url": "https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/commits/ab20fe86ade9fb4993f8a6285e151fba2dd10801"
+    },
+    "protected": false,
+    "protection": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [
+
+        ],
+        "checks": [
+
+        ]
+      }
+    },
+    "protection_url": "https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches/jenkins/protection"
+  },
+  {
+    "name": "main",
+    "commit": {
+      "sha": "e3e96c6b4ad9fb8d98dc15b64a89e08a0eaa127a",
+      "url": "https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/commits/e3e96c6b4ad9fb8d98dc15b64a89e08a0eaa127a"
+    },
+    "protected": false,
+    "protection": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [
+
+        ],
+        "checks": [
+
+        ]
+      }
+    },
+    "protection_url": "https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches/main/protection"
+  }
+]
+
+                                                     LINUX
+                                                  ==============
+
+
 
 
 
