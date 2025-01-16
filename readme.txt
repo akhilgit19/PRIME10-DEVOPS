@@ -247,6 +247,7 @@ Linux Commands:
 User and file management:
 ============================
 1. uname  
+================
    -a: print all system information
    -s: print the kernel name
    -r: print the kernel release
@@ -263,6 +264,161 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % uname -r
 akhilpagadapoola@Akhils-MacBook-Air prime10devops % uname -m
 arm64
 akhilpagadapoola@Akhils-MacBook-Air prime10devops %
+
+2. uptime:
+==============
+The command display how long the system has been running and  the current system load average
+akhilpagadapoola@Akhils-MacBook-Air prime10devops % uptime
+11:01  up 4 days, 21:31, 2 users, load averages: 1.79 2.19 2.22
+
+
+3. date:
+==========
+akhilpagadapoola@Akhils-MacBook-Air prime10devops % date
+Thu Jan 16 11:02:09 IST 2025
+
+4.who:
+========
+This command display information about current logged in users.
+It shows the username, terminal,login time and source IP address
+
+akhilpagadapoola@Akhils-MacBook-Air prime10devops % who
+akhilpagadapoola console      Jan 11 13:31 
+akhilpagadapoola ttys000      Jan 13 10:01 
+
+
+5.whoami
+===========
+This command prints the username of the current user
+akhilpagadapoola@Akhils-MacBook-Air prime10devops % whoami
+akhilpagadapoola
+
+6. which:
+=============
+This command display the full path to the executabe file of a given command
+It helps to identify the location of a command executable file in the systems path
+environment variable
+
+Example: which is displays the path to the is command
+
+Imp directories in lin
+=======================
+/bin- software binary
+/etc- programe files
+/var- log files
+/home- home folder for user
+/lib- library foler for user
+/sbin- superior bin files
+/opt- application folder/ 
+
+7. id:
+=======
+This command display the user and group IDs of the current user or a specified user.
+
+akhilpagadapoola@Akhils-MacBook-Air prime10devops % id
+uid=501(akhilpagadapoola) gid=20(staff) groups=20(staff),12(everyone),61(localaccounts),79(_appserverusr),80(admin),81(_appserveradm),98(_lpadmin),701(com.apple.sharepoint.group.1),33(_appstore),100(_lpoperator),204(_developer),250(_analyticsusers),395(com.apple.access_ftp),101(com.apple.access_screensharing-disabled),399(com.apple.access_ssh),400(com.apple.access_remote_ae)
+
+
+8. sudo:
+=========
+ This command allows users to execute commands with the privileges of another user
+
+
+9. shutdown and reboot:
+=============================
+shutdown
+reboot
+
+10.Linux pacakges 
+=============================
+Ubuntu: apt
+Centos: yum 
+Windows: .exe
+
+Example: sudo apt-get update
+         sudo apt-get install docker.io -y
+
+11. CAT command:
+=====================
+it will show list of user
+
+cat /etc/passwd
+
+12.Types of login:
+====================
+bash,
+ksh(cronshell),
+login,
+sh(shell)
+
+
+User and group managemen commands"
+======================================================
+1. sudo useradd -m pardeep
+2. whoami
+3. sudo passwd pardeep
+4. su pardeep (switch user)
+5. sudo userdel pardeep
+6. sudo groupadd 
+7. sudo gpasswd -a username groupname, To set the group password --gpasswd groupname, 
+   To make a user the group's owner- gpasswd -m username groupname
+
+8. r- reasd
+   w- write
+   x- execute
+
+9. umask 022
+   defualt permission in linux system for files -666 folders-777
+   if we give umask 022  subtract from default permissions files 622 folders 755
+
+10. zip: zip -r ldf.zip document
+                laf.tar 
+     -cvzf 
+      c-compress
+      v-verboze
+      z-zip
+      f-filename
+
+
+11. wget and curl are command line tools used for downloading files from remote server.
+
+
+                                                            Jenkins
+                                                 ==================================
+
+
+1.Jenkins file is like configuration file.
+
+Below is yaml groovy code.
+
+pipeline{
+   agent any{
+        environment variables{
+              parameters{
+                     stages{
+                          stage{
+                             script{
+                                 code in block
+Build toos:
+================
+Java -----> POM.XML---> Maven
+Nodejs/React---> Package.json----> nmp/node
+android--------->build.gridle-->gridle
+python--------->req.txt ----->python
+
+
+Imp dependencides in Pom.xml ---groupid.arificatid.version.packaging
+
+Advantages:
+================
+1. faster delivery
+2. quick deployments
+3. less chances of errors
+4. stability
+5. reliability
+6. quick big fixed
+7. Version controll
+8. Automation
 
 
 
