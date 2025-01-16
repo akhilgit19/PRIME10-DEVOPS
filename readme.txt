@@ -172,7 +172,7 @@ User----------> Request------------------> Regional server---------> DNS Server
 
 Important networking tools for Devops Engineering
 =======================================================
-1.PING Command: ping google.com
+1.PING Command: ping google.com   - Purpose to check the reachability of a host on an Internet Protocol(IP)
 =============== 
 akhilpagadapoola@Akhils-MacBook-Air Jenkins % ping google.com
 PING google.com (142.250.193.46): 56 data bytes
@@ -180,7 +180,7 @@ PING google.com (142.250.193.46): 56 data bytes
 64 bytes from 142.250.193.46: icmp_seq=1 ttl=112 time=53.291 ms
 64 bytes from 142.250.193.46: icmp_seq=2 ttl=112 time=51.908 ms
 
-2.Traceroute Command:  traceroute google.com 
+2.Traceroute Command:  traceroute google.com - To display the routee and measue transit delays of packets across an Internet Protocol network
 ====================
 akhilpagadapoola@Akhils-MacBook-Air Jenkins % traceroute google.com 
 traceroute to google.com (142.250.192.206), 64 hops max, 52 byte packets
@@ -192,8 +192,24 @@ traceroute to google.com (142.250.192.206), 64 hops max, 52 byte packets
     192.168.59.120 (192.168.59.120)  33.227 ms
     192.168.59.124 (192.168.59.124)  23.655 ms
 
-3.Netstat Command: netstat -a
-4.Nmap Command: nmap -p 1-1000 target
+3.Netstat Command: netstat -a-- To display active network connections,routingtables, interface statistics,
+===============================    masquerade connections, and multicast membership
+
+akhilpagadapoola@Akhils-MacBook-Air Jenkins % netstat -a
+Active Internet connections (including servers)
+Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)    
+tcp4       0      0  192.168.29.120.60146   lb-140-82-113-25.https ESTABLISHED
+tcp6       0      0  2405:201:c01d:f8.60047 sd-in-f188.1e100.5228  ESTABLISHED
+tcp6       0      0  akhils-macbook-a.60003 fe80::44:eca7:f2.62327 ESTABLISHED
+tcp6       0      0  2405:201:c01d:f8.60006 2620:1ec:21::14.https  ESTABLISHED
+tcp6       0      0  *.60003                *.*                    LISTEN     
+tcp4       0      0  *.60003                *.*                    LISTEN     
+tcp6       0      0  akhils-macbook-a.black fe80::106:29a6:6.1026  ESTABLISHED
+tcp6       0      0  akhils-macbook-a.1024  fe80::106:29a6:6.1024  ESTABLISHED
+
+4.Nmap Command: nmap -p 1-1000 target -Purpose: To discover hosts and services on a computer network creating  a map of the network.
+
+
 
 
 
