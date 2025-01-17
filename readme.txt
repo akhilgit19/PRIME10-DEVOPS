@@ -1,5 +1,6 @@
                                                   GIT   
-                                              ==============
+==============================================================================================================
+
 
 Devops/Platform Engineer::                       SRE(Site Reliability Engineer:   
 ============================                     ==================================
@@ -164,7 +165,8 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
 ]
 
                                                      LINUX
-                                                  ==============
+                                                ==============================================================================================================
+
 
          
      SSL/TLS                UDP/TCP/
@@ -384,8 +386,7 @@ User and group managemen commands"
 
 
                                                             Jenkins
-                                                 ==================================
-
+==============================================================================================================
 
 1.Jenkins file is like configuration file.
 
@@ -997,6 +998,24 @@ sudo apt-get install jenkins
     cd target 
     (....).jar file 
 
+
+
+                                        Docker
+==============================================================================================================
+
+
+Jar file
+---------------
+|       |      |
+ubuntu  centos  fedora
+
+Jar file disadvantages
+===========================
+1. Different environments in  linux systems/linux system dependecies
+2. consumes cpu and memory of entire linux systems
+3. systems security and reliability 
+4. network maintenance 
+5. linux system costing due to multiple deployments
 
 
 
