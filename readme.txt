@@ -470,7 +470,7 @@ t: target
 k8: kubernetes
 
 ex:
-
+=====
 @Library('my-shared-library') _
 
 pipeline{
@@ -598,6 +598,262 @@ Advantages:
 7. Version controll
 8. Automation
 
+***
+Java_app_3.0/Jenkinsfile Latest---- Child library
+@Library('my-shared-library') _------- Parent library
+****
+
+Assignment-1  Write the groovy code to send jarfile to jfrog repo
+Assignment -2 Different jenkins file scenarios
+
+
+
+Jenkins Server installation:
+========================================
+  |              |
+ubuntu         centos 
+-------        ---------
+
+1.yum/apt
+2.packages
+3.rpm packages- red hat package manager
+4.docker images/container
+5.curl / linux commands
+6.k8 pods
+
+Automations with jenkins
+==============================
+
+1. Write a shell script to install the jenkins on linxu server
+2. Write a groovy script where the two jobs are dependent of each other
+
+3.Write a jenkinsfile where the onestage variables are passed to other stage by using rest api automation script
+
+To pass variables from one stage to another using REST API calls in a Jenkins pipeline, the general idea is:
+
+Stage 1: Make a REST API call to fetch some data or variables.
+Store the Response: The response from the API call is stored in environment variables.
+Stage 2: Use these stored environment variables to trigger another API call or perform actions based on the fetched data.
+Example Jenkinsfile
+groovy
+
+pipeline {
+    agent any
+    
+    environment {
+        // Define environment variables to store API responses or data
+        API_RESULT = ''
+        API_SECOND_RESULT = ''
+    }
+
+    stages {
+        stage('Fetch Data from API') {
+            steps {
+                script {
+                    // Perform a REST API call to fetch some data
+                    def response = httpRequest(
+                        url: 'https://api.example.com/getData',  // Replace with your actual API endpoint
+                        httpMode: 'GET',
+                        contentType: 'APPLICATION_JSON'
+                    )
+                    
+                    // Parse the JSON response
+                    def jsonResponse = readJSON(text: response)
+                    
+                    // Extract the relevant data and store it in the environment variable
+                    env.API_RESULT = jsonResponse.data  // Store fetched data in environment variable
+                    
+                    // Debug: Output the fetched data
+                    echo "Fetched data: ${env.API_RESULT}"
+                }
+            }
+        }
+        
+        stage('Use Fetched Data in Second API Call') {
+            steps {
+                script {
+                    // Use the variable from the previous stage (API_RESULT)
+                    echo "Using fetched data: ${env.API_RESULT}"
+                    
+                    // Example of passing the fetched data into the URL for another API call
+                    def secondResponse = httpRequest(
+                        url: "https://api.example.com/submitData?value=${env.API_RESULT}",  // Pass the value as query parameter
+                        httpMode: 'POST',
+                        contentType: 'APPLICATION_JSON'
+                    )
+                    
+                    // Parse the second API response
+                    def secondJsonResponse = readJSON(text: secondResponse)
+                    
+                    // Store the result from the second API call
+                    env.API_SECOND_RESULT = secondJsonResponse.status  // Assume response has a 'status' field
+                    
+                    // Output for debugging
+                    echo "Second API result: ${env.API_SECOND_RESULT}"
+                }
+            }
+        }
+        
+        stage('Final Decision Based on Second API Call') {
+            steps {
+                script {
+                    // Make a decision based on the second API result
+                    if (env.API_SECOND_RESULT == 'success') {
+                        echo "The second API call was successful. Proceeding with further actions."
+                        // Continue with further steps here if necessary
+                    } else {
+                        echo "The second API call failed. Stopping the pipeline."
+                        currentBuild.result = 'FAILURE'
+                        error("Second API call failed, stopping pipeline.")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // This section will always execute, regardless of success or failure
+            echo "Pipeline execution completed."
+        }
+    }
+}
+Explanation:
+Stage 1: Fetch Data from API:
+
+In this stage, the httpRequest step is used to make a GET request to the first API (https://api.example.com/getData).
+The API response is expected to be in JSON format. Using readJSON, the response is parsed, and the value of jsonResponse.data is stored in the environment variable API_RESULT.
+Stage 2: Use Fetched Data in Second API Call:
+
+In this stage, the value stored in API_RESULT is used in another API call. Specifically, the value is passed as a query parameter in the URL (https://api.example.com/submitData?value=${env.API_RESULT}).
+This second API call is a POST request, and the response is parsed into secondJsonResponse. The result of the call is stored in the API_SECOND_RESULT environment variable.
+Stage 3: Final Decision Based on Second API Call:
+
+Based on the result stored in API_SECOND_RESULT, the pipeline makes a decision. If the API returns success, it proceeds; otherwise, it fails the pipeline using error().
+Post Block:
+
+The post block is used for cleanup or finishing tasks. It runs after the stages are completed, regardless of whether the pipeline succeeded or failed.
+Key Points:
+Environment Variables: We store the API results in environment variables (env.API_RESULT and env.API_SECOND_RESULT) to pass data between stages.
+API Calls: The httpRequest step is used for making API calls in Jenkins pipelines. Ensure that the HTTP Request Plugin is installed in Jenkins.
+Dynamic Data Handling: The data fetched from the first API (API_RESULT) is dynamically used in the second API call, showing how variables can be passed between stages.
+Prerequisites:
+HTTP Request Plugin: Install the HTTP Request Plugin in Jenkins to use httpRequest.
+API Endpoints: Replace the example API endpoints (https://api.example.com/getData and https://api.example.com/submitData) with your actual API endpoints.
+API Response Structure: Modify the parsing of the API response according to your actual API response structure. The example assumes a JSON structure with fields like data and status.
+By using this approach, you can efficiently pass data between stages using REST API calls in
+
+
+
+2nd way:
+=========
+
+pipeline {
+    agent any
+    environment {
+        API_URL = 'https://api.example.com/get-variable'  // REST API endpoint
+        API_KEY = 'your-api-key-here'  // API key for authorization
+        MY_VAR = ''  // This variable will store the value fetched from the API
+    }
+
+    stages {
+        stage('Get variable from REST API') {
+            steps {
+                script {
+                    // Fetch a value from the REST API using curl
+                    echo "Fetching variable from API..."
+
+                    // Use curl command to fetch the value and assign it to MY_VAR
+                    sh '''
+                        RESPONSE=$(curl -s -X GET "$API_URL" -H "Authorization: Bearer $API_KEY")
+                        MY_VAR=$(echo $RESPONSE | jq -r '.data')  # Assuming the response has a "data" field
+                        echo "Fetched value: $MY_VAR"
+                    '''
+                    
+                    // Set the fetched value to the environment variable MY_VAR
+                    env.MY_VAR = sh(script: 'echo $MY_VAR', returnStdout: true).trim()
+
+                    // For debugging, print the value of MY_VAR
+                    echo "The value of MY_VAR is: ${env.MY_VAR}"
+                }
+            }
+        }
+
+        stage('Use variable in next stage') {
+            steps {
+                script {
+                    // Use the value of MY_VAR in the next stage
+                    echo "Using fetched variable in the next stage: ${env.MY_VAR}"
+
+                    // Example API call using the MY_VAR in another API request
+                    def secondApiUrl = "https://api.example.com/submit-variable"
+                    def secondApiResponse = sh(script: """
+                        curl -s -X POST "$secondApiUrl" -H "Content-Type: application/json" \
+                        -d '{"value": "${env.MY_VAR}"}'
+                    """, returnStdout: true).trim()
+
+                    // Print the response from the second API
+                    echo "Second API response: ${secondApiResponse}"
+
+                    // You can also parse and handle the second API response here
+                }
+            }
+        }
+
+        stage('Final Decision Based on Response') {
+            steps {
+                script {
+                    // Final decision based on the second API response or variable value
+                    if (env.MY_VAR == 'expectedValue') {
+                        echo "The variable matches the expected value. Proceeding with further actions."
+                    } else {
+                        echo "The variable does not match the expected value. Stopping the pipeline."
+                        currentBuild.result = 'FAILURE'
+                        error("The variable did not match the expected value.")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline execution completed."
+        }
+    }
+}
+
+Jenkins rest api 
+=====================
+*****Note jenkins rest api documentation URL below:
+https://www.jenkins.io/doc/book/using/remote-access-api/
+
+basic syntax
+===============
+https://<JENKINS_HOST>/job/MY_JOB/api/json?fetchALLbuildDetails=True
+
+Master Slave Architecture:
+==============================
+                       -------- slave/agent/node
+                      |
+                      |
+Master ---------------| (jarfile)
+                       -------- slave/agent/node
+(Jenkins)
+
+
+
+AWS instance for project
+=============================
+1.Jenkins server
+2.ubuntu
+3.t2.medium
+4.storage - 25gb
+5.launch instance
+6.sudo su
+7.sudo apt update -y
+8.sudo apt upgrade -y
+9. sudo apt
 
 
 
