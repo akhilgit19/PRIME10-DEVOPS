@@ -851,10 +851,24 @@ AWS instance for project
 4.storage - 25gb
 5.launch instance
 6.sudo su
-7.sudo apt update -y
-8.sudo apt upgrade -y
-9. sudo apt
+7. 
 
+sudo apt update
+sudo apt install fontconfig openjdk-17-jre
+java -version
+openjdk version "17.0.13" 2024-10-15
+OpenJDK Runtime Environment (build 17.0.13+11-Debian-2)
+OpenJDK 64-Bit Server VM (build 17.0.13+11-Debian-2, mixed mode, sharing)
 
+8.
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get update
+sudo apt-get install jenkins
 
-
+9. security -->security groups----> edit inbound rules--> type- all traffice && source anywhere IPV4
+10. to get password- cat /var/lib/jenkins/....
+11.
