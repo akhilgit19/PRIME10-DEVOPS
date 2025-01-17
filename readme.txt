@@ -438,6 +438,89 @@ python--------->req.txt ----->python
 
 Imp dependencides in Pom.xml ---groupid.arificatid.version.packaging
 ===============================
+ex:
+====
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.1.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.minikube.sample</groupId>
+    <artifactId>kubernetes-configmap-reload</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>minikube-sample</name>
+    <description>Demo project for Spring Cloud Kubernetes</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
+            <version>1.1.0.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.20</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+                 <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <version>3.8.1</version>
+              <configuration>
+                 <source>1.8</source>
+                  <target>1.8</target>
+              </configuration>
+          </plugin>
+        </plugins>
+    </build>
+
+
+</project>
+
 Versioning:
 ============
 0.0.1 |2.4.2.5
@@ -469,7 +552,8 @@ u: username
 t: target
 k8: kubernetes
 
-ex:
+ex:https://github.com/praveen1994dec/Java_app_3.0/blob/main/Jenkinsfile
+
 =====
 @Library('my-shared-library') _
 
@@ -843,7 +927,7 @@ Master ---------------| (jarfile)
 
 
 
-AWS instance for project
+Project1:
 =============================
 1.Jenkins server
 2.ubuntu
@@ -871,4 +955,51 @@ sudo apt-get install jenkins
 
 9. security -->security groups----> edit inbound rules--> type- all traffice && source anywhere IPV4
 10. to get password- cat /var/lib/jenkins/....
-11.
+11. install suggested pluggins
+12. create first admin user ----save and continue
+13. Create a pipeline jobs
+    --click on new item---->pipeline---> pipelinescript from SCM--->GIT--->git repository url--->*/main -->scriptpath-Jenkinsfile
+14. Add the plugins
+     Dashboard-->managejenkins-->plugins--> available plugins
+
+15. Plugins for Sonar/Jfrog -
+     Sonar Gerrit
+     SonarQube Scanner
+     SonarQube Generic Coverage
+     SonarQube Quality Gates
+     Quality Gates
+     Artifactory
+     Jfrog
+
+16. For any issue you can check this path--cd /var/lib/jenkins/
+
+17. Go to mange jenkins----configure system-- global pipeline library (global trusted pipeline  libraries
+
+    Name-my-shared-library
+    Default-versionmain
+    git-https://github.com/praveen1994dec/jenkins_shared_lib.git
+    save and apply
+
+18. Build
+19. cd /var/lib/jenkins/
+    ls -lhtr
+    cd workspace/
+    cd Demobatch10(job)
+
+20. sudo apt update-y
+    sudo apt install maven -y
+    mvn -version
+21 build with parameters
+      -action--create
+      -dockerhubuser- praveensingam1994
+22. cd /var/lib/jenkins/workspace/Demobatch10/
+    ls -lhtr
+    cd target 
+    (....).jar file 
+
+
+
+
+
+
+
