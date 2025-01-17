@@ -167,8 +167,8 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
                                                   ==============
 
          
-     SSL/TLS             UDP/TCP/
-User----------> Request------------------> Regional server---------> DNS Server
+     SSL/TLS                UDP/TCP/
+User-------------> Request------------------> Regional server---------> DNS Server
 
 Important networking tools for Devops Engineering
 =======================================================
@@ -389,16 +389,45 @@ User and group managemen commands"
 
 1.Jenkins file is like configuration file.
 
-Below is yaml groovy code.
+                                        WalmartApplication
+===============================================================================================
+|               |            |           |             |              |       |                |
+cicd     securitytools   buildtools artifactory  Infractureascode  docker     k8        MonitoringSRE
+
+
+
+Architecure:                   
+==============                                                   Image
+                                                                  |
+                                           Jfrog/Nexus            |
+                                     (stores binary file)         |
+                                           |(tools)               |
+Checkout-----> secrutiy ---> build ---->aritfactory---> IAC---> docker---> k8
+                  |(tools)      |
+                  |             |          |------- Java ----------> POM.XML---> Maven
+                checkmarks     maven       | 
+                blackduck       |(tools)---|------- Nodejs/React---> Package.json----> nmp/node
+                 sonarqube                 |   
+                 fortify                   |------- android--------->-build.gridle-->gridle
+                 owasp                     |------- python---------->req.txt ----->python 
+               
+
+Below is  groovy code.
 
 pipeline{
    agent any{
         environment variables{
               parameters{
+                     choice="value=terraform": yes/no
+                     string=" 
                      stages{
                           stage{
                              script{
                                  code in block
+
+
+
+
 Build toos:
 ================
 Java -----> POM.XML---> Maven
@@ -408,6 +437,155 @@ python--------->req.txt ----->python
 
 
 Imp dependencides in Pom.xml ---groupid.arificatid.version.packaging
+===============================
+Versioning:
+============
+0.0.1 |2.4.2.5
+majorv.minorv.pathv | majorv.minorv.pathv.incrmentalv
+
+Maven Commands:
+================
+1 mvn clean
+2 mvn test
+3 mvn install
+4 mvn build
+5 mvn deploy    
+
+ Automation-6:
+ ===============
+                              ------- Jar
+                   (Pom.xml) |
+Java ---->Maven--->Target----|
+             |                 ----- Binary
+             |
+             | 
+
+   mvn clean install---- binary---- curl -x put -v username: password -t k8.jar "url of jfrog"
+                                            get 
+                                            post
+                                            delete
+x: request
+u: username
+t: target
+k8: kubernetes
+
+ex:
+
+@Library('my-shared-library') _
+
+pipeline{
+
+    agent any
+    //agent { label 'Demo' }
+
+    parameters{
+
+        choice(name: 'action', choices: 'create\ndelete', description: 'Choose create/Destroy')
+        string(name: 'ImageName', description: "name of the docker build", defaultValue: 'javapp')
+        string(name: 'ImageTag', description: "tag of the docker build", defaultValue: 'v1')
+        string(name: 'DockerHubUser', description: "name of the Application", defaultValue: 'praveensingam1994')
+    }
+
+    stages{
+         
+        stage('Git Checkout'){
+                    when { expression {  params.action == 'create' } }
+            steps{
+            gitCheckout(
+                branch: "main",
+                url: "https://github.com/praveen1994dec/Java_app_3.0.git"
+            )
+            }
+        }
+         stage('Unit Test maven'){
+         
+         when { expression {  params.action == 'create' } }
+
+            steps{
+               script{
+                   
+                   mvnTest()
+               }
+            }
+        }
+         stage('Integration Test maven'){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   mvnIntegrationTest()
+               }
+            }
+        }
+        stage('Static code analysis: Sonarqube'){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   def SonarQubecredentialsId = 'sonarqube-api'
+                   statiCodeAnalysis(SonarQubecredentialsId)
+               }
+            }
+       }
+       stage('Quality Gate Status Check : Sonarqube'){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   def SonarQubecredentialsId = 'sonarqube-api'
+                   QualityGateStatus(SonarQubecredentialsId)
+               }
+            }
+       }
+        stage('Maven Build : maven'){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   mvnBuild()
+               }
+            }
+        }
+        stage('Docker Image Build'){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   dockerBuild("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+               }
+            }
+        }
+         stage('Docker Image Scan: trivy '){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   dockerImageScan("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+               }
+            }
+        }
+        stage('Docker Image Push : DockerHub '){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   dockerImagePush("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+               }
+            }
+        }   
+        stage('Docker Image Cleanup : DockerHub '){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   dockerImageCleanup("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+               }
+            }
+        }      
+    }
+}
+
+
 
 Advantages:
 ================
