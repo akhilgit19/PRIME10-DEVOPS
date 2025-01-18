@@ -73,11 +73,12 @@ Git basic Commands:
 
 
 Git Automation:
+-----------------
 https://docs.github.com/en/rest/branches?apiVersion=2022-11-28
 https://github.com/praveen1994dec/Knowledge_Base/blob/main/Jenkins/Jenkins%20Notes.pdf
 
 Github rest API'S
-
+--------------------
 
 
 Example:
@@ -163,6 +164,9 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
     "protection_url": "https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches/main/protection"
   }
 ]
+
+
+
 
                                                      LINUX
                                                 ==============================================================================================================
@@ -928,7 +932,7 @@ Master ---------------| (jarfile)
 
 
 
-Project1:
+***Project1:******
 =============================
 1.Jenkins server
 2.ubuntu
@@ -1017,6 +1021,157 @@ Jar file disadvantages
 4. network maintenance 
 5. linux system costing due to multiple deployments
 
+Advantage of docker
+----------------------
+6. Shipment of code from one place to another place will be easyy
+
+
+Docker Architecture:
+=====================
+                                                                         (Linux system)
+                                                                        ------------------- 
+                                                                       |                   |
+Code----->jar--------------->|Image|--------------------------------- >| Docker-Container  |-------
+----      ---- (dockerfile)       ^                                    |-------------------|
+10gb      10mb       |            |                                              |
+            |        |            |                                              |
+            |       (source       |                                              |
+            |       destination   |                                              |
+            |       label           --------<---------------<-------             |
+            |       from                                        |                |
+            |       details                                     |                |
+            |       tags)                                       |                |
+            |          |                                        ^             (Path)
+   ( Path)-Targat-jar--|                                        |            ---/opt       
+                       |                                        |
+        ---------------------------------------------------------
+        |                                                       |
+        |                                                       | 
+-----------------------------------------              -----------------------------------------
+|                                        |             |                                        |
+|  FROM< >                               |             |  SOURCE< >                             |
+|                                        |             |                                        | 
+|  MAINTAINER< > (whoismaintain doc file)|             |                                        |
+|  ENV < >                               |             |                                        |       
+|  ARGS< >                               |             |                                        | 
+|  RUN< > (Installing all soft/binaries  |             |                                        |
+|  COPY< >                               |             |                                        | 
+|  EXPOSE<PORT>                          |             |                                        | 
+|  ENTRYPOINT< >                         |             |                                        |
+|  volume /map target                    |             |                                        |
+|                                        |             |                                        |
+------------------------------------------             ------------------------------------------
+
+|---------------------------------------------------|
+|ADD                           |          COPY      |
+|----------------------------- |--------------------|
+|it will unzip                 |  Copy the jar from |
+|any .zip files automatically  |  lap to container  |
+| and copy in container        |                    |
+-----------------------------------------------------
+|    CMD                       | ENTRIPOINT         |
+-----------------------------------------------------
+|  The values can be ovverriden| Some command tostart| 
+|                              | the jar file        |
+|                              |                     |
+|                              |                     |
+----------------------------------------------------------
+
+
+Example docker file:
+---------------------
+FROM openjdk:8-jdk-alpine
+WORKDIR /app
+COPY ./target/*.jar /app.jar
+CMD ["java", "-jar", "/app.jar"]
+
+
+ Multistage docker file:
+---------------------------------
+
+#Stage 1
+# initiazlize build and set base image for first stage
+
+FROM maven:3.6.3-adoptopenjdk-11 as stage1
+
+#speed up Maven JVM a bit
+ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+# set working directory
+WORKDIR /opt/demo
+# copy just pom.xml
+COPY pom.xml
+#go-ffiline using the pom.xml
+RUN mvn dependency:go-offline
+#copy your other files
+COPY ./src ./src
+
+# compile the source code and package it in a jar file
+
+RUN mvn clean install -Dmaven.test.skip=true
+
+#Stage2
+
+#set base image for second stage
+FROM adoptopnjdk/openjdk111:jre-11.0.9_11-alpine
+
+#set deployment directory
+WORKDIR /opt/demo
+
+#copy over the built artifact from the maven image
+COPY --from=stage1 /opt/demo/taget/demo.jar /opt/demo
+
+Docker containers
+---------------------
+1.list of running  containers- docker ps 
+2.list of all containers - docker ps -a
+3. To enter into the container - docker exec -it c39b83a46949 /bin/sh
+4. To star the container- docker start c39b83a46949
+5. To find the complete skeleton json of container- docker inspect c39b83a46949
+6. To stop the container - docker stop c39b83a46949
+7. docker network ls
+
+3 types of docker network
+---------------------------
+1. bridge
+2. overlay
+3. host
+
+
+##Install in Amazon Ubuntu
+#!/bin/bash
+sudo apt update -y
+
+sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" -y
+
+sudo apt update -y
+
+apt-cache policy docker-ce -y
+
+sudo apt install docker-ce -y
+
+#sudo systemctl status docker
+
+sudo chmod 777 /var/run/docker.sock
+
+##Install in Amazon Ubuntu
+sudo usermod -aG docker $USER
+docker pull docker.bintray.io/jfrog/artifactory-oss:latest
+sudo mkdir -p /jfrog/artifactory
+sudo chown -R 1030 /jfrog/
+docker run --name artifactory -d -p 8081:8081 -p 8082:8082 -v /jfrog/artifactory:/var/opt/jfrog/artifactory docker.bintray.io/jfrog/artifactory-oss:latest
+
+
+                                Kubernetes K8 
+==============================================================================================================
+
+
+
+kubectl get pods 
+kubectl delete pods 
 
 
 
