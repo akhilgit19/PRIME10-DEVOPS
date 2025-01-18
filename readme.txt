@@ -1164,11 +1164,206 @@ sudo mkdir -p /jfrog/artifactory
 sudo chown -R 1030 /jfrog/
 docker run --name artifactory -d -p 8081:8081 -p 8082:8082 -v /jfrog/artifactory:/var/opt/jfrog/artifactory docker.bintray.io/jfrog/artifactory-oss:latest
 
+Disadvantages of dockercompose
+---------------------------
+1. No security
+2. Multi arhitecture format
+3.Maintenance of docker containers
+4. No dashboard
+5. No proper rollback
+6. No proper deployment strategy
 
                                 Kubernetes K8 
 ==============================================================================================================
 
+Architecture of Kubernetes
+----------------------------------
+yaml
+|
+|
+ --
+   |
+   | 
+   |--> Master                                                 Slave/Node
+ ------------------------                                    ----------------
+ |               
+ |->     API SERVER------>>---------->>---------->>------------->>cublet(agent)
+           ^                                                      PODS  -- POD
+           |                                                            -- DEPLOYMENT
+           |                                                            -- SERVICE
+           |                                                            --  CUSTOME RESOURCE DEFINITION
+           |                                                            --  INGRESS
+           |                                                            --   RBAC
+           |                                                            --   Network.io
+           |                                                            --  Storage.io
+           |                                                            --  Replica set
+           |                                                            --   config map
+           |                                                            --   statefullset
+           ^                                                            --   persistent volumes
+           |                                                            --  Daemon set
+           |                                                            --   secrets
+ |->    ETCD (It stores all the data in kub)                       Proxy
+ |        ^  (d means distributed database)                        Continer d or Container Runtime
+ |        |  (it stores the data in key: value format)
+ |-->     Control Manager   < ---------------------|
+ |     CPU                                         |
+ |    - Node controller                            |  
+ |    -Replication controller                      |
+ |    - Network controller                         |
+ |-->    Scheduler---------------------------------
 
+
+ States of POD:
+------------------------
+-----> Troubleshooting of K8
+  | -->   Running---- sucess state
+  | -->   Crashloopback-- any issues in appplication
+  | -->   Pending--- if pos is not able to get data
+  | -->  restart-----if any issue in container
+  | -->   exit------ pod never ran
+  | -->  imageback pull off-- if image is not downloaded
+  | -->  out of memory state-- if pod is not given sufficent CPU/ememory
+  | --> evicted state-- inbetween state (before exit/ pending)
+      
+
+
+Kubernetes file( Yaml) Manifest file
+-------------------------------------
+-- Api version ----> apps/v1
+                    v1
+                    network.io/v1
+                    storage.io/v1
+                    rback                   
+                    service.io/v1                                           
+-- Kind -----POD/Service/ingress-
+-- Metadata--
+         labels
+         annotations
+
+-- Spec
+
+Kuberntes manifest file for pod
+=================================
+Ex:
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+kubernetes manifest file for service
+=========================================
+ex:
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  labels:
+    app: nginx
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+
+Service:
+----------
+- Cluster IP
+- Node Port
+- loadbalancer
+- Cname (Cannonical name)
+
+
+kubernetes manifest file for replicaset
+==========================================
+ex:
+----
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-replicaset
+  labels:
+    app: nginx
+spec:
+  replicas: 3  # Desired number of Pods
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+
+
+kubernetes manifest file for deployment
+===========================================
+Ex:
+----
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3  # Number of replicas (Pods) to run
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+
+
+Project 2:
+=----------
+1. Amazon linux
+2. Amazon linux 2 AMI
+3. T2.medium
+4. 20 gb
+5. sudo su
+6. yum update -y
+7. yum install docker -y
+8. systemctl start docker
+9. systemctl enable docker
+10. yum install conntrack -y
+11. curl -LO https://storage.googleapis.com/minikube/releas/latest/minikube-linux-amd64
+12. sudo install  minikube-linux-amd64 /usr/local/bin/minikube
+13. star your minikube 
+    /usr/local/bin/minikube start --force --driver=docker
+14. cd /opt
+Install maven
+15. wget https//
+ or
+15. yum install maven -y
+16. yum install git -y
+17. yum install java -y
 
 kubectl get pods 
 kubectl delete pods 
