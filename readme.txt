@@ -1365,8 +1365,69 @@ Install maven
 16. yum install git -y
 17. yum install java -y
 
+19.Continue u the project from documentations
+
+
+
+
+       Native(Core) Kubernetes objects
+|---------------------------------------------------------|
+|                                                         |                        
+|                                                         |                   
+|                                                         |
+|                                                         |
+|                                                         | 
+| POD                Node                 Serivce         |
+|                                                         |
+|                                                         |
+|                                                         |
+|                                                         |
+|                                                         |
+|-------------------------------------------------------- |
+
+
+
+      Custom Resource object definition CRD
+|---------------------------------------------------------|
+|                                                         |                        
+|                                                         |                   
+|                                                         |
+|                                                         |
+|                                                         | 
+|     Log                                  Alert          |
+|                                                         |
+|                                                         |
+|                                                         |
+|                                                         |
+|                                                         |
+|-------------------------------------------------------- |
+
+API Version   /apis/group/version
+
+Groups                       Version
+apps                           v1
+authetication.k8s.io           v1,v1batak,v1alpha1
+authorization.k8s.io           v1
+
+certificates.k8s.io            v1.v1alpha1
+
+
+networking.k8s.io               v1.1alpha1
+node.k8s.io                     v1
+
+rbac.authorization.k8s.io       v1
+
+scheduling.k8s.io                v1
+storage.k8s.io                   v1
+
+
+
 kubectl get pods 
+
+
 kubectl delete pods 
+
+
 
 
 
