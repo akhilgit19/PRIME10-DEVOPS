@@ -1,6 +1,5 @@
-1.macOS Installers for Jenkins LTS 
-Homebrew Installer 
-homebrew
+1.macOS Installers for Jenkins LTS Homebrew Installer 
+-----------------------------------------------------------
 
 Jenkins can be installed using the Homebrew package manager. Homebrew formula: jenkins-lts This is a package supported by a third party which may be not as frequently updated as packages supported by the Jenkins project directly.
 
@@ -17,3 +16,5 @@ akhilpagadapoola@Akhils-MacBook-Air Homebrew % cat /Users/akhilpagadapoola/.jenk
 be50d8db9bab48499ba733a8ff26615f
 
 3. URL-http://127.0.0.1:8080/
+   akhil 
+   Goodday@143
