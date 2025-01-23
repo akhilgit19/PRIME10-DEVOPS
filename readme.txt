@@ -50,26 +50,133 @@ Branching Stragies:
 
 Git basic Commands:
 =======================
-1.git init
-2.git clone
-3.git pull
-4.git push   
-5.git commit -m "message" 
-6.git status
-7.git log
-8.git diff
-9.git config
-10.git merge
-11.git pull   (To get the difference of changes in the respository)
-12.git checkout -b branch_name (To create a branch)
-13.git add .       ( To add all the files to 
+1.git init <directory>-  Create empty git repo in specified directory with no argument to initialize the current 
+                         directory.
+2.git clone <repo>-  Clone repo located at <repo> onto local mahcine.Original repo can be located on the local 
+                     filesystem.
+3.git config user.name <name>- Define author name to used for all commits in current repo.Devs commonly use -- 
+                               global flag to set config options for current user.
+4.git add . - Stage all changes in<directory> for the next commit.
+5.git commit -m "<message>"- Commit the staged snapshot, but instead of launching a text editor,use<message> as the 
+               commit message.
+6.git status - List which files are staged,unstaged, and untracked.
+7.git log    - Display the entire commit history using the default format.
+8.git diff   - show unstaged changes between your index and working directory
+
+Git Undoing Changes Commands
+---------------------------------
+9.git revert <commit>  - Create new commit that undoes all the changes made in <commit>, then apply it to the 
+                       current batch
+10.git reset <file>  - Remote<file> from the staging area,but leave the working directory unchanged.This unstages a 
+                       file without overwriting any changes.
+11.git  clean -n - Shows which files would be removed from working directory. Use the -f flag in place of the -n 
+                   flag to execute the clean
+
+Rewriting Git History Commands
+----------------------------------
+12.git commit --amend - Replace the last commit with the staged changes and last commit combined.Use with the 
+                        nothing staged to edit the last commit's message
+   
+13.git rebase <base>- Rebase the current branch onto<base>.<base> can be a commit ID, branch name, a tag, or a 
+                      relative reference to HEAD.
+14.git reflog - show a log of changes to the local repository's HEAD.
+                Add --relative-date flag to show date info or --all to show all refs.
+
+Git Branches commands
+-----------------------------------
+15.git branch -a - List all of the branches in your repo.Add a <branch> argument to create a new branch with the 
+                   name<branch>.
+16.git checkout -b <branch_name> - Create and check out a new branch named <branch>. Drop the -b flag to checkout 
+                                   an existing branch
+17.git merge <branch> - Merge<branch> into the current branch.
+
+Remote Repositories Commands
+----------------------------
+18. git remote add <name> <url>- Create a new connection to a remote repo. After adding a remote,you can use,<name> 
+                                 as a shortcut for <url> in other commands.
+19. git fetch <remote> <branch>- Fetches a specific <branch>, from the repo.Leave off<branch> to fetch all 
+                                 remote refs.
+20. git pull <remote>- Fetch the specified remote's copy of current branch and immediately merge it into the local 
+                       copy.(To get the difference of changes in the respository)
+21. git push <remote> <branch>- Push the branch to <remote> along with necessary commits and object.Creates names 
+                                branch in the remote repo if it doesn't exit.
+
+Addtional Options Git Commands
+--------------------------------
+GIT CONFIG
+--------------
+22. git config --global user.name <name>- Define the author name to be used for all commits by the current user.
+
+23.git config --global user.email <email>- Define the author email to be used for all commits by the current user.
+24.git config --global alias. <alias-name> <git-command>- Create shortcut for a Git command. 
+            E.g. alias.glog “log --graph --oneline” will set ”git glog” equivalent to ”git log --graph--oneline.
+25.git config --system core.editor <editor>-Set text editor used by commands for all users on the machine. <editor>
+                                            arg should be the command that launches the desired editor (e.g., vi).
+26.git config --global --edit- Open the global configuration file in a text editor for manual editing.
+
+
+Git Log:
+---------
+27. git log -<limit>-  Limit number of commits by <limit>. E.g. ”git log -5” will limit to 5 commits.
+28. git log --oneline - Condonse each commit to a single line
+29. git log -p - Display the full diff of each commit.
+30. git log --stat -Include which files were altered and the relative number of lines that were added or deleted from each 
+                    of them.
+
+31. git log -p -Display the full diff of each commit.
+32 git log --author=”<pattern>” -Search for commits by a particular author.
+
+33.git log --grep=”<pattern>” -Search for commits with a commit message that matches <pattern>.
+34. git log <since>..<until> -Show commits that occur between <since> and <until>. Args can be a commit ID, branch name, 
+                              HEAD, or any other kind of revision reference.
+
+35.git log -- <file> -Only display commits that have the specified file.
+36.git log --graph --decorate  --graph flag draws a text based graph of commits on left side of commit
+                               msgs. --decorate adds names of branches or tags of commits shown.
+
+Git Diff
+------------
+37.git diff HEAD  -Show difference between working directory and last commit.
+38.git diff --cached  -Show difference between staged changes and last commit
+
+GIT RESET
+-------------
+38.git reset -Reset staging area to match most recent commit, but leave the working directory unchanged.
+39.git reset --hard -Reset staging area and working directory to match most recent commit and overwrites all changes in the 
+                     working directory.
+40.git reset <commit> - Move the current branch tip backward to <commit>, reset the staging area to match, but leave the 
+                        working directory alone.
+41.git reset --hard <commit> -Same as previous, but resets both the staging area & working directory to
+                              match. Deletes uncommitted changes, and all commits after <commit>.
+
+GIT REBASE
+-----------
+42.git rebase -i <base> -Interactively rebase current branch onto <base>. Launches editor to enter
+                         commands for how each commit will be transferred to the new base.
+
+43.git pull --rebase <remote> -Fetch the remote’s copy of current branch and rebases it into the local
+                               copy. Uses git rebase instead of merge to integrate the branches.
+
+GIT PUSH
+--------
+44.git push <remote> --force -Forces the git push even if it results in a non-fast-forward merge. Do not use
+                              the --force flag unless you’re absolutely sure you know what you’re doing.
+
+45.git push <remote> --all  -Push all of your local branches to the specified remote
+
+46.git push <remote> --tags -Tags aren’t automatically pushed when you push a branch or use the
+                            --all flag. The --tags flag sends all of your local tags to the remote repo.
+
+
+
+
 14.git cherypick
 15.git fetch
-16.git rebase
+
 17.git revert
 18.git switch  branch_name
 19.git branch -d branch_name
-20.git branch -a ( To list the branches )
+
 
 
 Git Automation:
