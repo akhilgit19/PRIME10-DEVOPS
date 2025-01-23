@@ -1516,16 +1516,18 @@ spec:
 
 
                                 Python
-=================================================================================================================================   
+=============================================================================================================
 
-   |         |       |       |       |                  |                 |               |                                    |
-
-Shellscript        buildtool   modules/libraries  datamanipulation  replaceshellscript security/monitoring/deployement    dataengineeringtoconnectDB's 
-           RestAPI          Toconnectwithanycloud
+   |         |    |              |   |         |              |           |               |                      |         |    |              |   |         |              |           |               | 
+   |         |    |              |   |         |              |           |               |
+Shellscript  |    |        buildtool |  Toconnectwithanycloud |  modules/libraries   datamanipulation      replaceshellscript                                   dataengineeringtoconnectDB's 
+                  |                  |
+                RestAPI            security/monitoring/deployement
 
 
 
 Jenkins         Docker     K8     Python
+  |              |          |       |
 Envvariables    Args      metada  variables
 parameters      Env
 
@@ -1549,6 +1551,623 @@ list[1] -shirt
 5. dictionary ={"emmaculate": "clean,"clostrofobia" }- no duplicates, mutable/changeble
 
 6. tuple  - non mutable
+
+
+Python modules/libraries
+--------------------------------
+                    import(module)
+                         |
+----------------------------------------------------------------------------------------------------
+|        |       |              |        |         |    |    |       |       |      |           |
+OS      json     request=curl   BOT03    datetime math  ssh  docker  parmiko |      subprocess  flask/dgango
+|                 (req API)                                                  |
+|                   |                                                       pgintx/pytex
+ --------------     |
+ |             |    |
+folders  os details |
+                    |
+         ------------------------
+           |    |     |     |
+           GET PUT  DELETE POST
+
+
+
+import os
+import request
+import json
+
+list1= ["oil", "milk", "tea"]
+
+(Intendenation)--->def manipulate()
+
+
+
+1 Login building:
+-----------------
+Step1: hit the rest endpoint in the github
+Step2: Fetch all  the branches data from a repo
+Step3: if that list of branches does not have heydevops branchg then create a new branch
+Step4: copy/clone the code to new branch
+Step5: push the code to new branch
+Step6: validate the branch presence in github
+
+
+Loops and condtions
+------------------------
+ for /while (two loops are used majorly in python
+ if/else (conditional block of code in python
+
+psedo code:
+if("branch"=="heydevops")
+  create branch= request.post "url .header {username,data}
+
+
+Pythone OPT Verfication code:
+---------------------------------
+import os
+import math
+import random
+
+
+
+digits="0123456789"
+OTP=""
+#Six digit password
+for i in range(6):
+    OTP+=digits[math.floor(random.random()*10)]
+otp = OTP + " is your OTP"
+msg= otp
+
+print(msg)
+
+
+
+
+
+{
+  "people": [
+    {
+      "craft": "ISS",
+      "name": "Oleg Kononenko"
+    },
+    {
+      "craft": "ISS",
+      "name": "Nikolai Chub"
+    },
+    {
+      "craft": "ISS",
+      "name": "Tracy Caldwell Dyson"
+    },
+    {
+      "craft": "ISS",
+      "name": "Matthew Dominick"
+    },
+    {
+      "craft": "ISS",
+      "name": "Michael Barratt"
+    },
+    {
+      "craft": "ISS",
+      "name": "Jeanette Epps"
+    },
+    {
+      "craft": "ISS",
+      "name": "Alexander Grebenkin"
+    },
+    {
+      "craft": "ISS",
+      "name": "Butch Wilmore"
+    },
+    {
+      "craft": "ISS",
+      "name": "Sunita Williams"
+    },
+    {
+      "craft": "Tiangong",
+      "name": "Li Guangsu"
+    },
+    {
+      "craft": "Tiangong",
+      "name": "Li Cong"
+    },
+    {
+      "craft": "Tiangong",
+      "name": "Ye Guangfu"
+    }
+  ],
+  "number": 12,
+  "message": "success"
+}
+
+import json
+import requests
+person_ISS=[]
+person_Tiangong=[]
+def space_data(url):
+    data = requests.get(url)
+   # print(data.json())
+    dump = data.json()
+    for person in dump["people"]:
+        print(person["craft"])
+        if (person["craft"] == "ISS"):
+            person_ISS.append(person["name"])
+        else:
+            person_Tiangong.append(person["name"])
+    
+    
+    print("Total number of persons in ISS" + str(len(person_ISS)))
+    print("Total number of persons in ISS" + str(len(person_Tiangong)))
+
+space_data("http://api.open-notify.org/astros.json")
+
+OOPS Concepts - Ojbect oriented programing language
+--------------------------------------------------------
+
+####CREATE AN OBJECT
+class Tools:
+    car_list=[]
+    name = "Jenkins"
+    version = 20
+    date = "20/11"
+    cartyres=4
+    car_name="toyota"
+
+    def cartyres1(self):
+        if self.cartyres==4:
+            self.car_list.append(self.car_name)
+            print(self.car_list)
+        else:
+            print("Only two wheelers are there")
+
+Toyota = Tools()
+Toyota.cartyres1()
+
+
+1.write a python code to extract the github branches and manipulate the data
+-----------------------------------------------------------------------------------------------
+
+
+
+To extract GitHub branches and manipulate the data using Python, you'll need to interact with GitHub's API. Here's a basic example using Python's requests library to fetch the branches of a GitHub repository, then manipulate or process that data.
+
+In this example, we'll:
+
+Use the GitHub API to get the list of branches from a repository.
+Manipulate the data (like filtering branches, counting them, etc.).
+Display the results.
+Requirements:
+requests: To make HTTP requests to the GitHub API.
+Install it via pip if you haven't already:
+bash
+
+pip install requests
+Python Code to Extract GitHub Branches and Manipulate Data:
+python
+
+import requests
+import json
+
+# GitHub API endpoint to get branches
+GITHUB_API_URL = "https://api.github.com/repos/{owner}/{repo}/branches"
+GITHUB_TOKEN = "your_github_token"  # Replace with your GitHub Personal Access Token (PAT)
+
+# Function to get branches from the GitHub repository
+def get_github_branches(owner, repo):
+    url = GITHUB_API_URL.format(owner=owner, repo=repo)
+    headers = {'Authorization': f'token {GITHUB_TOKEN}'}
+
+    # Make the GET request to fetch branches
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        branches = response.json()  # Parse the JSON response
+        return branches
+    else:
+        print(f"Failed to retrieve branches: {response.status_code}")
+        return []
+
+# Function to filter branches (example: filter branches starting with 'dev')
+def filter_branches_by_prefix(branches, prefix):
+    filtered_branches = [branch['name'] for branch in branches if branch['name'].startswith(prefix)]
+    return filtered_branches
+
+# Function to count branches
+def count_branches(branches):
+    return len(branches)
+
+# Function to print branch names
+def print_branch_names(branches):
+    print("Branches:")
+    for branch in branches:
+        print(branch['name'])
+
+def main():
+    owner = "your_github_username_or_organization"  # Replace with the GitHub repository owner (username or org)
+    repo = "your_repo_name"  # Replace with the GitHub repository name
+    
+    # Step 1: Get branches from the GitHub repository
+    branches = get_github_branches(owner, repo)
+    
+    if branches:
+        # Step 2: Print all branch names
+        print_branch_names(branches)
         
+        # Step 3: Count total branches
+        total_branches = count_branches(branches)
+        print(f"\nTotal branches: {total_branches}")
+        
+        # Step 4: Filter branches that start with 'dev' (as an example)
+        dev_branches = filter_branches_by_prefix(branches, "dev")
+        print(f"\nBranches that start with 'dev': {dev_branches}")
+    else:
+        print("No branches to display.")
+
+if __name__ == "__main__":
+    main()
+Explanation:
+Fetching branches:
+
+The get_github_branches() function sends a GET request to the GitHub API endpoint for fetching the branches of a repository.
+It expects the owner (username or organization name) and the repo (repository name) as parameters.
+The response is parsed as JSON, and the function returns the list of branches.
+Filtering branches:
+
+In filter_branches_by_prefix(), branches are filtered based on their names, using the startswith() method. In this case, we're filtering branches whose names start with 'dev'.
+Counting branches:
+
+The count_branches() function simply returns the length of the list of branches.
+Displaying the results:
+
+The print_branch_names() function iterates through the list of branches and prints their names.
+In the main() function, we use the other functions to extract, manipulate, and display the branch data.
+Sample Output:
+bash
+
+Branches:
+main
+dev-branch
+feature/xyz
+dev-xyz
+release/v1
+
+Total branches: 5
+
+Branches that start with 'dev': ['dev-branch', 'dev-xyz']
+Important Notes:
+GitHub Personal Access Token (PAT): For accessing private repositories or if you hit rate limits with the public API, you will need to generate a GitHub Personal Access Token (PAT) with the appropriate permissions. To generate a token:
+
+Go to GitHub > Settings > Developer Settings > Personal Access Tokens.
+Select the necessary permissions (e.g., repo for full control over private repositories).
+Copy the token and use it in your code as shown above.
+Rate Limiting: GitHub API has rate limits. With authentication (using a PAT), you get a higher limit. You can check the current rate limit with:
+
+python
+
+response = requests.get("https://api.github.com/rate_limit", headers={'Authorization': f'token {GITHUB_TOKEN}'})
+print(response.json())
+Error Handling: You can improve error handling by checking for different types of API errors (e.g., invalid token, 404 for non-existing repositories, etc.).
+
+Customization:
+You can further customize the manipulation logic depending on your use case, such as sorting branches, grouping by patterns, or even updating branches. You can also integrate this with other actions like creating or deleting branches via the GitHub API.
+
+
+
+
+import mysql.connector
+# Establish the MySQL database connection
+def connect_to_mysql(host, user, password, database):
+    try:
+        connection = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database
+        )
+        print("Connection established successfully.")
+        return connection
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+# Function to fetch data from a table
+def fetch_data_from_table(connection, query):
+    cursor = connection.cursor(dictionary=True)  # Using dictionary cursor for easier access to columns by name
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()  # Fetch all rows
+        return result
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+    finally:
+        cursor.close()
+
+# Function to sort the data (by a specific column)
+def sort_data(data, sort_by_column):
+    # Sort the data based on the column name (e.g., 'age')
+    return sorted(data, key=lambda x: x[sort_by_column])
+
+# Main function to run the process
+def main():
+    # MySQL connection parameters
+    host = 'localhost'  # Change this to your MySQL host
+    user = 'root'  # Change this to your MySQL username
+    password = 'yourpassword'  # Change this to your MySQL password
+    database = 'yourdatabase'  # Change this to your MySQL database name
+
+    # Connect to MySQL database
+    connection = connect_to_mysql(host, user, password, database)
+
+    if connection:
+        # Example query to get data from a table (change 'your_table' to your actual table name)
+        query = "SELECT * FROM your_table"
+
+        # Fetch the data
+        data = fetch_data_from_table(connection, query)
+
+        if data:
+            print("Original Data:")
+            for row in data:
+                print(row)
+
+            # Sort the data by a specific column, e.g., 'age' or 'name'
+            sorted_data = sort_data(data, 'your_column_to_sort_by')  # Replace with actual column name
+
+            print("\nSorted Data:")
+            for row in sorted_data:
+                print(row)
+        
+        # Close the connection
+        connection.close()
+
+# Run the main function
+if __name__ == "__main__":
+    main()
+
+
+
+
+2. write a python code for hitting the mysqldatabase  and get the data and extract the data.
+-----------------------------------------------------------------------------------------------
+
+To interact with a MySQL database in Python, you typically use a library like mysql-connector-python or PyMySQL. Below is a simple Python script that connects to a MySQL database, fetches data, and extracts the results.
+
+Requirements:
+MySQL Connector: You can install the MySQL connector for Python via pip:
+
+bash
+
+pip install mysql-connector-python
+Database Setup: Ensure you have a MySQL server running, and you know the following information:
+
+Host (e.g., localhost or IP address of the server)
+Database name
+Username
+Password
+Python Code Example:
+python
+
+import mysql.connector
+from mysql.connector import Error
+
+# Function to connect to the MySQL database and extract data
+def fetch_data_from_mysql(host, database, user, password):
+    try:
+        # Establish connection to the MySQL server
+        connection = mysql.connector.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password
+        )
+
+        if connection.is_connected():
+            print("Successfully connected to the database")
+            
+            # Create a cursor object using the connection
+            cursor = connection.cursor(dictionary=True)
+            
+            # SQL query to fetch data from a table (modify the table name as needed)
+            query = "SELECT * FROM your_table_name"  # Replace 'your_table_name' with your actual table name
+            cursor.execute(query)
+            
+            # Fetch all rows from the executed query
+            rows = cursor.fetchall()
+            
+            # Extract and print the data
+            for row in rows:
+                print(row)  # Each row is a dictionary with column names as keys
+            
+    except Error as e:
+        print(f"Error: {e}")
+    finally:
+        # Close the cursor and connection
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("MySQL connection closed")
+
+# Replace with your MySQL server details
+host = "localhost"          # or IP address
+database = "your_database"  # Replace with your database name
+user = "your_username"      # Replace with your MySQL username
+password = "your_password"  # Replace with your MySQL password
+
+# Fetch data from MySQL database
+fetch_data_from_mysql(host, database, user, password)
+Explanation:
+Establish Connection:
+
+We connect to the MySQL database using mysql.connector.connect(). You need to provide the host, database name, username, and password.
+Cursor Creation:
+
+We create a cursor object using connection.cursor(). This cursor is used to execute SQL queries.
+Executing Query:
+
+The query "SELECT * FROM your_table_name" retrieves all rows from the specified table. Modify the table name and SQL query as per your requirement.
+Fetching Data:
+
+The cursor.fetchall() method fetches all rows of the query result. The result is a list of dictionaries, where each dictionary represents a row with column names as keys.
+Closing the Connection:
+
+After executing the queries, it's a good practice to close the cursor and connection using cursor.close() and connection.close().
+Sample Output:
+Assuming your table has columns id, name, and age, the output might look like:
+
+python
+
+Successfully connected to the database
+{'id': 1, 'name': 'Alice', 'age': 30}
+{'id': 2, 'name': 'Bob', 'age': 25}
+{'id': 3, 'name': 'Charlie', 'age': 35}
+MySQL connection closed
+Error Handling:
+The try-except block ensures that any connection issues or query errors are caught and reported. For instance, if the database credentials are wrong or the table doesn't exist, an error message will be shown.
+
+Customization:
+SQL Queries: You can modify the query variable to fetch specific columns or apply filters (e.g., SELECT id, name FROM your_table_name WHERE age > 30).
+Insert/Update/Delete: You can also perform other operations (INSERT, UPDATE, DELETE) using cursor.execute() by changing the SQL query type.
+Let me know if you need help with anything else!
+
+
+
+
+3. Write the python code to fetch the data from kubernetes and put the data in csv file and extract the data from  csv file
+-----------------------------------------------------------------------------------------------
+
+To fetch data from a Kubernetes cluster and store it in a CSV file, we'll use the Python Kubernetes client (kubernetes library) to interact with the Kubernetes API, extract data, and then save it into a CSV file.
+
+Steps:
+Install the required libraries:
+
+Kubernetes client: To interact with the Kubernetes API.
+CSV: To handle CSV file operations.
+Install the required libraries using pip:
+
+bash
+
+pip install kubernetes pandas
+Python Code:
+
+First, we will fetch data from the Kubernetes API (e.g., pod information).
+Then, we'll write that data to a CSV file.
+Finally, we'll read the data from the CSV file.
+Python Code Example:
+python
+
+import csv
+import pandas as pd
+from kubernetes import client, config
+from kubernetes.client.rest import ApiException
+
+# Function to fetch pods data from Kubernetes cluster
+def fetch_pods_data():
+    # Load Kubernetes config from default location (~/.kube/config)
+    try:
+        config.load_kube_config()  # If you're running outside the cluster
+        # config.load_incluster_config()  # Uncomment this if you're running inside the cluster
+
+        # Create API client
+        v1 = client.CoreV1Api()
+
+        # Get pods in the default namespace (change if necessary)
+        pods = v1.list_pod_for_all_namespaces(watch=False)
+
+        pods_data = []
+
+        for pod in pods.items:
+            pod_info = {
+                "Name": pod.metadata.name,
+                "Namespace": pod.metadata.namespace,
+                "Status": pod.status.phase,
+                "Node": pod.spec.node_name,
+                "Creation Time": pod.metadata.creation_timestamp,
+                "Labels": pod.metadata.labels
+            }
+            pods_data.append(pod_info)
+
+        return pods_data
+
+    except ApiException as e:
+        print(f"An error occurred: {e}")
+        return []
+
+# Function to write data to a CSV file
+def write_to_csv(data, filename="kubernetes_pods_data.csv"):
+    if data:
+        # Writing data to CSV
+        keys = data[0].keys()
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=keys)
+            writer.writeheader()
+            writer.writerows(data)
+        print(f"Data written to {filename}")
+    else:
+        print("No data available to write.")
+
+# Function to read data from the CSV file and display it
+def read_from_csv(filename="kubernetes_pods_data.csv"):
+    try:
+        df = pd.read_csv(filename)
+        print(df)
+    except FileNotFoundError:
+        print(f"{filename} not found.")
+
+def main():
+    # Fetch Kubernetes pod data
+    pods_data = fetch_pods_data()
+    
+    # Write the fetched data to CSV
+    write_to_csv(pods_data)
+
+    # Read data from the CSV file and display
+    read_from_csv()
+
+if __name__ == "__main__":
+    main()
+Explanation:
+Fetching Kubernetes Data (fetch_pods_data):
+
+The function fetch_pods_data uses the Kubernetes Python client (kubernetes.client) to fetch pod data.
+The v1.list_pod_for_all_namespaces(watch=False) method fetches all pods from all namespaces. You can adjust this if you only need data from a specific namespace.
+We store relevant information (e.g., Pod Name, Namespace, Status, Node, etc.) in a list of dictionaries (pods_data).
+Writing Data to CSV (write_to_csv):
+
+We use Python's csv.DictWriter to write the fetched data into a CSV file.
+The keys for the CSV file are the column names, which are taken from the keys of the first dictionary in the data list.
+Reading Data from CSV (read_from_csv):
+
+The read_from_csv function uses pandas to read the CSV file and display the data in tabular format.
+Main Execution:
+
+The main() function fetches the Kubernetes data, writes it to a CSV file, and then reads and displays the contents of that CSV file.
+Output:
+The CSV file (kubernetes_pods_data.csv) will look something like this:
+
+sql
+
+Name,Namespace,Status,Node,Creation Time,Labels
+pod-1,default,Running,node1,2021-11-01T00:00:00Z,"{'app': 'web'}"
+pod-2,default,Pending,node2,2021-11-01T00:05:00Z,"{'app': 'database'}"
+After running the script, you will also see the output printed from the CSV file using pandas:
+
+sql
+
+          Name Namespace   Status   Node         Creation Time            Labels
+0     pod-1  default    Running  node1   2021-11-01T00:00:00Z     {'app': 'web'}
+1     pod-2  default    Pending  node2   2021-11-01T00:05:00Z  {'app': 'database'}
+Notes:
+Kubernetes Configuration:
+
+If you're running the script outside the Kubernetes cluster, the config.load_kube_config() will load the configuration from your local ~/.kube/config file.
+If you're running inside a Kubernetes pod, use config.load_incluster_config() instead.
+Customizing the Data:
+
+The data fetched from Kubernetes can be customized. For example, you can fetch different resources (e.g., deployments, services) or more detailed pod information by modifying the API calls accordingly.
+Error Handling:
+
+We use try-except blocks to handle potential errors such as API connection issues, missing configuration files, or non-existing CSV files.
+
+
 
 
