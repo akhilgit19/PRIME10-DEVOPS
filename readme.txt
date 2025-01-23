@@ -129,7 +129,7 @@ GIT CONFIG
             E.g. alias.glog “log --graph --oneline” will set ”git glog” equivalent to ”git log --graph--oneline.
 25.git config --system core.editor <editor>-Set text editor used by commands for all users on the machine. <editor>
                                             arg should be the command that launches the desired editor (e.g., vi).
-26.git config --global --edit- Open the global configuration file in a text editor for manual editing.
+26.git config --global --edit - Open the global configuration file in a text editor for manual editing.
 
 
 Git Log:
@@ -165,6 +165,7 @@ GIT RESET
                         working directory alone.
 41.git reset --hard <commit> -Same as previous, but resets both the staging area & working directory to
                               match. Deletes uncommitted changes, and all commits after <commit>.
+   git reset --hard HEAD~1
 
 GIT REBASE
 -----------
