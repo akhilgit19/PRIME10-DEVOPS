@@ -566,35 +566,94 @@ User and group managemen commands"
 
 
                                                             Jenkins
-==============================================================================================================
+=================================================================================================================================
 
 1.Jenkins file is like configuration file.
 
-                                        WalmartApplication
-===============================================================================================
+Example of walmart techstack:
+----------------------------------
+
+                                       Walmart Techstack Application
+==================================================================================================
 |               |            |           |             |              |       |                |
 cicd     securitytools   buildtools artifactory  Infractureascode  docker     k8        MonitoringSRE
 
 
+                   --------> Supplychain
+                   |
+Microservice-------|------> Transportation
+                   |------> Item and Inventory
+                   |
+                   --------> Purchase order
 
-Architecure:                   
-==============                                                   Image
-                                                                  |
-                                           Jfrog/Nexus            |
-                                     (stores binary file)         |
-                                           |(tools)               |
-Checkout-----> secrutiy ---> build ---->aritfactory---> IAC---> docker---> k8
-                  |(tools)      |
-                  |             |          |------- Java ----------> POM.XML---> Maven
+Multiple CICD tools are using in different Oraganizations--> Jenkins/Bamboo/etc
+
+
+There are different CICD pipeline in each environment:
+-------------------------------------------------------
+Dev environment---->CICD
+QE  environment------>CICD       }----> Devops Enginer
+STAGE environment------>CICD
+PROD  environment------->CICD
+
+Advantages of CICD Pipeline
+------------------------------
+1.Faster delivery
+2.quick deployment
+3.less chances of error
+4.stability
+5.reliablity
+6.quick bug fixed
+7.version controller
+8.automations
+
+CICD Architecure:                  
+==============  
+|--------------------| 
+|Code + Jenkinsfile  |
+|--------------------|
+    |
+    |
+    |
+    |                                                     ----------------Ansibler/Argo CD for CD------------------
+____|______________________________________________________________________________________________________________
+|           |                |           |              |           |           |           |                    | 
+|           |                |           |              |           |           |           |                    |
+|           |                |           |              |           |           |           |                    |
+|           |                |           |              |           |           |           |                    |
+| checkout  | security       | build     | artifactory  |   IAC     | Docker    |    K8     |                    |
+|           |                |           |              |           |           |           |                    |
+|           |                |           |              |           |           |           |                    |
+|           |                |           |              |           |           |           |                    |
+|           |                |           |              |           |           |           |                    |
+|___________|________________|___________|______________|___________|___________|___________|____________________|
+
+Skeleton
+----------
+                                                                Image
+ git repository code-10gb                                          |
+   +                                                               |
+  Jenkins file with parameters                                     |
+   |                                        Jfrog/Nexus            |
+   |                                  (stores binary file)         |
+   |                          code-10mb      |(tools)              |
+Checkout-----> secrutiy ---> build ---->aritfactory---> IAC---> docker-------------> k8
+ (gitclone)       |(tools)      |
+                  |             |          |------->Java ----------> POM.XML---> Maven
                 checkmarks     maven       | 
-                blackduck       |(tools)---|------- Nodejs/React---> Package.json----> nmp/node
+                blackduck       |(tools)---|-------> Nodejs/React---> Package.json----> nmp/node
                  sonarqube                 |   
-                 fortify                   |------- android--------->-build.gridle-->gridle
-                 owasp                     |------- python---------->req.txt ----->python 
+                 fortify                   |-------> android--------->-build.gridle-->gridle
+                 owasp                     |------->python---------->req.txt ----->python 
                
 
-Below is  groovy code.
+Below is  groovy code in Jenkinsfile (configurationfile)
+-----------------------------------------------------------
+-Two types of Jenkins file, Declarative and scripted file.
+-Each of the repository should have jenkins file that will be created by devops engineer.
 
+Syntax of Jenins file:
+--------------------------
 pipeline{
    agent any{
         environment variables{
@@ -603,21 +662,25 @@ pipeline{
                      string=" 
                      stages{
                           stage{
-                             script{
-                                 code in block
-
-
-
+                               steps{
+                                   script{
+                                         code in block
 
 Build toos:
 ================
 Java -----> POM.XML---> Maven
-Nodejs/React---> Package.json----> nmp/node
+Nodejs/React---> Package.json----> npm/node
 android--------->build.gridle-->gridle
 python--------->req.txt ----->python
 
+For Code navagation structure always follows in this
+-----------------------------------------------------
+  -Java_app_3.0/src/main/java/com/minikube/sample/
 
-Imp dependencides in Pom.xml ---groupid.arificatid.version.packaging
+
+POM-ProjectOjbectModel- 
+-------------------------
+Imp dependencides in Pom.xml ---Output- Arificatid.version.packaging
 =============================
 ex: 
 ====
@@ -631,9 +694,9 @@ ex:
         <version>2.2.1.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.minikube.sample</groupId>
-    <artifactId>kubernetes-configmap-reload</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <groupId>com.minikube.sample</groupId>--------------------> Application structure
+    <artifactId>kubernetes-configmap-reload</artifactId>------>Binary file name
+    <version>0.0.1-SNAPSHOT</version>-------------------------->kubernetes-configmap-reload-.0.0.1-SNAPSHOT.jar
     <packaging>jar</packaging>
     <name>minikube-sample</name>
     <description>Demo project for Spring Cloud Kubernetes</description>
@@ -704,16 +767,105 @@ ex:
 
 Versioning:
 ============
-0.0.1 |2.4.2.5
+    |
+    |
+___Branches______________________________
+|    |       |          |       |     |
+Dev  QE   Feature    release  prod  hotfix
+
+sprint.month.year.version
+2.4.25.1-supplychain
+
+    0.0.1 |2.4.2.5
 majorv.minorv.pathv | majorv.minorv.pathv.incrmentalv
 
-Maven Commands:
+Automation4:  How you are updating the versions with the help of shell script in CICD Pipeline
+-----------------------------------------------------------------------------------------------
+
+Ex: Here is the prompt in google for stackoverflow code-maven helper plugin to increment the version automatically
+-----
+There are a couple of popular Maven plugins that accomplish this feat:
+
+Maven Release Plugin
+Build Number Maven Plugin
+The Maven Release Plugin from the Apache Maven Project is a bit overkill for simply updating the version number. Therefore use the latter plugin to create a version number (in the form of MAJOR.MINOR.BUILD; e.g., 3.1.4 where 4 is auto-incremented) as follows:
+
+Open the project's pom.xml file.
+Include the plugin within the build section (after the dependencies section):
+  <scm>
+    <connection>scm:svn:http://127.0.0.1/dummy</connection>
+    <developerConnection>scm:svn:https://127.0.0.1/dummy</developerConnection>
+    <tag>HEAD</tag>
+    <url>http://127.0.0.1/dummy</url>
+  </scm>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <id>buildnumber</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <format>{0,number}</format>
+          <items>
+            <item>buildNumber</item>
+          </items>                    
+          <doCheck>false</doCheck>
+          <doUpdate>false</doUpdate>
+          <revisionOnScmFailure>unknownbuild</revisionOnScmFailure>   
+        </configuration>
+      </plugin>    
+    </plugins>
+    <finalName>${project.artifactId}-${project.version}.${buildNumber}</finalName>
+  </build>
+Ensure that the pom.xml defines the major and minor version in the version element near the top of the file. For example:
+<version>3.1</version>
+Save the pom.xml file.
+Rebuild the project.
+The version number should increase.
+
+               (OR)
+
+You can do it with without pom modification with the help of maven plugins and scripting.
+
+For example to increment automatically the second digit of a version that doesn't have snapshot as prefix like in your case, on a linux system you can do :
+
+#get the current pom version and store it into a variable
+version=$(mvn -q -U -Dexpression=project.version -DforceStdout maven-help-plugin:evaluate)
+#increment the second digit of the version and overwrite the variable
+version=$(echo ${version} |  awk -F'.' '{print $1"."$2+1"."$3}' |  sed s/[.]$//)
+#update the pom with the new version
+mvn -U versions:set -DnewVersion=${version}
+It works for versions with 3 digits but also 2 digits thanks to the sed.
+Of course move the default increment part : "+1" on the digit that suits to your requirements :
+
+# increment the first digit
+awk -F'.' '{print $1+1"."$2"."$3}'
+
+# increment the second digit
+awk -F'.' '{print $1"."$2+1"."$3}'
+
+# increment the last digit
+awk -F'.' '{print $1"."$2"."$3+1}'
+
+Maven Commands: 
 ================
-1 mvn clean
-2 mvn test
-3 mvn install
+- Maven only reads pom.xml file
+-
+1 mvn clean--- Removes the target-jar,binary and dependeciess
+2 mvn test --- Runs all the test cases
+3 mvn install--- It cleans ,runs the test and install the depndeciess
 4 mvn build
-5 mvn deploy    
+5 mvn deploy   
+6.mvn package--creates a package
 
 1. Validate: This step validates if the project structure is
 correct. For example – It checks if all the
@@ -762,8 +914,9 @@ Eclipse.
 remote repository after compiling, running tests and
 building the project.
 
- Automation-5:
+ Automation-5: Build------>JFROG Artifactory repository
  ===============
+
                               -------> Jar
                    (Pom.xml) |
 Java ---->Maven--->Target----|
@@ -771,7 +924,7 @@ Java ---->Maven--->Target----|
              |
              | 
 
-   mvn clean install---- binary---- curl -x put -v username: password -t k8.jar "url of jfrog"
+   mvn clean install---- binary---- curl -x put -v username: password -t "k8.jar" "url of jfrog"
                                             get 
                                             post
                                             delete
@@ -780,6 +933,9 @@ u: username
 t: target
 k8: kubernetes
 
+
+Here is the Jenkins file:
+---------------------------
 ex:https://github.com/praveen1994dec/Java_app_3.0/blob/main/Jenkinsfile
 
 =====
@@ -899,21 +1055,569 @@ pipeline{
 
 
 
-Advantages:
-================
-1. faster delivery
-2. quick deployments
-3. less chances of errors
-4. stability
-5. reliability
-6. quick big fixed
-7. Version controll
-8. Automation
-
 ***
 Java_app_3.0/Jenkinsfile Latest---- Child library
 @Library('my-shared-library') _------- Parent library
 ****
+
+
+Automation6 : 1.Write the jenkisnfile with parallel stage of execute tools in devops
+---------------------------------------------------------------------------------------------
+
+Certainly! Below is an example of a Jenkins pipeline Jenkinsfile that executes security tools in parallel within a devops pipeline. This can be used for tools such as static code analysis, dependency scanning, container security scanning, etc.
+
+groovy
+Copy
+pipeline {
+    agent any
+
+    environment {
+        // Define any environment variables needed for the security tools
+        SECURITY_TOOL_A_HOME = '/path/to/toolA'
+        SECURITY_TOOL_B_HOME = '/path/to/toolB'
+        SECURITY_TOOL_C_HOME = '/path/to/toolC'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    // Checkout the code from version control
+                    checkout scm
+                }
+            }
+        }
+
+        stage('Run Security Tools in Parallel') {
+            parallel {
+                stage('Static Code Analysis') {
+                    steps {
+                        script {
+                            // Example: Run a static code analysis tool (e.g., SonarQube)
+                            echo 'Running Static Code Analysis...'
+                            sh "${SECURITY_TOOL_A_HOME}/bin/sonar-scanner"
+                        }
+                    }
+                }
+
+                stage('Dependency Scanning') {
+                    steps {
+                        script {
+                            // Example: Run a dependency scanning tool (e.g., OWASP Dependency-Check)
+                            echo 'Running Dependency Scanning...'
+                            sh "${SECURITY_TOOL_B_HOME}/bin/dependency-check.sh"
+                        }
+                    }
+                }
+
+                stage('Container Security Scan') {
+                    steps {
+                        script {
+                            // Example: Run a container security scan tool (e.g., Trivy)
+                            echo 'Running Container Security Scan...'
+                            sh "trivy --no-progress --exit-code 1 --severity HIGH,CRITICAL --quiet ${WORKSPACE}/docker-image"
+                        }
+                    }
+                }
+
+                stage('SAST - Static Application Security Testing') {
+                    steps {
+                        script {
+                            // Example: Run SAST tool (e.g., Checkmarx)
+                            echo 'Running SAST Scan...'
+                            sh "${SECURITY_TOOL_C_HOME}/bin/checkmarx.sh"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                script {
+                    // Example: Perform some post-scan quality check (e.g., check SonarQube quality gate)
+                    echo 'Checking Quality Gate...'
+                    // Insert logic to check SonarQube or any other tool's quality gate status
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Security scans completed successfully.'
+        }
+
+        failure {
+            echo 'Security scans failed, investigate the logs.'
+        }
+
+        always {
+            echo 'Cleaning up resources...'
+            // Clean up any resources, containers, etc. if needed.
+        }
+    }
+}
+Explanation:
+Checkout: First, we checkout the code from your version control (Git).
+Run Security Tools in Parallel:
+The parallel block allows the execution of different security tools concurrently to speed up the pipeline.
+Each security tool (static code analysis, dependency scanning, container security, and SAST) is run in a separate stage.
+For example:
+Static Code Analysis might be SonarQube or any other static analysis tool.
+Dependency Scanning might use OWASP Dependency-Check or similar.
+Container Security Scan could use tools like Trivy, Anchore, or Clair.
+SAST (Static Application Security Testing) could use tools like Checkmarx or Fortify.
+Quality Gate: You can use this stage to check the results of your security tools (e.g., SonarQube Quality Gate or similar).
+Post Actions: After the pipeline runs, you can handle success, failure, or cleanup.
+You can adjust the security tools and scanning configurations as per your needs.
+
+Key Notes:
+Ensure you have the appropriate security tools installed on your Jenkins agents or containers.
+Set proper environment variables or secrets for the tools if required.
+Parallel execution speeds up the scanning process, but be mindful of your system's capacity to run multiple tools simultaneously.
+
+
+2.How to write the jenkinsfile for the environement variables
+----------------------------------------------------------------
+
+In Jenkins, you can define environment variables in a Jenkinsfile in several ways, depending on your needs. Here are the main methods for defining environment variables and some common use cases:
+
+1. Environment Block (Global Environment Variables)
+You can define environment variables globally for the entire pipeline using the environment block at the top of the pipeline.
+
+groovy
+Copy
+pipeline {
+    agent any
+
+    environment {
+        MY_GLOBAL_VAR = 'some_value'
+        ANOTHER_VAR = 'another_value'
+        MY_SECRET = credentials('my-secret-id') // Using Jenkins credentials plugin to securely handle secrets
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    echo "MY_GLOBAL_VAR is: ${MY_GLOBAL_VAR}"
+                    echo "ANOTHER_VAR is: ${ANOTHER_VAR}"
+                    // Using the secret environment variable
+                    echo "Secret: ${MY_SECRET}"
+                }
+            }
+        }
+    }
+}
+Global Scope: Environment variables defined here are available throughout the pipeline, including all stages and steps.
+Using Jenkins Credentials: If you're using secrets (like API keys, passwords, etc.), you can store them in Jenkins Credentials and access them using the credentials() function, as shown above with MY_SECRET.
+2. Environment Variables for Specific Stages
+You can also define environment variables that only apply to specific stages. This is useful when you need different variables or values for each stage.
+
+groovy
+Copy
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            environment {
+                CHECKOUT_DIR = '/path/to/checkout'
+            }
+            steps {
+                echo "Checking out code to directory: ${CHECKOUT_DIR}"
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            environment {
+                BUILD_DIR = '/path/to/build'
+            }
+            steps {
+                echo "Building in directory: ${BUILD_DIR}"
+                // Build logic here
+            }
+        }
+
+        stage('Test') {
+            environment {
+                TEST_DIR = '/path/to/test'
+            }
+            steps {
+                echo "Running tests in directory: ${TEST_DIR}"
+                // Test logic here
+            }
+        }
+    }
+}
+Stage-Specific Environment Variables: These variables are only available inside the stage where they are defined. Other stages won’t have access to them.
+3. Environment Variables in Script Blocks
+You can also set environment variables directly within a script block or within individual sh steps. This is especially useful for temporary variables or when you need to modify the environment within a shell command.
+
+groovy
+Copy
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    // Defining environment variable within the script block
+                    def buildVersion = "1.0.0"
+                    echo "Building version: ${buildVersion}"
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Set environment variables for shell commands
+                    def deployDir = "/deploy/${BUILD_VERSION}"
+                    sh """
+                        echo "Deploying to: ${deployDir}"
+                        # Actual deploy command here
+                    """
+                }
+            }
+        }
+    }
+}
+Script-Level Variables: This allows you to define variables at a more granular level within a stage or script block.
+4. Environment Variables via Jenkinsfile Parameters
+Jenkins also supports parameters that allow users to pass values to a pipeline when it is triggered. These parameters can act as environment variables.
+
+groovy
+Copy
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'APP_VERSION', defaultValue: '1.0.0', description: 'Version of the app to deploy')
+        booleanParam(name: 'DEPLOY_TO_PROD', defaultValue: false, description: 'Deploy to production?')
+    }
+
+    environment {
+        MY_ENV_VAR = 'SomeValue'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Checking out version: ${params.APP_VERSION}"
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Building app with version: ${params.APP_VERSION}"
+                echo "Deploy to Production: ${params.DEPLOY_TO_PROD ? 'Yes' : 'No'}"
+                // Add build logic here
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    if (params.DEPLOY_TO_PROD) {
+                        echo "Deploying to production with version: ${params.APP_VERSION}"
+                        // Add deploy logic here
+                    } else {
+                        echo "Deploying to staging with version: ${params.APP_VERSION}"
+                        // Add staging deploy logic here
+                    }
+                }
+            }
+        }
+    }
+}
+Using Parameters as Environment Variables: In this case, we are using params.APP_VERSION to dynamically control what version of the app is being built and deployed based on user input when triggering the pipeline.
+5. Using Environment Variables in Shell Scripts
+In addition to defining environment variables in the Jenkinsfile, you can use them inside shell commands (sh), and they can be exported within the shell script.
+
+groovy
+Copy
+pipeline {
+    agent any
+
+    environment {
+        MY_ENV_VAR = 'value_from_jenkinsfile'
+    }
+
+    stages {
+        stage('Setup') {
+            steps {
+                script {
+                    // Set environment variable dynamically using shell
+                    sh '''
+                        export MY_LOCAL_VAR="value_from_shell"
+                        echo "MY_LOCAL_VAR is: $MY_LOCAL_VAR"
+                    '''
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo "MY_ENV_VAR from Jenkinsfile: ${env.MY_ENV_VAR}"
+                // Access environment variable within shell script
+                sh 'echo "MY_ENV_VAR is: $MY_ENV_VAR"'
+            }
+        }
+    }
+}
+Using Shell for Variable Definition: You can define variables within shell commands, and export them for use later in the pipeline. Use the env object to access environment variables inside the pipeline.
+Best Practices:
+Sensitive Data: For secrets (API keys, passwords, etc.), always use the Jenkins Credentials Plugin. This keeps sensitive data secure and avoids hard-coding it in the Jenkinsfile.
+Global vs Local: Define environment variables globally if they need to be accessed across multiple stages. If the variable is only needed for a specific stage, define it in that stage to keep your pipeline organized and avoid conflicts.
+Avoid Hard-Coding: Try not to hard-code sensitive or configuration data directly in the Jenkinsfile. Use Jenkins credentials or parameterize the values.
+
+
+3.How to write the jenkins file not  to execute a particular stage
+--------------------------------------------------------------------------
+
+
+In Jenkins, you can control whether a particular stage is executed by using conditions to skip the execution of the stage. This can be achieved in several ways, depending on your use case. Here are a few ways to skip or conditionally execute a stage in a Jenkins pipeline.
+
+1. Using when Block
+The when block can be used to conditionally control whether a stage is executed or not based on a condition, such as a parameter, environment variable, or any custom logic.
+
+Example: Skip a Stage Based on a Parameter
+groovy
+Copy
+pipeline {
+    agent any
+
+    parameters {
+        booleanParam(name: 'SKIP_TESTS', defaultValue: false, description: 'Skip tests stage?')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                // Add build steps here
+            }
+        }
+
+        stage('Test') {
+            when {
+                expression {
+                    return !params.SKIP_TESTS
+                }
+            }
+            steps {
+                echo 'Running tests...'
+                // Add test steps here
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+                // Add deployment steps here
+            }
+        }
+    }
+}
+when Block: In this example, the Test stage will be skipped if the SKIP_TESTS parameter is set to true.
+Condition: The condition when { expression { return !params.SKIP_TESTS } } ensures that the test stage is skipped if the parameter SKIP_TESTS is true.
+2. Using skip Condition in script Block
+You can also use a script block with a condition to determine whether or not to run the steps in a stage. If you want to skip the entire stage, you can simply use return to exit from the stage early.
+
+Example: Skip a Stage Based on a Variable
+groovy
+Copy
+pipeline {
+    agent any
+
+    environment {
+        SKIP_DEPLOY = true // Example condition to skip deploy
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                // Add build steps here
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    if (env.SKIP_DEPLOY == 'true') {
+                        echo 'Skipping deployment.'
+                        return // Skip this stage
+                    }
+                    echo 'Deploying the application...'
+                    // Add deploy steps here
+                }
+            }
+        }
+    }
+}
+Skipping a Stage Using return: If SKIP_DEPLOY is true, the Deploy stage will not execute the deployment steps, effectively skipping the stage.
+3. Using input to Manually Skip a Stage
+You can use the input step to pause the pipeline and ask the user whether to continue or not, which could be used to skip a stage manually.
+
+Example: Skip Stage with User Input
+groovy
+Copy
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                // Add build steps here
+            }
+        }
+
+        stage('Test') {
+            steps {
+                input message: 'Do you want to run tests?', ok: 'Yes', parameters: [booleanParam(defaultValue: true, description: 'Run tests?', name: 'RunTests')]
+                script {
+                    if (params.RunTests) {
+                        echo 'Running tests...'
+                        // Add test steps here
+                    } else {
+                        echo 'Skipping tests...'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
+                // Add deploy steps here
+            }
+        }
+    }
+}
+input Step: This will pause the pipeline and ask the user whether to run the tests. If the user selects "Yes," the tests will run. If they select "No," the tests are skipped.
+4. Using catchError to Skip Failures
+You can use the catchError step to catch failures in a particular stage and decide whether or not to fail the pipeline or skip the failure.
+
+Example: Skip a Stage on Failure
+groovy
+Copy
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                // Add build steps here
+            }
+        }
+
+        stage('Test') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    echo 'Running tests...'
+                    // Simulate a failure in tests
+                    sh 'exit 1'  // This will fail the tests but will not fail the pipeline due to catchError
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
+                // Add deploy steps here
+            }
+        }
+    }
+}
+catchError: The catchError step allows you to catch the failure of a stage and proceed with the pipeline without failing the entire job. You can also decide to continue even when the tests fail.
+5. Using return in a Stage to Skip Execution
+You can simply use return to skip the execution of the stage in a script block if the condition is met.
+
+Example: Skip a Stage Based on Condition
+groovy
+Copy
+pipeline {
+    agent any
+
+    environment {
+        SHOULD_SKIP_STAGE = true // Example condition to skip stage
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    if (env.SHOULD_SKIP_STAGE == 'true') {
+                        echo 'Skipping the Test stage.'
+                        return // Skip the rest of the stage
+                    }
+                    echo 'Running tests...'
+                    // Test execution logic here
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+                // Add deploy logic here
+            }
+        }
+    }
+}
+Key Points:
+when Block: This is a powerful way to conditionally skip a stage based on parameters or environment variables.
+input Step: Use it to ask the user manually whether they want to skip a stage.
+catchError: Useful for skipping stages based on errors or failures without failing the pipeline.
+script Block with return: Use return to exit early from a stage, effectively skipping it.
+
+
+
+
 
 Assignment-1  Write the groovy code to send jarfile to jfrog repo
 Assignment -2 Different jenkins file scenarios
@@ -2390,6 +3094,8 @@ The data fetched from Kubernetes can be customized. For example, you can fetch d
 Error Handling:
 
 We use try-except blocks to handle potential errors such as API connection issues, missing configuration files, or non-existing CSV files.
+
+
 
 
 
