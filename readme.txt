@@ -1617,10 +1617,207 @@ script Block with return: Use return to exit early from a stage, effectively ski
 
 
 
+Jenins Document Theory:
+-----------------------------
+1. Declarative Pipeline Example
+The Declarative Pipeline syntax is more structured and user-friendly, making it ideal for simple pipelines. It follows a predefined structure and is best for simpler workflows.
 
+Example: Declarative Pipeline
+groovy
+Copy
+pipeline {
+    agent any
 
+    environment {
+        // Define environment variables that are available throughout the pipeline
+        BUILD_ENV = 'production'
+        DEPLOY_ENV = 'staging'
+    }
+
+    parameters {
+        string(name: 'APP_VERSION', defaultValue: '1.0.0', description: 'Version of the app to deploy')
+        booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run Tests?')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Building version ${params.APP_VERSION} for ${env.BUILD_ENV} environment"
+                // Add build steps (e.g., mvn, npm, etc.)
+            }
+        }
+
+        stage('Test') {
+            when {
+                expression {
+                    return params.RUN_TESTS
+                }
+            }
+            steps {
+                echo 'Running tests...'
+                // Add test steps here (e.g., `npm test`, `mvn test`, etc.)
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploying version ${params.APP_VERSION} to ${env.DEPLOY_ENV} environment"
+                // Add deployment steps here (e.g., AWS CLI, Kubernetes, etc.)
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Please check the logs.'
+        }
+        always {
+            echo 'Cleaning up resources...'
+            // Add cleanup steps, such as removing temporary files, stopping containers, etc.
+        }
+    }
+}
+Key Points of the Declarative Pipeline:
+Structured: The pipeline is more structured, making it easier to read and write.
+Environment Variables: Defined globally in the environment block.
+Parameters: Parameters are defined in the parameters block for user input.
+when Block: The when block is used to conditionally execute the Test stage based on the RUN_TESTS parameter.
+Post Actions: post block is used to define actions that run after the pipeline completes, whether it’s successful, failed, or always.
+2. Scripted Pipeline Example
+The Scripted Pipeline is more flexible but requires more complex syntax. It allows you to write the pipeline with full control over how it behaves.
+
+Example: Scripted Pipeline
+groovy
+Copy
+node {
+    try {
+        // Define environment variables
+        def buildEnv = 'production'
+        def deployEnv = 'staging'
+        def appVersion = '1.0.0'
+
+        // Input Parameters
+        def runTests = input(
+            message: 'Do you want to run tests?',
+            parameters: [
+                booleanParam(defaultValue: true, description: 'Run tests?', name: 'RUN_TESTS')
+            ]
+        )
+
+        // Checkout code from SCM
+        stage('Checkout') {
+            echo 'Checking out the source code'
+            checkout scm
+        }
+
+        // Build Stage
+        stage('Build') {
+            echo "Building version ${appVersion} for ${buildEnv} environment"
+            // Add your build logic here (e.g., compile code, package, etc.)
+        }
+
+        // Test Stage
+        if (runTests) {
+            stage('Test') {
+                echo 'Running tests...'
+                // Add your testing logic here (e.g., `npm test`, `mvn test`, etc.)
+            }
+        } else {
+            echo 'Skipping tests as per user input.'
+        }
+
+        // Deploy Stage
+        stage('Deploy') {
+            echo "Deploying version ${appVersion} to ${deployEnv} environment"
+            // Add your deployment logic here (e.g., AWS CLI, Kubernetes, etc.)
+        }
+
+    } catch (Exception e) {
+        // Handle failure
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        // This will always execute regardless of success or failure
+        echo 'Cleaning up resources...'
+        // Add any cleanup steps (e.g., delete temporary files, stop containers)
+    }
+}
+Key Points of the Scripted Pipeline:
+Flexibility: The scripted pipeline gives you more flexibility and control because it allows you to write Groovy code directly. It’s best for complex use cases.
+Node Block: The entire pipeline is wrapped in a node block, meaning it runs on a Jenkins agent. You must define the node block at the beginning.
+Try-Catch: A try-catch block is used to handle errors gracefully and mark the build as failed if an exception occurs.
+Conditional Logic: The pipeline logic is written in Groovy, so you have complete control over the flow, such as skipping a stage based on the user’s input (runTests).
+Post Actions: A finally block is used for cleanup, ensuring that cleanup happens no matter what (success or failure).
+Comparison of Declarative vs Scripted Pipelines
+Feature	Declarative Pipeline	Scripted Pipeline
+Syntax	More structured and easier to read and write	More flexible, allows complex logic using Groovy
+Control	Limited control over pipeline execution flow	Full control over the execution flow
+Flexibility	Less flexible, good for standard pipelines	More flexible, ideal for complex pipelines
+Declarative Features	Easy to define environment variables, parameters, and conditions	Not required, can be done using regular Groovy code
+Error Handling	Handled with post section	Can use try-catch for more fine-grained error handling
+Use Cases	Best for simpler, standard use cases	Best for complex, dynamic use cases
+When to Use Each:
+Declarative Pipeline: Ideal for simpler, more standard use cases where you don’t need complex control flow and prefer a structured, easy-to-read format.
+Scripted Pipeline: Ideal for more complex pipelines where you need fine-grained control over the pipeline execution, such as dynamic behavior based on inputs or advanced error handling.
+Both pipeline types can achieve the same outcomes, but Declarative Pipelines are often favored for ease of use and clarity, while Scripted Pipelines provide the flexibility needed for more complex workflows.
 Assignment-1  Write the groovy code to send jarfile to jfrog repo
 Assignment -2 Different jenkins file scenarios
+
+
+
+2.Pipeline - A pipeline is a set of instructions that includes the processes of continuous delivery. For example, creating an application,
+testing it, and deploying the same. Moreover, it is a critical element in declarative pipeline syntax, which is a collection of all stages in
+a Jenkinsfile. We declare different stages and steps in this block.
+• pipeline{ } Node - A node is a key element in scripted pipeline syntax. Moreover, it acts as a machine in Jenkins that executes the
+Pipeline.
+• node{ } Stage - A stage consists of a set of processes that the Pipeline executes. Additionally, the tasks are divided in each stage,
+implying that there can be multiple stages within a Pipeline. The below snippet shows the different stages that one can define in a
+Pipeline.
+• Steps - A step in Jenkins defines what we have to do at a particular step in the process. There can be a series of steps within the stage.
+Moreover, whatever step we define in a stage would be executed within it.
+• Agent - An agent is a directive that enables the users to execute multiple projects within the same Jenkins instance by distributing the
+load. Moreover, we assign an executor to the build through an agent. You can either use a single agent for the entire pipeline or use a
+distinct agent for the different stages of the pipeline. Subsequently, some of the parameters used with agents are -
+• Any- Any of the available agents execute the pipeline.
+• None- It is used at the pipeline root and implies no global agent, but each stage must specify its own agent.
+• Label- The labeled agent is used to execute the pipeline or the specific stage.
+• Docker- One can use the Docker images as the execution environment & specifying the agent as docker.
+
+
+Merge Request from dev to master Branch:
+---------------------------------------------------
+Child Pipeline -
+=================
+DevTeam  Code Commit  To GitHub  Triggers Child Pipeline (WebHook) 
+Sonar/Blackduck/Fortify(Stage 1 - In Parallel)  Creates the Merge
+Request(Stage 2 – Sends Email to Approver)
+Master Pipeline -
+==================
+Merge request gets approved  Master Pipeline Trigger(WebHook) 
+Sonar/Blackduck/Fortify(Stage 1 - In Parallel)  Build Code (Maven)  Artifact
+Push (Jfrog)  Pull Artifact(Ansible)  Deployment to QA(OnPrem/Cloud) 
+Performance testing/Integration testing  Deployment to Syage  Send
+Notification via Email
+
+
+Webhook Setup
+• In your project or group, on the left sidebar, select Settings > Webhooks.
+• In URL, enter the URL of the webhook endpoint.
+• In Secret token, enter the secret token to validate payloads.
+• In the Trigger section, select the events to trigger the webhook
+
+
+
+
 
 
 
