@@ -1219,6 +1219,7 @@ pipeline {
 Global Scope: Environment variables defined here are available throughout the pipeline, including all stages and steps.
 Using Jenkins Credentials: If you're using secrets (like API keys, passwords, etc.), you can store them in Jenkins Credentials and access them using the credentials() function, as shown above with MY_SECRET.
 2. Environment Variables for Specific Stages
+
 You can also define environment variables that only apply to specific stages. This is useful when you need different variables or values for each stage.
 
 groovy
@@ -1259,7 +1260,9 @@ pipeline {
     }
 }
 Stage-Specific Environment Variables: These variables are only available inside the stage where they are defined. Other stages won’t have access to them.
+
 3. Environment Variables in Script Blocks
+
 You can also set environment variables directly within a script block or within individual sh steps. This is especially useful for temporary variables or when you need to modify the environment within a shell command.
 
 groovy
@@ -1820,16 +1823,30 @@ Webhook Setup
 
 
 
+JSL( Jenkins shared Libary)
+-------------------------------
+***
+Java_app_3.0/Jenkinsfile Latest---- Child library
+@Library('my-shared-library') _------- Parent library
+****
+
+Path -Java_app_3.0/Jenkinsfile(Parent)---vars---different use cases using groovy code
+
+Assignment-1
+Write the the groovy code to send the jar file to the jfrog
+-------------------------------------------------------------
+
+
 
 Jenkins Server installation:
 ========================================
-  |              |
-ubuntu         centos 
--------        ---------
+  |                           |
+ubuntu                       centos 
+-------                    ---------
 
 1.yum/apt
 2.packages
-3.rpm packages- red hat package manager
+3.rpm packages- (red hat package manager)
 4.docker images/container
 5.curl / linux commands
 6.k8 pods
@@ -1837,10 +1854,12 @@ ubuntu         centos
 Automations with jenkins
 ==============================
 
-1. Write a shell script to install the jenkins on linxu server
+1. Write a shell script to install the jenkins on linux server
 2. Write a groovy script where the two jobs are dependent of each other
+3. Write a groovy script for different jenkins scenarios
 
-3.Write a jenkinsfile where the onestage variables are passed to other stage by using rest api automation script
+
+4.Write a jenkinsfile where the one stage variables are passed to other stage by using rest api automation script
 
 To pass variables from one stage to another using REST API calls in a Jenkins pipeline, the general idea is:
 
@@ -2041,14 +2060,69 @@ Jenkins rest api
 *****Note jenkins rest api documentation URL below:
 https://www.jenkins.io/doc/book/using/remote-access-api/
 
+
+
+Remote Access API 
+Jenkins provides machine-consumable remote access API to its functionalities. Currently it comes in three flavors:
+
+XML
+
+JSON with JSONP support
+
+Python
+
+Remote access API is offered in a REST-like style. That is, there is no single entry point for all features, and instead they are available under the ".../api/" URL where "..." portion is the data that it acts on.
+
+For example, if your Jenkins installation sits at https://ci.jenkins.io, visiting https://ci.jenkins.io/api/ will show just the top-level API features available – primarily a listing of the configured jobs for this Jenkins controller.
+Or if you want to access information about a particular build, e.g. https://ci.jenkins.io/job/Websites/job/jenkins.io/job/master/lastSuccessfulBuild/ , then go to https://ci.jenkins.io/job/Websites/job/jenkins.io/job/master/lastSuccessfulBuild/api/ and you’ll see the list of functionalities for that build.
+
+What can you do with it?
+Remote API can be used to do things like these:
+
+retrieve information from Jenkins for programmatic consumption.
+
+trigger a new build
+
+create/copy jobs
+
+Submitting jobs
+Jobs without parameters
+
+You merely need to perform an HTTP POST on JENKINS_URL/job/JOBNAME/build.
+
+This also works for Multibranch Pipelines and Organization Folders. It would trigger a scan.
+
+Jobs with parameters
+
+Simple example - sending "String Parameters":
+
+curl JENKINS_URL/job/JOB_NAME/buildWithParameters \
+  --user USER:TOKEN \
+  --data id=123 --data verbosity=high
+Another example - sending a "File Parameter":
+
+curl JENKINS_URL/job/JOB_NAME/buildWithParameters \
+  --user USER:PASSWORD \
+  --form FILE_LOCATION_AS_SET_IN_JENKINS=@PATH_TO_FILE
+The symbol '@' is important in this example. Also, the path to the file is absolute path. In order to make this command work, you need to configure your Jenkins job to take a file parameter and match the File location field in the Jenkins job configuration with the key in the --form option.
+
+
+Jenkins rest api to get the agent details:
+--------------------------------------------
+https://<JENKINS_HOST>/job/MY_JOB/api/json?fetchAllbuildDetails=True
+
+
+
 basic syntax
 ===============
 https://<JENKINS_HOST>/job/MY_JOB/api/json?fetchALLbuildDetails=True
 
+
+
 Master Slave Architecture:
 ==============================
                        -------- slave/agent/node
-                      |
+                      | (jarfile)
                       |
 Master ---------------| (jarfile)
                        -------- slave/agent/node
@@ -2058,31 +2132,29 @@ Master ---------------| (jarfile)
 
 ***Project1:******
 =============================
-1.Jenkins server
-2.ubuntu
+1.Jenkins server-name and region us-east-1
+2.ubuntu-server
 3.t2.medium
 4.storage - 25gb
 5.launch instance
 6.sudo su
 7. 
+sudo apt update -y
 
-sudo apt update
-sudo apt install fontconfig openjdk-17-jre
-java -version
-openjdk version "17.0.13" 2024-10-15
-OpenJDK Runtime Environment (build 17.0.13+11-Debian-2)
-OpenJDK 64-Bit Server VM (build 17.0.13+11-Debian-2, mixed mode, sharing)
+sudo apt upgrade -y 
+sudo apt install openjdk-17-jre -y
 
 8.
-sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
-  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
-  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-  /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt-get update
-sudo apt-get install jenkins
+
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt-get update -y 
+sudo apt-get install jenkins -y
 
 9. security -->security groups----> edit inbound rules--> type- all traffice && source anywhere IPV4
+9.1 Take iP address:8080 in the browser 
 10. to get password- cat /var/lib/jenkins/....
 11. install suggested pluggins
 12. create first admin user ----save and continue
@@ -2104,13 +2176,13 @@ sudo apt-get install jenkins
 
 17. Go to mange jenkins----configure system-- global pipeline library (global trusted pipeline  libraries
 
-    Name-my-shared-library
-    Default-versionmain
+    Name--->my-shared-library
+    Defaultversion-->main
     git-https://github.com/praveen1994dec/jenkins_shared_lib.git
     save and apply
 
 18. Build
-19. cd /var/lib/jenkins/
+19. /etc/apt/sources.list.d# cd /var/lib/jenkins/
     ls -lhtr
     cd workspace/
     cd Demobatch10(job)
