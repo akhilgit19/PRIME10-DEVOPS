@@ -2332,6 +2332,8 @@ Docker containers
 2. overlay
 3. host
 
+Project 2 JFROG setup in docker container:
+-------------------------------------------
 
 ##Install in Amazon Ubuntu
 #!/bin/bash
@@ -2360,17 +2362,179 @@ sudo mkdir -p /jfrog/artifactory
 sudo chown -R 1030 /jfrog/
 docker run --name artifactory -d -p 8081:8081 -p 8082:8082 -v /jfrog/artifactory:/var/opt/jfrog/artifactory docker.bintray.io/jfrog/artifactory-oss:latest
 
+
+
+
 Disadvantages of dockercompose
 ---------------------------
 1. No security
-2. Multi arhitecture format
-3.Maintenance of docker containers
+2. Multi architecture format
+3. Maintenance of docker containers
 4. No dashboard
 5. No proper rollback
 6. No proper deployment strategy
+7. No autoscaling/auto healing
 
+Docker compose file
+--------------------
+services:
+   db:
+      image: mysql:5.7
+      volumes:
+        -db_data:C:/Users/User/Desktip/dcompose
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: rootwordpress
+        MYSQL_DATABASE: wordpress
+        MYSQL_USER: wordpress
+        MYSQL_PASWWORD: wordpress
+
+    wordpress:
+      depends_on:
+        - db
+      image: wordpress:latest
+      ports:
+        - "8000:80"
+      restart: always
+      environemnt:
+        WORDPRESS_DB_HOST: db:3306
+        WORDPRESS_DB_USER: wordpress
+        WORDPRESS_DB_PASSWORD: wordpress
+volumes:
+    db_Data:
+======================================================
+ stage('Quality Gate Status Check : Sonarqube'){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   def SonarQubecredentialsId = 'sonarqube-api'
+                   QualityGateStatus(SonarQubecredentialsId)
+               }
+            }
+       }
+        stage('Maven Build : maven'){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   mvnBuild()
+               }
+            }
+        }
+        stage('Docker Image Build'){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   dockerBuild("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+               }
+            }
+        }
+         stage('Docker Image Scan: trivy '){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   dockerImageScan("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+               }
+            }
+        }
+        stage('Docker Image Push : DockerHub '){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   dockerImagePush("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+               }
+            }
+        }   
+        stage('Docker Image Cleanup : DockerHub '){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script{
+                   
+                   dockerImageCleanup("${params.ImageName}","${params.ImageTag}","${params.DockerHubUser}")
+               }
+            }
+        }      
+--
+
+def call(String project, String ImageTag, String hubUser){
+    
+    sh """
+     docker image build -t ${hubUser}/${project}:latest .
+    """
+}
+
+// def call(String aws_account_id, String region, String ecr_repoName){
+    
+//     sh """
+//      docker build -t ${ecr_repoName} .
+//      docker tag ${ecr_repoName}:latest ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:latest
+//     """
+// }
+
+def call(String project, String ImageTag, String hubUser){
+    
+    sh """
+     docker rmi ${hubUser}/${project}:latest
+    """
+}
+
+// def call(String aws_account_id, String region, String ecr_repoName){
+    
+//     sh """
+//      docker rmi ${ecr_repoName}:latest ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:latest
+//     """
+// }
+
+
+def call(String project, String ImageTag, String hubUser){
+    withCredentials([usernamePassword(
+            credentialsId: "docker",
+            usernameVariable: "USER",
+            passwordVariable: "PASS"
+    )]) {
+        sh "docker login -u '$USER' -p '$PASS'"
+    }
+    //sh "docker image push ${hubUser}/${project}:${ImageTag}"
+    sh "docker image push ${hubUser}/${project}:latest"   
+}
+
+
+// def call(String aws_account_id, String region, String ecr_repoName){
+    
+//     sh """
+//      aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${aws_account_id}.dkr.ecr.${region}.amazonaws.com
+//      docker push ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:latest
+//     """
+// }
+
+
+
+def call(String project, String ImageTag, String hubUser){
+    
+    sh """   
+     trivy image ${hubUser}/${project}:latest > scan.txt
+     cat scan.txt
+    """
+}
+
+// def call(String aws_account_id, String region, String ecr_repoName){
+    
+//     sh """
+//     trivy image ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:latest > scan.txt
+//     cat scan.txt
+//     """
+// }
+===================================================
                                 Kubernetes K8 
 ==============================================================================================================
+
+         image
+.jar--------------->Dockercontainers---------------> Kubernetes
+
 
 Architecture of Kubernetes
 ----------------------------------
@@ -2379,12 +2543,12 @@ yaml
 |
  --
    |
-   | 
-   |--> Master                                                 Slave/Node
- ------------------------                                    ----------------
+   |  --
+   | Master                                                    Slave/Node
+ ------------------------                                    -------------------------
  |               
- |->     API SERVER------>>---------->>---------->>------------->>cublet(agent)
-           ^                                                      PODS  -- POD
+1|->     API SERVER------>>---------->>---------->>------------->>cublet(agent)--8 [Primary component in workernode which talks with API
+           ^  7                                                 >> PODS  -- POD  9  [Second compoent in entire
            |                                                            -- DEPLOYMENT
            |                                                            -- SERVICE
            |                                                            --  CUSTOME RESOURCE DEFINITION
@@ -2398,23 +2562,29 @@ yaml
            ^                                                            --   persistent volumes
            |                                                            --  Daemon set
            |                                                            --   secrets
- |->    ETCD (It stores all the data in kub)                       Proxy
+           |                                                            --  namespace
+                                                                        -- istio
+2|->    ETCD 6(It stores all the data in kub)                     >>Kube Proxy  10 [Thrid componenet
  |        ^  (d means distributed database)                        Continer d or Container Runtime
  |        |  (it stores the data in key: value format)
- |-->     Control Manager   < ---------------------|
- |     CPU                                         |
+3|-->   Control Manager   5< --<--------<--------- |
+ |     CPU                                         ^
  |    - Node controller                            |  
- |    -Replication controller                      |
+ |    - Replication controller                     ^
  |    - Network controller                         |
- |-->    Scheduler---------------------------------
+4|-->    Scheduler---------------------------------
+        (Control manager process the datat and sends to scheduler
+          it will schedule the data in worker node)
 
+         image
+.jar--------------->Dockercontainers---------------> Kubernetes
 
- States of POD:
+States of POD:
 ------------------------
 -----> Troubleshooting of K8
   | -->   Running---- sucess state
   | -->   Crashloopback-- any issues in appplication
-  | -->   Pending--- if pos is not able to get data
+  | -->   Pending--- if pod is not able to get data
   | -->  restart-----if any issue in container
   | -->   exit------ pod never ran
   | -->  imageback pull off-- if image is not downloaded
@@ -2537,7 +2707,7 @@ spec:
             - containerPort: 80
 
 
-Project 2:
+Project 3:
 =----------
 1. Amazon linux
 2. Amazon linux 2 AMI
@@ -2549,7 +2719,7 @@ Project 2:
 8. systemctl start docker
 9. systemctl enable docker
 10. yum install conntrack -y
-11. curl -LO https://storage.googleapis.com/minikube/releas/latest/minikube-linux-amd64
+11. curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 12. sudo install  minikube-linux-amd64 /usr/local/bin/minikube
 13. star your minikube 
     /usr/local/bin/minikube start --force --driver=docker
@@ -2562,6 +2732,188 @@ Install maven
 17. yum install java -y
 
 19.Continue u the project from documentations
+19. curl -o kubectl https://amazon-eks.s3.us-west-2.amazon.aws.com/1.20.4/2021-04-12/bin/linux/amd64/kubecctl
+20. chmod +x ./kubectl
+21. mkdir -p $HOME/bin
+22. cp ./kubectl $HOME/bin/kubectl 
+23. export PATH=$HOME/bin:$PATH
+24. echo 'export PATH=$HOME/bin:$PATH'>>~/.bashrc
+25. source $HOME/.bashrc
+26 kubectl version --short -client
+
+27. git clone https://github.com/praveen1994dec/kubernetes_java_deployment.git
+28. 
+
+STEP 5 – IMPORTANT STEP [ 3 SERVICES IN PROJECT ]
+[ Give your dockerhub ID in place of ]
+cd shopfront/
+mvn clean install -DskipTests
+docker build -t /shopfront:latest . 
+docker push /shopfront:latest
+
+[ Give your dockerhub ID in place of ]
+cd productcatalogue/
+mvn clean install -DskipTests
+docker build -t praveensingam1994/productcatalogue:latest . 
+docker push praveensingam1994/productcatalogue:latest
+
+[ Give your dockerhub ID in place of ]
+cd stockmanager/
+mvn clean install -DskipTests
+docker build -t praveensingam1994/stockmanager:latest . docker push praveensingam1994/stockmanager:latest
+ SERVICE1
+ praveensingam1994
+ praveensingam1994
+ praveensingam1994
+praveensingam1994
+ SERVICE2
+  SERVICE3
+ praveensingam1994
+  STEP 6 - GO TO KUBERNETES FOLDER IN SAME PROJECT
+cd kubernetes
+kubectl apply -f shopfront-service.yaml kubectl apply -f productcatalogue-service.yaml kubectl apply -f stockmanager-service.yaml
+STEP 7 – kubectl get pods
+STEP 8 – Hit the below command to start the kubernetes dashboard in EC2
+/usr/local/bin/minikube dashboard
+STEP9[INNEWEC2WINDOW] -
+Open the EC2 in new window and set the PROXY kubectl proxy --address='0.0.0.0' --accept-hosts='^*$'
+    
+  STEP 9 - Hit in browser to view the dashboard
+http://<EC2-IP>:8001/api/v1/namespaces/kubernetes-da shboard/services/http:kubernetes-dashboard:/proxy/#/po d?namespace=default
+    [YOU WILL SEE YOUR APPS]
+STEP 10 – Hit the below command for each service in
+different console of EC2
+[ EC2 LOGIN FIRST ]
+kubectl port-forward --address 0.0.0.0 svc/shopfront 8080:8010
+[EC2 LOGIN FIRST]
+kubectl port-forward --address 0.0.0.0 svc/productcatalogue 8090:8020
+[ EC2 LOGIN FIRST ]
+ 
+ kubectl port-forward --address 0.0.0.0 svc/stockmanager 9008:8030
+STEP 11 –
+- http://<EC2IP>:8090/products
+- [{"id":"1","name":"Widget","descriptio
+   n":"Premium ACME
+   Widgets","price":1.1999999999999999555
+   910790149937383830547332763671875},{"i
+   d":"2","name":"Sprocket","description"
+   :"Grade B
+   sprockets","price":4.09999999999999964
+   47286321199499070644378662109375},{"id
+   ":"3","name":"Anvil","description":"La
+   rge
+   Anvils","price":45.5},{"id":"4","name"
+   :"Cogs","description":"Grade Y
+   cogs","price":1.8000000000000000444089
+   209850062616169452667236328125},{"id":
+   "5","name":"Multitool","description":"
+   Multitools","price":154.09999999999999
+   4315658113919198513031005859375}]
+- http://<EC2IP>:9008/stocks
+- [{"productId":"1","sku":"12345678","am ountAvailable":5},{"productId":"2","sk u":"34567890","amountAvailable":2},{"p roductId":"3","sku":"54326745","amount Available":999},{"productId":"4","sku" :"93847614","amountAvailable":0},{"pro
+   
+ductId":"5","sku":"11856388","amountAv
+   ailable":1}]
+STEP 12 – ANALYZE THE DASHBOARD
+[ IGNORE THE ERROR IN 1 POD, It is due to PROBES as
+discussed in class ]
+ GO TO EACH SEGMENT ON LEFT HAND SIDE AND EXPLORE ☺☺
+
+
+
+kubernetes_java_deployment/kubernetes
+/productcatalogue-service.yaml
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: productcatalogue
+  labels:
+    app: productcatalogue
+spec:
+  type: NodePort
+  selector:
+    app: productcatalogue
+  ports:
+  - protocol: TCP
+    port: 8020
+    name: http
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productcatalogue
+spec:
+  selector:
+    matchLabels:
+      app: productcatalogue
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: productcatalogue
+    spec:
+      containers:
+      - name: productcatalogue
+        image: praveensingam1994/productcatalogue:latest
+        ports:
+        - containerPort: 8020
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8025
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+
+
+kubernetes_java_deployment/kubernetes/shopfront-service.yaml
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopfront
+  labels:
+    app: shopfront
+spec:
+  type: NodePort
+  selector:
+    app: shopfront
+  ports:
+  - protocol: TCP
+    port: 8010
+    name: http
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopfront
+spec:
+  selector:
+    matchLabels:
+      app: shopfront
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: shopfront
+    spec:
+      containers:
+      - name: shopfront
+        image: praveensingam1994/shopfront:latest
+        ports:
+        - containerPort: 8010
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8010
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+
+
 
 
 
@@ -2631,6 +2983,50 @@ kubectl delete pods
 
 Custom_Resource_DefinitioN
 ================================
+
+      /api/v1/namespaces/{namespac3s}/pods
+      _________________                            _________________
+     |kind: Pod       |                           | kind: Node      |
+     |name:           |                           | name:           |
+     |   nginx -a     | ---foo                    |      node -1    |
+      ------------------       ^                  |-->---------------------
+kind:                          |                 |     
+  APIService                   |                 ^
+  name:                        |                 | 
+      FlunderSrv              pods               nodes
+apiservices                    ^                 ^
+     | (/apis/apiregistrations.|-----------------|         
+     | k8s.io/v1/apiservices)          | 
+  apiresgistrations.k8s.io/v1        api/v1
+     |                                 ^
+     |                                 |      
+     |_____________<_< ------Build-int resources-->>>----------------apiextentsion.k8s.io/v1---crds---------Kind: 
+                                                                                                           customResourceDeff
+                              ________|_________                   /apis/apiextenstion.k8s.io/v1/customeresourcedefinitions
+                             |                 |
+/apis/apiregistrations.      |Kubernetese API  |
+ k8s.io/v1/apiservices       |                 |
+                             |_________________|
+                                |           |
+        aggregates APIS ---------------------------------------------Custom resources
+           |                                                             | 
+ 
+   warde.example.-->               API groups                     inlets.inlets.dev/v1alpha1
+    com.v1alpha1 
+
+       |                                                                       |
+    flunders                        (Resources)                               tunnels
+       |
+     qux                            (Namespace)                                bar
+
+       |                                                                        |
+Kind:----------------------------< ---API OBject --->------------------------  Kind:------------->API OBject
+    flunder                                                                      Tunnel
+name:                                                                            name:
+    fluinder -1                                                                    EC2-tun-1
+(apis/wardle.example.come/v1aplha1/namespaces/foo/flunder)                    (apis/inlets.inlets.dev/v1alpha1/tunnels)
+
+
 
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
