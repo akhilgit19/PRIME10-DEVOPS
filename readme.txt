@@ -2707,7 +2707,7 @@ spec:
             - containerPort: 80
 
 
-Project 3:
+Project 3: EKS Project
 =----------
 1. Amazon linux
 2. Amazon linux 2 AMI
@@ -3027,6 +3027,8 @@ name:                                                                           
 (apis/wardle.example.come/v1aplha1/namespaces/foo/flunder)                    (apis/inlets.inlets.dev/v1alpha1/tunnels)
 
 
+--https://github.com/praveen1994dec/Custom_Resource_Definition.git
+
 
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -3104,6 +3106,14 @@ spec:
  instanceSize: small
  environmentType: dev
  replicas: 3
+
+
+Project4:
+----------
+EKS Cloud project see the documentation
+
+
+
 
 
 
