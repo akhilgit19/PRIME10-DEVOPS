@@ -3144,7 +3144,7 @@ variable = datatype
 2.c=1.1(float variable)
 3.d=1 (integer)
 
-4.["jeans", "shirt"     ] == list data type
+4.list1 = ["jeans", "shirt"     ] == list data type and mutabale
 
 list[0] - jeans
 list[1] -shirt
@@ -3222,7 +3222,9 @@ msg= otp
 
 print(msg)
 
-
+To execute:
+-python3 import os.py
+-
 
 
 
