@@ -3774,6 +3774,55 @@ We use try-except blocks to handle potential errors such as API connection issue
 
 
 
+                                     Monitoring
+=================================================================================================================
+
+Monitoring-
+------------------
+
+1 Walmart
+------------
+- Prometheus
+- graphana
+- xmaters
+- Phone/Email
+- SRE Engeeer - 8 AM - 8PM Level1/2
+-               8:30pM- 8 AM/ Level1/2
+
+2. Verizon
+----------------
+- Sentry
+- ELK
+- Aws cloud watch
+- New relic
+
+3. Infosys
+-----------
+- splunl
+- datagod
+- nagoss
+- dynatries
+- App dynamics
+- 
+
+Automation
+-----------------------------------------
+Xmatters       
+  |
+Graphana 
+  |
+Promethesu  -(Scrapping the data from K8 )
+  |
+  k8
+
+
+
+
+
+
+
+
+
 
 
 
