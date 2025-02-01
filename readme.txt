@@ -2565,8 +2565,8 @@ yaml
            |                                                            --  namespace
                                                                         -- istio
 2|->    ETCD 6(It stores all the data in kub)                     >>Kube Proxy  10 [Thrid componenet
- |        ^  (d means distributed database)                        Continer d or Container Runtime
- |        |  (it stores the data in key: value format)
+ |        ^                                                        (d means distributed database)Continer d or Container Runtime
+ |        |(it stores the data in key: value format)
 3|-->   Control Manager   5< --<--------<--------- |
  |     CPU                                         ^
  |    - Node controller                            |  
@@ -3807,22 +3807,755 @@ Monitoring-
 
 Automation
 -----------------------------------------
-Xmatters       
-  |
-Graphana 
-  |
-Promethesu  -(Scrapping the data from K8 )
-  |
-  k8
+                                Xmatters       
+                                   |
+(can pull data from              Graphana -(Grpahana query languae),(Dashboard)
+promethuse,mysql,infix,posgress)   |
+inbuilt Time series databse-----Promethesu-(Scrapping the data from K8  in time interval ),( Prometheys Query language)
+   or                              |             
+  influx                           | (By deploying agents i interegrate prometheus and K8)
+                                   |
+                                   k8
+
+
+1.Prometheus Query language to extract the kubernetes CPU and memory of a POD
+-------------------------------------------------------------------------------
+To extract the CPU and memory usage of a Kubernetes pod using Prometheus Query Language (PromQL), you can use the following queries. These queries assume you're using the kube-state-metrics and node-exporter or metrics-server to collect Kubernetes metrics.
+
+CPU Usage for a Pod
+To get the CPU usage of a specific pod in your cluster, you can query the container_cpu_usage_seconds_total metric:
+
+promql
+Copy
+rate(container_cpu_usage_seconds_total{pod="your-pod-name", namespace="your-namespace"}[1m])
+Explanation:
+
+container_cpu_usage_seconds_total: Metric for the total CPU time consumed by containers.
+pod="your-pod-name": Filter by the pod name.
+namespace="your-namespace": Filter by the namespace.
+[1m]: The rate() function computes the per-second average rate of increase over the last 1 minute.
+Memory Usage for a Pod
+To get the memory usage of a specific pod in your cluster, you can query the container_memory_usage_bytes metric:
+
+promql
+Copy
+container_memory_usage_bytes{pod="your-pod-name", namespace="your-namespace"}
+Explanation:
+
+container_memory_usage_bytes: Metric for the memory usage (in bytes) of containers.
+pod="your-pod-name": Filter by the pod name.
+namespace="your-namespace": Filter by the namespace.
+CPU and Memory Usage for All Pods in a Namespace
+If you want to get the aggregate CPU and memory usage for all pods in a specific namespace, you can use the following queries:
+
+CPU Usage (All Pods)
+promql
+Copy
+sum(rate(container_cpu_usage_seconds_total{namespace="your-namespace"}[1m])) by (pod)
+Memory Usage (All Pods)
+promql
+Copy
+sum(container_memory_usage_bytes{namespace="your-namespace"}) by (pod)
+Notes:
+If you are looking for a specific container inside a pod, you can further refine your queries by adding the container label.
+The rate() function helps calculate the per-second average over a given time range (e.g., [1m]).
+Let me know if you need further clarification or adjustments based on your setup!
+
+2.Grapahana query language for getting CPU of pod from prometheus
+-------------------------------------------------------------------
+
+In Grafana, when you're working with Prometheus as the data source, you'll be querying with PromQL (Prometheus Query Language) to pull metrics.
+
+To retrieve CPU usage for a specific Kubernetes pod from Prometheus, you typically rely on the container_cpu_usage_seconds_total metric, which measures the total CPU time consumed by containers. You would filter this metric by the pod name and possibly the namespace to narrow the results.
+
+Here are a few common queries to get CPU usage for pods:
+
+1. CPU Usage for a Specific Pod:
+If you want to get the CPU usage (in seconds) for a specific pod over time, you can use:
+
+promql
+Copy
+rate(container_cpu_usage_seconds_total{pod="your-pod-name", namespace="your-namespace"}[1m])
+Explanation:
+container_cpu_usage_seconds_total: Total cumulative CPU time consumed by the container.
+rate(...): Calculates the per-second rate of change for a counter metric (here, CPU usage).
+{pod="your-pod-name", namespace="your-namespace"}: Filters the data for a specific pod and namespace.
+[1m]: This indicates you're calculating the rate over the last 1 minute.
+This query will give you the CPU usage in CPU cores per second.
+
+2. CPU Usage for All Pods in a Namespace:
+If you're interested in CPU usage for all pods within a specific namespace:
+
+promql
+Copy
+sum(rate(container_cpu_usage_seconds_total{namespace="your-namespace"}[1m])) by (pod)
+Explanation:
+sum(...) by (pod): Sums the CPU usage for each pod in the given namespace and groups the results by the pod name.
+This will return the CPU usage for each pod in the specified namespace.
+3. CPU Usage (Total) Across All Pods:
+To get the total CPU usage across all pods in the cluster:
+
+promql
+Copy
+sum(rate(container_cpu_usage_seconds_total[1m]))
+This will return the total CPU usage across all pods.
+
+4. CPU Usage for a Pod, Relative to the Number of CPU Cores:
+If you want to express CPU usage in a normalized way (e.g., as a percentage of available CPU cores):
+
+promql
+Copy
+rate(container_cpu_usage_seconds_total{pod="your-pod-name", namespace="your-namespace"}[1m]) / count(container_cpu_usage_seconds_total{pod="your-pod-name", namespace="your-namespace"}) * 100
+This query gives the CPU usage percentage by dividing the per-second CPU rate by the number of CPU cores allocated to the pod.
+
+5. CPU Usage (Over Time) for a Specific Pod:
+If you want to visualize CPU usage over time for a pod:
+
+promql
+Copy
+avg(rate(container_cpu_usage_seconds_total{pod="your-pod-name", namespace="your-namespace"}[5m])) by (pod)
+This query calculates the average CPU usage over a 5-minute window and groups it by pod. It's useful for showing a smoothed view of CPU usage over time.
+
+6. CPU Usage for Containers in a Pod (Group by Container):
+If you're monitoring multiple containers within a pod, you can get CPU usage per container:
+
+promql
+Copy
+sum(rate(container_cpu_usage_seconds_total{pod="your-pod-name", namespace="your-namespace"}[1m])) by (container, pod)
+This groups the CPU usage by container and pod, showing CPU usage for each container inside the pod.
+
+Notes:
+The rate() function is crucial in Prometheus as it helps to calculate the per-second rate of change for a counter metric. Without it, you might just get the cumulative counter value over time, which is less useful for monitoring trends.
+Always adjust the 1m (1-minute) or [5m] window depending on how granular you want your data.
+You can always check the list of available labels using Prometheus' query interface to see what other labels are available (like container, namespace, node, etc.).
+
+
+
+
+3.graphana query for a mysql databse
+------------------------------------------
+ To create a query in Grafana for a MySQL database, you need to:
+
+Set up the MySQL data source in Grafana.
+Write SQL queries that pull the necessary data.
+Here's an example of how to write a query for MySQL in Grafana.
+
+Steps to Set Up:
+Add MySQL as a Data Source:
+
+Go to Grafana's web interface.
+Click on the "Configuration" (gear icon) in the left menu.
+Click on "Data Sources" and then "Add data source".
+Select MySQL from the list and configure the connection (hostname, database name, credentials, etc.).
+Create a Dashboard/Panel:
+
+After configuring the data source, go to your Dashboard or create a new one.
+Add a new Panel and select MySQL as the data source.
+Sample Queries:
+Here are a few example queries depending on the type of data you're working with:
+
+1. Basic Query to Retrieve Data:
+If you just want to select some basic data from a table, say you have a sales table, you might use:
+
+sql
+Copy
+SELECT
+  $__timeGroup(created_at, '5m') as time,
+  SUM(amount) as total_sales
+FROM sales
+WHERE $__timeFilter(created_at)
+GROUP BY time
+ORDER BY time
+Explanation:
+__timeGroup is a Grafana function to group data based on time.
+__timeFilter is a Grafana function to automatically filter by the time range selected in Grafana's UI.
+SUM(amount) calculates the total sales per time period (in this case, 5 minutes).
+2. Query for CPU or Resource Usage (if monitoring system metrics):
+If you're tracking system metrics from a table like metrics:
+
+sql
+Copy
+SELECT
+  $__timeGroup(timestamp, '1h') as time,
+  avg(cpu_usage) as average_cpu
+FROM metrics
+WHERE $__timeFilter(timestamp)
+GROUP BY time
+ORDER BY time
+This gives you the average CPU usage over the past hour.
+
+3. Query for Last N Records:
+If you want to show the most recent records from a table:
+
+sql
+Copy
+SELECT
+  timestamp,
+  metric_name,
+  value
+FROM metrics
+ORDER BY timestamp DESC
+LIMIT 10
+4. Count Query for Event Frequency:
+If you're counting events, for example:
+
+sql
+Copy
+SELECT
+  $__timeGroup(timestamp, '1h') as time,
+  COUNT(*) as event_count
+FROM events
+WHERE $__timeFilter(timestamp)
+GROUP BY time
+ORDER BY time
+Important Grafana Functions:
+__timeGroup(): This function groups data by time intervals. Common intervals include '1m', '5m', '1h', etc.
+__timeFilter(): Automatically applies the time range filter you’ve selected in the Grafana UI.
+__interval: This is often used for aggregating data over a set time interval automatically.
+Once you've written the query, Grafana will automatically visualize the results as time series data. You can then customize the panel type (Graph, Table, Gauge, etc.), and apply further transformations or alerts based on the data.
+
+Let me know if you need further details or adjustments on your queries!
+
+
+
+
+3.Prometheus configurations with targets as kubernetes
+-------------------------------------------------------------
+
+Setting up Prometheus to monitor Kubernetes involves configuring Prometheus to scrape metrics from the various Kubernetes components and services running in your cluster. Kubernetes exposes metrics in a format Prometheus can scrape, and you can configure Prometheus to discover these targets dynamically. Here's a step-by-step guide on how to configure Prometheus with Kubernetes targets.
+
+1. Install Prometheus in Kubernetes
+You can deploy Prometheus in Kubernetes using Helm or manually via manifests. Here’s how to do it with Helm, which is a quick and efficient way to manage Kubernetes applications.
+
+Using Helm (Recommended):
+Add the Prometheus Helm chart repository:
+
+bash
+Copy
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+Install Prometheus:
+
+bash
+Copy
+helm install prometheus prometheus-community/kube-prometheus-stack
+The kube-prometheus-stack chart includes Prometheus, Alertmanager, Grafana, and the necessary configurations for Kubernetes monitoring.
+
+After installation, you can check the Prometheus pods:
+
+bash
+Copy
+kubectl get pods -n default
+By default, it will create a Prometheus deployment along with necessary RBACs, ConfigMaps, and service accounts.
+
+2. Configure Prometheus to Discover Kubernetes Targets
+Kubernetes uses service discovery to allow Prometheus to automatically find and scrape the necessary targets. This can be configured through the Prometheus configuration file (prometheus.yml), but with Helm, most of this configuration is set automatically.
+
+However, you can still modify or check the configuration in the Prometheus Helm chart values.
+
+Configuring Kubernetes Service Discovery:
+Prometheus supports a variety of service discovery mechanisms. For Kubernetes, it's usually done by using the kubernetes_sd_configs option. Here's an example of how you would define it in prometheus.yml:
+
+yaml
+Copy
+scrape_configs:
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        target_label: app
+3. Service Discovery with Kubelet, Nodes, and Pods
+In Kubernetes, you can configure Prometheus to scrape the following types of targets:
+
+Kubelet metrics (on each node)
+Pod metrics (from specific services/pods)
+Node metrics (via the node-exporter)
+Here's how you can configure Prometheus to scrape these targets:
+
+Example: Scraping Metrics from Kubelets
+yaml
+Copy
+scrape_configs:
+  - job_name: 'kubernetes-nodes'
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_node_label_kubernetes_io_hostname]
+        target_label: kubernetes_node
+Example: Scraping Metrics from Pods
+yaml
+Copy
+scrape_configs:
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod_name
+4. Configure RBAC for Prometheus
+Prometheus needs to have the correct permissions to query the Kubernetes API and scrape the necessary metrics. This can be done by configuring Role-Based Access Control (RBAC) permissions for Prometheus. If you're using the kube-prometheus-stack Helm chart, the necessary RBAC permissions are usually created automatically. However, if you're doing it manually, here's an example of what you need to include:
+
+Example RBAC Permissions:
+yaml
+Copy
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: monitoring
+  name: prometheus
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "endpoints"]
+    verbs: ["get", "list"]
+  - apiGroups: ["extensions"]
+    resources: ["ingresses"]
+    verbs: ["get", "list"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list"]
+5. Expose Prometheus Web UI
+By default, Prometheus is exposed internally within the Kubernetes cluster, but you may want to access it externally for monitoring and troubleshooting. You can expose Prometheus through a Kubernetes service of type LoadBalancer or NodePort.
+
+For example, with Helm, you can expose it by adding the following to your values.yaml file:
+
+yaml
+Copy
+prometheus:
+  service:
+    type: LoadBalancer
+    port: 9090
+Then, upgrade your Helm release:
+
+bash
+Copy
+helm upgrade prometheus prometheus-community/kube-prometheus-stack -f values.yaml
+Alternatively, you can manually edit the Prometheus service in the Kubernetes cluster to expose it.
+
+6. Configure Alerts (Optional)
+Prometheus also supports alerting, which you can configure to notify you when certain thresholds are met. You would typically set up Alertmanager for this.
+
+Example alertmanager.yml (configured via Helm or a ConfigMap):
+
+yaml
+Copy
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 5m
+  repeat_interval: 3h
+  receiver: 'email-alert'
+
+receivers:
+  - name: 'email-alert'
+    email_configs:
+      - to: 'your-email@example.com'
+        send_resolved: true
+7. Grafana Integration
+The kube-prometheus-stack chart comes with Grafana preconfigured. You can access Grafana to visualize the Prometheus metrics by setting it up with the appropriate values:
+
+yaml
+Copy
+grafana:
+  adminPassword: 'yourpassword'
+  service:
+    type: LoadBalancer
+Once Grafana is running, you can access the dashboards using the default Prometheus dashboards or create your own to visualize Kubernetes metrics.
+
+Conclusion
+With Helm and Prometheus's built-in Kubernetes service discovery, you can quickly start monitoring Kubernetes clusters. Prometheus will automatically discover and scrape metrics from Kubernetes components, including nodes, pods, and the Kubernetes API server. You can then visualize this data using Grafana or set up alerts to be notified when critical thresholds are crossed.
+
+
+
+Java- Maven/ Maven repo
+Nodejs- npm/node
+Andriod- Graddle
+K8- helm/helm repo
+docker- dockerfile/dockerhub
+
+
+
+K8-----> helm package---> to share and deploy in other k8 pods
+
+
+
+Standard Helm Chart Directory Structure with example of each and every files
+--------------------------------------------------
+
+ Here's the standard Helm Chart directory structure with examples of each file and directory:
+
+Helm Chart Directory Structure Example
+pgsql
+Copy
+my-chart/
+├── .helmignore
+├── Chart.yaml
+├── values.yaml
+├── charts/
+│   └── redis-helm-chart-1.0.0.tgz  (example of a dependency chart)
+├── templates/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── ingress.yaml
+│   └── configmap.yaml
+├── README.md
+└── values.schema.json (optional)
+1. .helmignore
+This file works like .gitignore and tells Helm which files should be excluded when packaging or deploying the chart. It's useful for excluding local development files, temporary files, and unnecessary artifacts.
+
+Example:
+
+plaintext
+Copy
+# Ignore temporary files
+*.log
+*.tmp
+
+# Ignore specific directories
+.idea/
+.vscode/
+
+# Ignore markdown files (except README.md)
+*.md
+2. Chart.yaml
+This file contains the metadata about the Helm chart, like its name, version, description, and any dependencies.
+
+Example:
+
+yaml
+Copy
+apiVersion: v2
+name: my-app
+description: A Helm chart for deploying MyApp
+version: 1.0.0
+appVersion: "2.0"
+dependencies:
+  - name: redis
+    version: "6.0.0"
+    repository: "https://charts.bitnami.com/bitnami"
+3. values.yaml
+This file contains the default configuration values for your chart. Users can override these values when they deploy the chart.
+
+Example:
+
+yaml
+Copy
+replicaCount: 2
+image:
+  repository: myapp
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 80
+resources: {}
+ingress:
+  enabled: true
+  annotations: {}
+  path: /
+  hosts:
+    - host: myapp.local
+      paths: []
+4. charts/
+This directory contains subcharts, which are other charts that your chart depends on. Helm will automatically look for dependencies here and install them when running helm install. You can also use helm dependency update to fetch remote charts.
+
+Example (subchart of Redis):
+
+Copy
+charts/
+└── redis-helm-chart-1.0.0.tgz
+5. templates/
+This folder contains all the Kubernetes resource templates. These files are usually YAML files with Helm template syntax embedded (e.g., {{ .Values.someField }}) to dynamically generate Kubernetes resources.
+
+deployment.yaml
+Defines the Deployment resource for your application.
+
+Example:
+
+yaml
+Copy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-myapp
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-myapp
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-myapp
+    spec:
+      containers:
+        - name: myapp
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 80
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+service.yaml
+Defines the Service resource for your application.
+
+Example:
+
+yaml
+Copy
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-myapp-service
+spec:
+  selector:
+    app: {{ .Release.Name }}-myapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: {{ .Values.service.type }}
+ingress.yaml
+Defines the Ingress resource for routing traffic to your app.
+
+Example:
+
+yaml
+Copy
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-myapp-ingress
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  rules:
+    - host: {{ .Values.ingress.hosts[0].host }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-myapp-service
+                port:
+                  number: 80
+configmap.yaml
+Defines a ConfigMap resource for storing configuration data.
+
+Example:
+
+yaml
+Copy
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-myapp-config
+data:
+  app-config: |
+    setting1: {{ .Values.someSetting }}
+    setting2: {{ .Values.anotherSetting }}
+6. README.md
+This file is for chart documentation. It explains how to use the chart, provides examples, and includes any relevant configuration options.
+
+Example:
+
+markdown
+Copy
+# MyApp Helm Chart
+
+This Helm chart deploys MyApp to your Kubernetes cluster.
+
+## Installation
+
+To install the chart with the release name `myapp`:
+
+```bash
+helm install myapp ./my-chart
+Configuration
+Parameter	Description	Default Value
+replicaCount	Number of replicas	1
+image.repository	Image repository	myapp
+image.tag	Image tag	1.0.0
+service.type	Service type	ClusterIP
+Ingress
+To enable ingress, modify values.yaml:
+
+yaml
+Copy
+ingress:
+  enabled: true
+  hosts:
+    - host: myapp.local
+      paths: []
+pgsql
+Copy
+
+---
+
+### 7. **`values.schema.json` (optional)**
+
+This is an optional file for providing a schema definition for your `values.yaml` file. It allows for validation of user input and documentation of configuration fields.
+
+**Example:**
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "default": 1
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"]
+        }
+      }
+    }
+  }
+}
+Conclusion:
+The standard Helm chart directory structure is designed to be simple and organized. The most common files are:
+
+Chart.yaml – Chart metadata.
+values.yaml – Default values for configuration.
+templates/ – Kubernetes resource templates.
+README.md – Documentation.
+Each file plays a crucial role in making your Helm chart reusable, maintainable, and easy to deploy in Kubernetes environments.
+
+Would you like to dive deeper into any specific file or concept?
 
 
 
 
 
+4jenkins installation on kubernetes with helm charts
+------------------------------------------------------
+
+To install Jenkins on Kubernetes using Helm, you can follow these steps:
+
+1. Install Helm (if you haven't already)
+If you don't have Helm installed, you'll need to do that first. You can install Helm using the following commands based on your system:
+
+macOS (with Homebrew):
+bash
+Copy
+brew install helm
+Linux:
+bash
+Copy
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+Windows (via Chocolatey):
+bash
+Copy
+choco install kubernetes-helm
+2. Add Jenkins Helm Chart Repository
+Jenkins provides an official Helm chart that you can use for installation. Add the official Jenkins Helm chart repository:
+
+bash
+Copy
+helm repo add jenkins https://charts.jenkins.io
+helm repo update
+3. Install Jenkins Using Helm
+You can now install Jenkins on your Kubernetes cluster using Helm. To install Jenkins, run:
+
+bash
+Copy
+helm install jenkins jenkins/jenkins --namespace jenkins --create-namespace
+This command will:
+
+Install Jenkins in the jenkins namespace (it will create the namespace if it doesn’t exist).
+The release will be named jenkins.
+4. Check Installation
+To ensure Jenkins was installed successfully, you can check the status of the deployment:
+
+bash
+Copy
+kubectl get pods -n jenkins
+You should see Jenkins pods running. It may take a minute or so for Jenkins to be fully initialized.
+
+5. Access Jenkins
+By default, the Jenkins installation via Helm will expose the Jenkins UI using a LoadBalancer service (depending on your Kubernetes environment). To check the external IP address, you can run:
+
+bash
+Copy
+kubectl get svc -n jenkins
+Look for the EXTERNAL-IP of the jenkins service.
+
+If you're using Minikube (local Kubernetes):
+If you're using Minikube, you can access the Jenkins UI through the Minikube tunnel:
+
+bash
+Copy
+minikube tunnel
+Then access Jenkins via http://localhost:8080 or the URL provided.
+
+6. Retrieve the Jenkins Admin Password
+Once the Jenkins pods are running, you can retrieve the initial admin password to log in to the Jenkins UI:
+
+bash
+Copy
+kubectl get secret --namespace jenkins jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode
+This will give you the password that you can use to log in as the Jenkins admin user.
+
+7. Post-Installation Configurations
+After logging into Jenkins, you may need to install additional plugins or configure Jenkins to suit your needs.
+
+Customizing Your Jenkins Installation
+You can customize the Helm chart values by creating a custom values.yaml file. For example:
+
+yaml
+Copy
+controller:
+  installPlugins:
+    - kubernetes:1.30.0
+    - workflow-aggregator:2.6
+    - git:4.10.0
+  jenkinsUriRoot: "/jenkins"
+Then, install Jenkins using the custom values file:
+
+bash
+Copy
+helm install jenkins jenkins/jenkins --namespace jenkins --create-namespace -f values.yaml
+8. Upgrade Jenkins (if needed)
+If you want to upgrade Jenkins in the future, you can use:
+
+bash
+Copy
+helm upgrade jenkins jenkins/jenkins --namespace jenkins
+9. Uninstall Jenkins
+If you ever need to uninstall Jenkins, you can do so with:
+
+bash
+Copy
+helm uninstall jenkins --namespace jenkins
+This will remove the release, and if you want to delete the namespace as well:
+
+bash
+Copy
+kubectl delete namespace jenkins
 
 
 
-
+Project  5
+--------------
 
 
 
