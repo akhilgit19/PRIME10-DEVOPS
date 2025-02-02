@@ -4559,3 +4559,90 @@ Project  5
 
 
 
+
+                                        Shell Scripting
+================================================================================================================================
+
+1  Commands in shell scripting
+-----------------------------------------
+ a=b } variables and datatpes
+ b=c
+
+-linux system
+-API automations
+-backups recovery
+
+Linux systems
+---------------
+types of logins
+-sh
+-ksh
+-nologin
+-bash
+
+Command
+- SED - stream editor - file operations,variable operations
+- AWK 
+- YUM
+- APT
+- FUNCTIONS
+- automation
+- scenarios
+- software
+- grep
+- find
+- mtime
+- top
+- ctime
+- df
+
+1. sed command - sed s/maganger/heydeveops/g text.txt
+               - sed -n '1,3'p test.sh ----> print 1 to 3 lines [p -> print /n-> number]
+
+2. awk '{print}' test.sh  --- print the whole file
+
+3. awk /manager/'{print}' test.sh prints lines with "manager" word
+4. awk -F'[.]''/^version/{print $1"."$2"."$4+1}' test.sh
+version=1.2.3.4 -- Version increment
+
+5. sed 's/tenth/eleaven//=g' test.sh -> Replace a value in a file
+   hello=Devops=learners
+
+6.echo $hello |sed's/=/ /g' | awk '{print $2}'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
