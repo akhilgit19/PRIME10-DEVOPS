@@ -4611,13 +4611,179 @@ version=1.2.3.4 -- Version increment
 6.echo $hello |sed's/=/ /g' | awk '{print $2}'
 
 
+automation -1Script project of sending file to jfrog repo:
+--------------------------------------------------
+
+ automation-2
+-----------------
+
+
+https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-labels/#api-group-labels
 
 
 
 
 
+shell script to find the log file with older that last 7 days
+----------------------------------------------------------------
+
+#!/bin/bash
+
+# Directory where log files are located (you can modify this path)
+LOG_DIR="/path/to/log/directory"
+
+# Find files older than 7 days and print their names
+find "$LOG_DIR" -type f -name "*.log" -mtime +7
+Explanation:
+find: Command to search for files.
+"$LOG_DIR": The directory where the log files are stored (you can change this to the directory where your log files are).
+-type f: Restricts the search to files (ignoring directories).
+-name "*.log": Searches only for files with the .log extension. Adjust this if your logs have a different extension.
+-mtime +7: Finds files modified more than 7 days ago (+7 means "greater than 7 days").
+How to use it:
+Save the script in a file, e.g., find_old_logs.sh.
+Make the script executable:
+bash
+Copy
+chmod +x find_old_logs.sh
+Run the script:
+bash
+Copy
+./find_old_logs.sh
 
 
+Functions with shell:
+-------------------------
+#!/bin/bash
+
+# Function to find log files older than 7 days
+find_old_logs() {
+    # Set the directory to search and the log file extension
+    local directory="$1"
+    local extension="$2"
+    
+    # Check if the directory exists
+    if [ ! -d "$directory" ]; then
+        echo "Directory $directory does not exist."
+        exit 1
+    fi
+
+    # Find files older than 7 days
+    find "$directory" -type f -name "*.$extension" -mtime +7
+}
+
+# Function to send an email with the log results
+send_email() {
+    local email_subject="$1"
+    local email_recipient="$2"
+    local email_body="$3"
+
+    echo -e "$email_body" | mail -s "$email_subject" "$email_recipient"
+}
+
+# Main script logic
+
+# Set your directory and email details
+log_directory="/path/to/logs"           # Modify this with your log directory
+log_extension="log"                     # Modify this if your logs have a different extension
+email_recipient="recipient@example.com" # Modify with your recipient email
+email_subject="Logs Older Than 7 Days"  # Subject for the email
+
+# Find the logs older than 7 days
+log_files=$(find_old_logs "$log_directory" "$log_extension")
+
+# Check if we found any old logs
+if [ -z "$log_files" ]; then
+    email_body="No log files older than 7 days were found."
+else
+    email_body="The following log files are older than 7 days:\n\n$log_files"
+fi
+
+# Send email
+send_email "$email_subject" "$email_recipient" "$email_body"
+
+echo "Email sent to $email_recipient with the results."
+
+
+For loop with array in the shelll script:
+------------------------------------------------
+## declare an array variable
+declare -a arr=("element1" "element2" "element3")
+
+## now loop through the above array
+for i in "${arr[@]}"
+do
+   echo "$i"
+   # or do whatever with individual element of the array
+done
+
+# You can access them using echo "${arr[0]}", "${arr[1]}" also
+Also works for multi-line array declaration
+
+declare -a arr=("element1" 
+                "element2" "element3"
+                "element4"
+                )
+
+Write a shell script to read the data from below log file and get the ip address  
+
+https://www.onlinegdb.com/online_bash_shell
+
+
+
+03/22 08:51:06 TRACE  :...read_physical_netif: Home list entries returned = 7
+03/22 08:51:06 INFO   :...read_physical_netif: index #0, interface VLINK1 has address 129.1.1.1, ifidx 0
+03/22 08:51:06 INFO   :...read_physical_netif: index #1, interface TR1 has address 9.37.65.139, ifidx 1
+03/22 08:51:06 INFO   :...read_physical_netif: index #2, interface LINK11 has address 9.67.100.1, ifidx 2
+03/22 08:51:06 INFO   :...read_physical_netif: index #3, interface LINK12 has address 9.67.101.1, ifidx 3
+03/22 08:51:06 INFO   :...read_physical_netif: index #4, interface CTCD0 has address 9.67.116.98, ifidx 4
+03/22 08:51:06 INFO   :...read_physical_netif: index #5, interface CTCD2 has address 9.67.117.98, ifidx 5
+03/22 08:51:06 INFO   :...read_physical_netif: index #6, interface LOOPBACK has address 127.0.0.1, ifidx 0
+03/22 08:51:06 INFO   :....mailslot_create: creating mailslot for timer
+03/22 08:51:06 INFO   :...mailbox_register: mailbox allocated for timer
+
+
+Desired Output
+
+129.1.1.1
+9.37.65.139
+9.67.100.1
+9.67.116.98
+
+
+You can use a simple shell script to extract the IP addresses from the log file. Here’s a script that will read the log file, search for lines containing IP addresses, and then print only those IPs:
+
+bash
+Copy
+#!/bin/bash
+
+# Define the log file path
+log_file="logfile.txt"  # Update this with the actual path to your log file
+
+# Extract IP addresses using grep and awk
+grep -oP '\d+\.\d+\.\d+\.\d+' "$log_file" | grep -v '127.0.0.1'
+Explanation:
+grep -oP '\d+\.\d+\.\d+\.\d+':
+-o: Tells grep to only output the matched part (in this case, the IP address).
+-P: Enables Perl-style regex for more advanced pattern matching.
+\d+\.\d+\.\d+\.\d+: This regular expression matches an IP address pattern (e.g., 9.37.65.139).
+grep -v '127.0.0.1': This filters out the 127.0.0.1 address, as it’s the loopback address, which you may not want to include.
+How to run the script:
+Save the script to a file, e.g., extract_ips.sh.
+Make it executable by running:
+bash
+Copy
+chmod +x extract_ips.sh
+Run the script:
+bash
+Copy
+./extract_ips.sh
+Sample Output:
+Copy
+129.1.1.1
+9.37.65.139
+9.67.100.1
+9.67.116.98
 
 
 
