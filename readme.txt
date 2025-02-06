@@ -4726,7 +4726,7 @@ declare -a arr=("element1"
                 )
 
 Write a shell script to read the data from below log file and get the ip address  
-
+---------------------------------------------------------------------------------------
 https://www.onlinegdb.com/online_bash_shell
 
 
@@ -4784,6 +4784,152 @@ Copy
 9.37.65.139
 9.67.100.1
 9.67.116.98
+
+
+===================================================================================================
+                                        Teraform
+
+- T/f automation to spin up the infra in count value
+- spin up my infra in multicloud in AWS AZURE GCP
+- versioning of infra is done with T/F
+- state of infra is managed
+- commands
+- life cycle policies to delete or make changes in resources
+- modules 
+
+
+
+
+
+values--->--tfvars---->--variables----->--tf individual files
+
+
+resource "aws_instance" "example_server" {
+  ami           = "ami-04e914639d0cca79a"
+  instance_type = "t2.micro"
+  count         = 10
+
+  tags = {
+    Name = "JacksBlogExample"
+  }
+}
+
+
+create terraform code to spin up 10 ec2 instances with different. ami
+--------------------------------------------------------------------------
+To spin up 10 EC2 instances with different AMIs using Terraform, you would need to define the EC2 instances in a Terraform configuration, specifying the AMIs for each one. Here's an example of how to achieve this:
+
+Terraform Code Example:
+hcl
+Copy
+provider "aws" {
+  region = "us-west-2"  # Set the AWS region
+}
+
+resource "aws_instance" "ec2_instance" {
+  count             = 10  # Creates 10 instances
+  ami               = var.ami_ids[count.index]  # Assign a unique AMI ID for each instance
+  instance_type     = "t2.micro"  # Instance type
+  key_name          = "my-key-pair"  # Replace with your key pair name
+  associate_public_ip_address = true  # Assign public IP
+
+  tags = {
+    Name = "EC2 Instance ${count.index + 1}"
+  }
+
+  # You can specify other parameters such as security groups, user data, etc.
+}
+
+variable "ami_ids" {
+  description = "List of AMI IDs for each EC2 instance"
+  type        = list(string)
+  default = [
+    "ami-xxxxxxxxxxxxxxxxx",  # Replace with your AMI IDs
+    "ami-yyyyyyyyyyyyyyyyy",
+    "ami-zzzzzzzzzzzzzzzz",
+    "ami-aaaaaaaaaaaaaaaaa",
+    "ami-bbbbbbbbbbbbbbbb",
+    "ami-cccccccccccccccc",
+    "ami-dddddddddddddddd",
+    "ami-eeeeeeeeeeeeeeee",
+    "ami-fffffffffffffffff",
+    "ami-gggggggggggggggg"
+  ]
+}
+Explanation:
+provider "aws": Specifies the AWS region where the EC2 instances will be created.
+resource "aws_instance" "ec2_instance": Defines the EC2 instance resource. The count meta-argument is used to create 10 instances.
+ami: The AMI ID is dynamically chosen using count.index to select a different AMI for each instance from the ami_ids list.
+instance_type: Specifies the instance type, here it's set to t2.micro. You can change this as needed.
+key_name: Specifies the key pair name to access the instances. Replace with your actual key pair.
+variable "ami_ids": A variable containing a list of 10 AMI IDs. Each instance will use a different AMI from this list.
+Usage:
+Replace the ami_ids list with actual AMI IDs that you want to use for the instances.
+Replace the region, key_name, and other parameters as necessary.
+Initialize and apply the Terraform configuration:
+bash
+Copy
+terraform init
+terraform apply
+
+create terraform code to spin up 10 ec2 instances with different. ami using for each loop
+-----------------------------------------------------------------------------------------
+To create 10 EC2 instances with different AMIs using a for_each loop in Terraform, you can define a map of AMI IDs and then use the for_each construct to iterate over that map.
+
+Here is an example of how to do this:
+
+Terraform Code Example:
+hcl
+Copy
+provider "aws" {
+  region = "us-west-2"  # Set the AWS region
+}
+
+resource "aws_instance" "ec2_instance" {
+  for_each           = var.ami_map  # Loop over the ami_map variable
+  ami                = each.value  # Each value in the map is an AMI ID
+  instance_type      = "t2.micro"  # Instance type
+  key_name           = "my-key-pair"  # Replace with your key pair name
+  associate_public_ip_address = true  # Assign public IP
+
+  tags = {
+    Name = "EC2 Instance ${each.key}"  # Name the instances as EC2 Instance 1, 2, etc.
+  }
+
+  # You can specify other parameters such as security groups, user data, etc.
+}
+
+variable "ami_map" {
+  description = "Map of AMI IDs for each EC2 instance"
+  type        = map(string)
+  default = {
+    "instance_1" = "ami-xxxxxxxxxxxxxxxxx",  # Replace with your AMI IDs
+    "instance_2" = "ami-yyyyyyyyyyyyyyyyy",
+    "instance_3" = "ami-zzzzzzzzzzzzzzzz",
+    "instance_4" = "ami-aaaaaaaaaaaaaaaaa",
+    "instance_5" = "ami-bbbbbbbbbbbbbbbb",
+    "instance_6" = "ami-cccccccccccccccc",
+    "instance_7" = "ami-dddddddddddddddd",
+    "instance_8" = "ami-eeeeeeeeeeeeeeee",
+    "instance_9" = "ami-fffffffffffffffff",
+    "instance_10" = "ami-gggggggggggggggg"
+  }
+}
+Explanation:
+provider "aws": Specifies the AWS region where the EC2 instances will be created.
+resource "aws_instance" "ec2_instance": The for_each loop is used to create multiple instances based on the keys in the ami_map variable.
+for_each = var.ami_map: This allows you to loop over the ami_map and create one instance per key-value pair.
+ami = each.value: each.value refers to the AMI ID for the instance, as it loops through the map.
+Name = "EC2 Instance ${each.key}": Names the instances as EC2 Instance 1, EC2 Instance 2, etc., using the key from the map.
+variable "ami_map": A map variable that holds the AMI IDs for each instance. Each key represents a unique instance (instance_1, instance_2, etc.), and the corresponding value is the AMI ID.
+Usage:
+Replace the ami_map values with actual AMI IDs.
+Replace the region, key_name, and other parameters as necessary.
+Initialize and apply the Terraform configuration:
+bash
+Copy
+terraform init
+terraform apply
 
 
 
