@@ -292,7 +292,98 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
 
 
 
+Forking A Repository On Github
+-------------------------------------------
+What is forking and how does it work? To Fork a project you are basically cloning
+someone else’s original project from Github and adding it to your repository. This
+will allow you to modify the project without interfering with the owner’s original
+project.
+1)Head over to Github and create an account if you don’t have one already.
+2)Next search for the repository you would like to fork.
+3)Click the fork button in the upper-righthand corner to add to your repository.
+To add this forked project to our local machine, we will go back into our terminal and
+type the command
 
+Clone The Forked Repo
+-----------------------
+git clone https://github.com/your-username/forked-repo.git
+Make Changes :-
+------------------
+git add . # To stage the changes
+git commit -m "Enter Your commit message here"
+git push origin main # Replace 'main' with the branch you want to push to.
+Updating Your Fork: 
+---------------------
+If you wanna keep your forked repo up-to-date with
+the latest awesomeness from the original repo, no worries! Here’s the secret
+sauce! First, add the original repo as an “upstream” remote with this
+command:
+git remote add upstream
+https://github.com/original-repo-owner/original-repo.git
+
+Then, fetch all the juicy changes from the upstream repo using:
+-----------------------------------------------------------------
+git fetch upstream
+Now, it’s time to merge those updates into your local repo! Just
+switch to the branch you wanna update (usually ‘master’) and run:
+git checkout master
+git merge upstream/master # Replace 'master' with your branch name if
+it's different.
+git push origin master
+
+Git Commands
+-----------------
+1. Git Init
+The first step in using Git is to initialize a new Git repository. To do this, navigate to
+your project’s directory and run the following command:
+git init
+This command creates a new Git repository in your current directory and initializes it
+with default settings.
+2. Git Add
+Once you’ve initialized a new Git repository, you need to tell Git which files to track.
+To do this, use the git add command:
+git add <filename>
+This command stages the specified file for the next commit. You can also use the git
+add command with a wildcard to add multiple files at once:
+git add .
+This command stages all files in your current directory for the next commit.
+3. Git Commit
+After you’ve staged your changes using git add, you need to create a new commit to
+save those changes to your Git repository. To do this, use the git commit command:
+git commit -m "follow inkinsight"
+This command creates a new commit with the changes you’ve staged using git add.
+The -m flag allows you to specify a commit message that describes the changes
+you’ve made.
+4. Git Status
+To see the current status of your Git repository, use the git status command:
+git status
+This command shows you which files have been modified, staged, or committed
+since your last commit.
+5. Git Log
+To view a history of all the commits in your Git repository, use the git log command:
+git log
+This command shows you a list of all the commits in your repository, including the
+commit message, author, and date.
+6. Git Branch
+To create a new branch in your Git repository, use the git branch command:
+git branch <branch-name>
+This command creates a new branch with the specified name. You can then switch
+to this branch using the git checkout command.
+7. Git Checkout
+To switch to a different branch in your Git repository, use the git checkout command:
+git checkout <branch-name>
+This command switches your working directory to the specified branch. If the branch
+doesn’t exist yet, you’ll need to create it using the git branch command first.
+8. Git Merge
+To merge changes from one branch into another, use the git merge command:
+git merge <branch-name>
+This command combines the changes from the specified branch into your current
+branch. If there are conflicts between the two branches, Git will prompt you to
+resolve them before the merge can be completed.
+9. Git Pull
+To update your local repository with changes from a remote repository, use the git
+pull command:
+git pull <remote> <branch-name>
                                                      LINUX
 ==============================================================================================================
 
