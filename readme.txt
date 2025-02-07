@@ -331,6 +331,7 @@ git merge upstream/master # Replace 'master' with your branch name if
 it's different.
 git push origin master
 
+
 Git Commands
 -----------------
 1. Git Init
@@ -387,25 +388,6 @@ git pull <remote> <branch-name>
 
 
 
-
-
-
-
-
-
-…or create a new repository on the command line
-echo "# test" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/akhilgit19/test.git
-git push -u origin main
-
-…or push an existing repository from the command line
-git remote add origin https://github.com/akhilgit19/test.git
-git branch -M main
-git push -u origin main
 
 
 
