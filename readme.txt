@@ -4933,25 +4933,174 @@ terraform apply
 
 
 
+==============================================================
+
+AWS
+- VPC- Virutal Private cloud
+- Internet Gateway
+- Availabitlity Zones
+- subnets
+- NACL'S-Network access control list- it can allow or deny the IP's
+- SG - security group
+- EC2
+- ASG- auto scaling group
+- LB - load balancer 
+- ACM- AMAZON CERITFICATE MANAGER 
+- CFT/CDN- CLOUD FRONT OR CONT DELIVERY NETWORK
+- LAMBDA
+- RDS
+- S3
+- SNS- SIMPPLE NOITIFICATION SERVICE
+- SQS- SIMPLE QUEUE SERVICE
+- VPC ENDPOINT
+- EMR- ELASTIC MAP REDUCE 
+- EKS - ELASTIC KUBERNET SERVICE
+- IAM - 
+- VPN GATEWAYS
+- CLOUD WATCH MONITORING
+
+AWS Cloud Network Architecture
+---------------------------------
+
+                     Internet gateway
+                          | 
+                      ROUTE TABLES
+                          |
+                   target    destination
+
+                          |
+                          VPC                    CIDR, SUBNET      
+                          |
+
+         NACL- Network access control list- it can allow or deny the IP's
+
+                          |
+                       SUBNET'S
+                       ---------
+                       Public SUBNET 
+
+AZ1           NAT GATEWAY- Network address translatro
+
+                      Private  SUBNET
+
+                       SUBNET'S
+                       ---------
+                       Public SUBNET
+AZ2              NAT GATEWAY- Network address translatro
+ 
+                     Private  SUBNET
+
+
+                  
+
+local->subnetdestination->VPC,NAT gateway-> Virtual PrivateE atgateway, vpc endpoint
+
+
+
+Cloud Frontier architecture
+------------------------------
+
+                           cloudfront (Cache method to improve the latency issues in the networking)
+                              |
+                              |
+                              r53-----> LB----->  EC2,EKS,LAMBDA -----> db
+
+
+ 
+R53(DNS) -Domain name system                         _____
+- Round robin(routing mechanism)        |-->-------- |____|
+                                        |
+               R53--->_-----------------| 
+                                        |---->------   ____
+                                                      |____|
+- weighted- percentage based routing, say if i want to route 60 percent to 1 server and the rest t40 to 2 server
+
+
+                                                     _____
+                                        |-->-60----- |____|
+                                        |
+               R53------->--------------| 
+                                        |----40>------ ____
+                                                      |____|
+
+- geo location - Areawise,locationwise.- User willbe getting response nearer to his location/fster response
+- latency based routing
 
 
 
 
+ Loadbaolancer
+   |
+=-------------------------------------------------------------
+  |                                                     |
+Application LB                                        Network lob
+
+- When i have                                   - One way traffic communication[ youtube]
+   25 certificates with
+  me will use APP LB (add your certificate
+  to your load balancer
+  make it a layer 7 network
+
+- Context wpath 2 query base qouting            - ssl termination at POD not at LB
+  eg www/walmart/groceries/meat
+
+- SSL Termination( Secure scoket layer)         - certificates can be added
+   it will check at loabalancer if it is valid
+   if not valid it will terminate
+- you can watch for erro's [500, 404            - when you need high traffice flow
+- health checks
+- 3 way TLS handshake happens in Application LB
+   requst sent, processe and acknowledment back
 
 
 
+S3  BUCKETS
+-------------
+
+- Backup of data
+- retrival of data
+- storage of data
+- Name of the bucket should be small lettets
+- unique bucket name
+- bucket polices
+- type of bucket and type of data, amount of data and amount of time is inversily proportional to cost of bucket
+
+- type of buckets:
+----------------------
+   - standard bucket
+   - infrequent access bucket
+   - glacier - monthyl acess 
+   - Intelligent tiering bucket-- based on access ratio it will save the data accordingly
+   - one zone bucket ---------------One availabity zone
+   - deep glacier/deep archieve
+   - snowball
+   
+
+CloudWatch
+--------------
+Montoring your entire infra
+
+-Graphana
+-prometheus
+-splunk
 
 
+Database
+-----------------
+Tb of data
+----------------
+- My qql
+- postgress
+- cosmos db
+  - no sql
+  - clidck evenv based database
+- dynamo db
+  - jason based DB
 
 
-
-
-
-
-
-
-
-
+big data platforms
+------------------------
+EMR - Elastic map reduce
 
 
 
