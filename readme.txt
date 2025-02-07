@@ -140,8 +140,26 @@ akhilpagadapoola@Akhils-MacBook-Air test % git glog
 
 25.git config --system core.editor <editor>-Set text editor used by commands for all users on the machine. <editor>
                                             arg should be the command that launches the desired editor (e.g., vi).
+
 26.git config --global --edit - Open the global configuration file in a text editor for manual editing.
-    
+
+akhilpagadapoola@Akhils-MacBook-Air test % git config --global --edit
+hint: Waiting for your editor to close the file... 
+[user]
+        name = akhilgit19
+        email = akhilpagadapoola123@gmail.com
+[pull]
+        rebase = false
+[alias]
+        glog = log --graph --oneline
+~                                                                                                                                                                                
+akhilpagadapoola@Akhils-MacBook-Air test % git config --global --list
+user.name=akhilgit19
+user.email=akhilpagadapoola123@gmail.com
+pull.rebase=false
+alias.glog=log --graph --oneline
+
+
 
 Git Log:
 ---------
