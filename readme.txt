@@ -48,7 +48,7 @@ Branching Stragies:
 ========================
 
 To create a new repository on the command line:
---------------------------------------------------
+================================================================================
 
 echo "# test" >> README.md
 git init
@@ -59,60 +59,321 @@ git remote add origin https://github.com/akhilgit19/test.git
 git push -u origin main
 
 push an existing repository from the command line
-------------------------------------------------------
-git remote add origin https://github.com/akhilgit19/test.git
+==============================================================================
+
 git branch -M main
-git push -u origin main
+git remote add origin https://github.com/akhilgit19/test.git
+git push -u -f origin main
 
 
-Git basic Commands:
-=======================
+
+=============================
+*****Git basic Commands:
+=============================
 1.git init <directory>-  Create empty git repo in specified directory with no argument to initialize the current 
                          directory.
+  Command:- git init
+  ================================================================================
 2.git clone <repo>-  Clone repo located at <repo> onto local mahcine.Original repo can be located on the local 
                      filesystem.
+  Command:- git clone https://github.com/akhilgit19/test.git
+  ================================================================================
 3.git config user.name <name>- Define author name to used for all commits in current repo.Devs commonly use -- 
                                global flag to set config options for current user.
-4.git add . - Stage all changes in<directory> for the next commit.
-5.git commit -m "<message>"- Commit the staged snapshot, but instead of launching a text editor,use<message> as the 
-               commit message.
-6.git status - List which files are staged,unstaged, and untracked.
-7.git log    - Display the entire commit history using the default format.
-8.git diff   - show unstaged changes between your index and working directory
 
-Git Undoing Changes Commands
----------------------------------
+  Command:-git config --global user.name honey
+  ================================================================================
+4.git add . - Stage all changes in<directory> for the next commit.
+
+  Command: git add .
+  ================================================================================
+5.git commit -m "<message>"- Commit the staged snapshot, but instead of launching a text editor,use<message> as 
+   the commit message.
+
+  Command:- git commit -m "firstcommit"
+  ================================================================================
+6.git status - List which files are staged,unstaged, and untracked.
+  Command:- git status
+  ================================================================================
+   akhilpagadapoola@Akhils-MacBook-Air test % git status
+   On branch main
+   Your branch is up to date with 'origin/main'.
+
+   Untracked files:
+     (use "git add <file>..." to include in what will be committed)
+	 test.txt
+
+    nothing added to commit but untracked files present (use "git add" to track)
+    akhilpagadapoola@Akhils-MacBook-Air test %
+   ================================================================================
+
+7.git log    - Display the entire commit history using the default format.
+
+  Command:- git log
+  ================================================================================
+  Ex:
+  akhilpagadapoola@Akhils-MacBook-Air test % git log
+  commit dacdf7bcdb534b73e38e647734e52f10c245e0cf (HEAD -> main, origin/main)
+  Author: akhilgit19 <akhilpagadapoola123@gmail.com>
+  Date:   Fri Feb 7 13:15:29 2025 +0530
+
+     del pyt
+
+  commit 061c435513dd7a44d30aa8e46daa407f90eab727
+  Merge: 5b0ba80 8577b00
+  Author: akhilgit19 <138980055+akhilgit19@users.noreply.github.com>
+  Date:   Fri Feb 7 13:13:18 2025 +0530
+
+     Merge pull request #1 from akhilgit19/feature
+    
+     feature
+
+  commit 8577b000746cf2dc0c22933892a9ef906a2d39bb (origin/feature)
+  Author: akhilgit19 <akhilpagadapoola123@gmail.com>
+  Date:   Fri Feb 7 13:10:43 2025 +0530
+
+     feature
+
+  commit 5b0ba804bddc3d80a291a7b201dbdcee6f0d8c75
+  Author: akhilgit19 <akhilpagadapoola123@gmail.com>
+  :
+ ================================================================================
+
+8.git diff   - show unstaged changes between your index and working directory
+ Command: git diff
+ ================================================================================
+
+
+=============================
+*****Git Undoing Changes Commands:
+=============================
 9.git revert <commit>  - Create new commit that undoes all the changes made in <commit>, then apply it to the 
                        current batch
-10.git reset <file>  - Remote<file> from the staging area,but leave the working directory unchanged.This unstages a 
-                       file without overwriting any changes.
+ Command:- git revert dec1576 (basically it does reverse of the that commit)
+  ================================================================================
+  akhilpagadapoola@Akhils-MacBook-Air test % git log --oneline
+  00f6979 (HEAD -> main, origin/main) Reapply "delet py"
+  dec1576 Revert "delet py"
+  599fe8b delet py
+  3da3305 add py
+  d85160e first commit
+  ================================================================================
+10.git reset <file>  - Remote<file> from the staging area,but leave the working directory unchanged.This unstages a file without overwriting any changes.
+
+ Command:- git reset test.txt 
+ ===============================
+  akhilpagadapoola@Akhils-MacBook-Air test % git status
+  On branch main
+  Your branch is up to date with 'origin/main'.
+
+  Untracked files:
+   (use "git add <file>..." to include in what will be committed)
+	 test.txt
+
+   nothing added to commit but untracked files present (use "git add" to track)
+   akhilpagadapoola@Akhils-MacBook-Air test % git add test.txt
+   akhilpagadapoola@Akhils-MacBook-Air test % git status
+   On branch main
+   Your branch is up to date with 'origin/main'.
+
+   Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	new file:   test.txt
+
+  akhilpagadapoola@Akhils-MacBook-Air test % git reset test.txt
+  akhilpagadapoola@Akhils-MacBook-Air test % git status
+  On branch main
+  Your branch is up to date with 'origin/main'.
+
+  Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	test.txt
+
+  nothing added to commit but untracked files present (use "git add" to track)
+  ================================================================================
+
+
 11.git  clean -n - Shows which files would be removed from working directory. Use the -f flag in place of the -n 
                    flag to execute the clean
+Command:-git  clean -n
+=========================
+akhilpagadapoola@Akhils-MacBook-Air test % git status
+On branch main
+Your branch is up to date with 'origin/main'.
 
-Rewriting Git History Commands
-----------------------------------
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	test.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+akhilpagadapoola@Akhils-MacBook-Air test % git  clean -n
+Would remove test.txt
+================================================================================
+
+
+
+==================================
+*****Rewriting Git History Commands:
+==================================
 12.git commit --amend - Replace the last commit with the staged changes and last commit combined.Use with the 
                         nothing staged to edit the last commit's message
+ Command: git commit --amend
+ ==================================
+ akhilpagadapoola@Akhils-MacBook-Air test % touch test7.txt
+ akhilpagadapoola@Akhils-MacBook-Air test % git add .
+ akhilpagadapoola@Akhils-MacBook-Air test % git commit --amend
+ [main f649bd7] adding 7 txt with 5 and 6.txt
+  Date: Sat Feb 8 12:03:46 2025 +0530
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test5.txt
+ create mode 100644 test6.txt
+ create mode 100644 test7.txt
+ akhilpagadapoola@Akhils-MacBook-Air test %  git log --oneline 
+ f649bd7 (HEAD -> main) adding 7 txt with 5 and 6.txt
+ 9a28ea0 test4.txt
+ ac9426b created test3.txt
+ fbeecd6 test2.txt
+ ad53963 (origin/main) first commit
+ akhilpagadapoola@Akhils-MacBook-Air test % 
+
+================================================================================
+
    
 13.git rebase <base>- Rebase the current branch onto<base>.<base> can be a commit ID, branch name, a tag, or a 
                       relative reference to HEAD.
+
+   Command:-git rebase feature
+   =========================
+akhilpagadapoola@Akhils-MacBook-Air test % git switch main  
+akhilpagadapoola@Akhils-MacBook-Air test % git log --oneline
+fc2a20d (HEAD -> main) e
+467494c d
+81223dc c1
+f77b7ab c0
+akhilpagadapoola@Akhils-MacBook-Air test % git switch feature
+Switched to branch 'feature'
+akhilpagadapoola@Akhils-MacBook-Air test % git log --oneline
+6712c2e (HEAD -> feature) c
+5de56f1 b
+e822356 a
+81223dc c1
+f77b7ab c0
+akhilpagadapoola@Akhils-MacBook-Air test % git switch main   
+Switched to branch 'main'
+Your branch is ahead of 'origin/main' by 4 commits.
+  (use "git push" to publish your local commits)
+akhilpagadapoola@Akhils-MacBook-Air test % git rebase feature
+Successfully rebased and updated refs/heads/main.
+akhilpagadapoola@Akhils-MacBook-Air test % git log --oneline 
+ee4ef63 (HEAD -> main, feature) c
+5fdcc91 b
+ba6571b a
+fc2a20d e
+467494c d
+81223dc c1
+f77b7ab c0
+3bec5e5 (origin/main) first commit
+
+
+
+
+
+
 14.git reflog - show a log of changes to the local repository's HEAD.
                 Add --relative-date flag to show date info or --all to show all refs.
+  Command: git reflog:
+  =======================
+akhilpagadapoola@Akhils-MacBook-Air test % git reflog
+f649bd7 (HEAD -> main) HEAD@{0}: commit (amend): adding 7 txt with 5 and 6.txt
+56a01bc HEAD@{1}: commit (amend): test5.txt
+2f588b9 (feature) HEAD@{2}: rebase (finish): returning to refs/heads/main
+2f588b9 (feature) HEAD@{3}: rebase (start): checkout feature
+9a28ea0 HEAD@{4}: checkout: moving from feature to main
+2f588b9 (feature) HEAD@{5}: commit: test5.txt
+9a28ea0 HEAD@{6}: rebase (finish): returning to refs/heads/feature
+9a28ea0 HEAD@{7}: rebase (start): checkout main
+ac9426b HEAD@{8}: checkout: moving from main to feature
+9a28ea0 HEAD@{9}: commit: test4.txt
+ac9426b HEAD@{10}: checkout: moving from feature to main
+ac9426b HEAD@{11}: rebase (finish): returning to refs/heads/feature
+ac9426b HEAD@{12}: rebase (start): checkout main
+fbeecd6 HEAD@{13}: checkout: moving from main to feature
+ac9426b HEAD@{14}: rebase (finish): returning to refs/heads/main
+ac9426b HEAD@{15}: rebase (pick): created test3.txt
+fbeecd6 HEAD@{16}: rebase (start): checkout feature
+5582bbf HEAD@{17}: commit: created test3.txt
+ad53963 (origin/main) HEAD@{18}: checkout: moving from feature to main
+fbeecd6 HEAD@{19}: commit: test2.txt
+ad53963 (origin/main) HEAD@{20}: checkout: moving from main to feature
+ad53963 (origin/main) HEAD@{21}: Branch: renamed refs/heads/master to refs/heads/main
+ad53963 (origin/main) HEAD@{23}: commit (initial): first commit
+
 
 Git Branches commands
------------------------------------
+ ================================================================================
 15.git branch -a - List all of the branches in your repo.Add a <branch> argument to create a new branch with the 
                    name<branch>.
 16.git checkout -b <branch_name> - Create and check out a new branch named <branch>. Drop the -b flag to checkout 
                                    an existing branch
+
 17.git merge <branch> - Merge<branch> into the current branch.
+
+akhilpagadapoola@Akhils-MacBook-Air test % git log --oneline
+b3d97f3 (HEAD -> feature) 3
+e432e43 2
+ae6ee03 1
+7c64c2d (main) c1
+48a75fa c0
+c3ed8a0 (origin/main) first commit
+akhilpagadapoola@Akhils-MacBook-Air test % git switch main
+Switched to branch 'main'
+Your branch is ahead of 'origin/main' by 2 commits.
+  (use "git push" to publish your local commits)
+akhilpagadapoola@Akhils-MacBook-Air test % git log --oneline
+7c64c2d (HEAD -> main) c1
+48a75fa c0
+c3ed8a0 (origin/main) first commit
+akhilpagadapoola@Akhils-MacBook-Air test % git merge feature
+Updating 7c64c2d..b3d97f3
+Fast-forward
+ 1 | 0
+ 2 | 0
+ 3 | 0
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 1
+ create mode 100644 2
+ create mode 100644 3
+akhilpagadapoola@Akhils-MacBook-Air test % git log --oneline
+b3d97f3 (HEAD -> main, feature) 3
+e432e43 2
+ae6ee03 1
+7c64c2d c1
+48a75fa c0
+c3ed8a0 (origin/main) first commit
+akhilpagadapoola@Akhils-MacBook-Air test %
+
 
 Remote Repositories Commands
 ----------------------------
-18. git remote add <name> <url>- Create a new connection to a remote repo. After adding a remote,you can use,<name> 
-                                 as a shortcut for <url> in other commands.
+18. git remote add <name> <url>- Create a new connection to a remote repo. After adding a remote,you can use, 
+    <name> as a shortcut for <url> in other commands.
+
+   git init
+   touch alpha.txt
+   git add .
+   git commit -m "first commit"
+   git remote add origin https://github.com/akhilgit19/test.git
+   git rebase origin/main
+   git log --oneline
+   akhilpagadapoola@Akhils-MacBook-Air test % git log --oneline                                           
+   029d7f7 (HEAD -> master) first commit
+   612ccaf (origin/main) Initial commit
+   git switch main
+   git merge master
+   git push origin main
+   
 19. git fetch <remote> <branch>- Fetches a specific <branch>, from the repo.Leave off<branch> to fetch all 
-                                 remote refs.
+             1                    remote refs.
 20. git pull <remote>- Fetch the specified remote's copy of current branch and immediately merge it into the local 
                        copy.(To get the difference of changes in the respository)
 21. git push <remote> <branch>- Push the branch to <remote> along with necessary commits and object.Creates names 
@@ -138,8 +399,7 @@ akhilpagadapoola@Akhils-MacBook-Air test % git glog
 |/  
 * 5b0ba80 first commit
 
-25.git config --system core.editor <editor>-Set text editor used by commands for all users on the machine. <editor>
-                                            arg should be the command that launches the desired editor (e.g., vi).
+25.git config --system core.editor <editor>-Set text editor used by commands for all users on the machine. <editor>arg should be the command that launches the desired editor (e.g., vi).
 
 26.git config --global --edit - Open the global configuration file in a text editor for manual editing.
 
@@ -215,15 +475,13 @@ GIT PUSH
                             --all flag. The --tags flag sends all of your local tags to the remote repo.
 
 
+47.git branch -D branch_name
+48.git branch -M main (it will rename the branch name)
 
-
-14.git cherypick
-15.git fetch
-
-17.git revert
-18.git switch  branch_name
-19.git branch -d branch_name
-
+49. git stash
+50. git stash list
+51. git stash pop
+52. git stah drop
 
 
 Git Automation:
@@ -354,66 +612,16 @@ Then, fetch all the juicy changes from the upstream repo using:
 -----------------------------------------------------------------
 git fetch upstream
 Now, it’s time to merge those updates into your local repo! Just
+
 switch to the branch you wanna update (usually ‘master’) and run:
+-----------------------------------------------------------------------
 git checkout master
 git merge upstream/master # Replace 'master' with your branch name if
 it's different.
 git push origin master
 
 
-Git Commands
------------------
-1. Git Init
-The first step in using Git is to initialize a new Git repository. To do this, navigate to
-your project’s directory and run the following command:
-git init
-This command creates a new Git repository in your current directory and initializes it
-with default settings.
-2. Git Add
-Once you’ve initialized a new Git repository, you need to tell Git which files to track.
-To do this, use the git add command:
-git add <filename>
-This command stages the specified file for the next commit. You can also use the git
-add command with a wildcard to add multiple files at once:
-git add .
-This command stages all files in your current directory for the next commit.
-3. Git Commit
-After you’ve staged your changes using git add, you need to create a new commit to
-save those changes to your Git repository. To do this, use the git commit command:
-git commit -m "follow inkinsight"
-This command creates a new commit with the changes you’ve staged using git add.
-The -m flag allows you to specify a commit message that describes the changes
-you’ve made.
-4. Git Status
-To see the current status of your Git repository, use the git status command:
-git status
-This command shows you which files have been modified, staged, or committed
-since your last commit.
-5. Git Log
-To view a history of all the commits in your Git repository, use the git log command:
-git log
-This command shows you a list of all the commits in your repository, including the
-commit message, author, and date.
-6. Git Branch
-To create a new branch in your Git repository, use the git branch command:
-git branch <branch-name>
-This command creates a new branch with the specified name. You can then switch
-to this branch using the git checkout command.
-7. Git Checkout
-To switch to a different branch in your Git repository, use the git checkout command:
-git checkout <branch-name>
-This command switches your working directory to the specified branch. If the branch
-doesn’t exist yet, you’ll need to create it using the git branch command first.
-8. Git Merge
-To merge changes from one branch into another, use the git merge command:
-git merge <branch-name>
-This command combines the changes from the specified branch into your current
-branch. If there are conflicts between the two branches, Git will prompt you to
-resolve them before the merge can be completed.
-9. Git Pull
-To update your local repository with changes from a remote repository, use the git
-pull command:
-git pull <remote> <branch-name>
+
 
 
 
