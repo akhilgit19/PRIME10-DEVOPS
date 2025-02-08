@@ -5232,6 +5232,438 @@ EMR - Elastic map reduce
 
 
 
+                                                 ANSIBLE
+ ===========================================================================================
+
+
+Ansible
+---------
+- Infra
+- Automation
+- Bootstrapping of server
+- Bulk deployments
 
 
 
+                                                    
+                                                     |----
+  Parent-------> SSH Connection or RDP Windowds----->|---- 100 servers
+  server                                             |----
+(public key)----------------------------------------->/autothorizedkey/public key in 100 servers paths
+
+
+Ansible  needs below to peform task
+- host inventory file( consits of 100 servers ip address)
+- playbook yaml
+- SSH Connection
+
+
+Playbook
+-----------
+host: it will point to the inventory file
+name: name of playbook
+become: sudo permission
+user  username
+tasks:
+    -name: copy file from parent server and put it in achild server
+     copy: module
+     content: "heydevops"
+     destination: "/etc/text"
+
+https://docs.ansible.com/ansible/2.8/modules/list_of_all_modules.html
+
+
+
+
+---
+
+- name: 'Test playbook to write content into a file'
+  hosts: localhost
+  gather_facts: false
+  vars:
+    content: 'Test_Content_Line'
+    filepath: '/etc/hello.txt'
+  tasks:
+
+    - name: "Write content into a file"
+      copy:
+        dest: "{{ filepath }}"
+        content: "{{ content }}"
+
+    - name: "Check file {{ filepath }} stat result"
+      stat:
+        path: "{{ filepath }}"
+      register: st
+
+    - name: "Check if file {{ filepath }} exists"
+      fail:
+        msg: "{{ filepath }} doesnt exist"
+      when: not st.stat.exists | bool
+
+    - name: "Get {{ filepath }} content"
+      command: "cat {{ filepath }}"
+      register: cnt
+
+    - name: "Check if {{ filepath }} content is correct"
+      fail:
+        msg: "{{ filepath }} doesnt have the correct content"
+      when: '"{{ content }}" not in cnt.stdout'
+
+
+
+
+vpc ansible module
+----------------------
+The VPC Ansible module is used to manage AWS Virtual Private Clouds (VPCs) within Ansible playbooks. Ansible provides the amazon.aws.ec2_vpc_net module to create, modify, and delete VPCs.
+
+1. Install Dependencies
+Ensure you have the required dependencies installed:
+
+bash
+Copy
+Edit
+pip install boto3 botocore ansible
+ansible-galaxy collection install amazon.aws
+2. Example Playbook
+Here’s a basic playbook to create a VPC:
+
+yaml
+Copy
+Edit
+- name: Create AWS VPC
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Create a new VPC
+      amazon.aws.ec2_vpc_net:
+        name: my-vpc
+        cidr_block: 10.0.0.0/16
+        region: us-east-1
+        state: present
+      register: vpc
+
+    - name: Display VPC ID
+      debug:
+        msg: "VPC created with ID {{ vpc.vpc.id }}"
+3. Parameters
+name: The name of the VPC (tagged Name).
+cidr_block: The IP range for the VPC.
+region: AWS region where the VPC will be created.
+state: present to create, absent to delete.
+4. Deleting a VPC
+To delete an existing VPC, set state: absent:
+
+yaml
+Copy
+Edit
+- name: Delete AWS VPC
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Delete VPC
+      amazon.aws.ec2_vpc_net:
+        name: my-vpc
+        region: us-east-1
+        state: absent
+5. Adding a Subnet
+Use amazon.aws.ec2_vpc_subnet:
+
+yaml
+Copy
+Edit
+- name: Create subnet in VPC
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Create subnet
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        cidr: 10.0.1.0/24
+        region: us-east-1
+        state: present
+Would you like help integrating this into an automation workflow? 🚀
+
+You said:
+
+Ansible playbook automation to deploy the pods in kubernetes 
+-------------------------------------------------------------------
+ChatGPT said:
+Here’s an Ansible playbook to automate the deployment of Kubernetes pods. It assumes that:
+
+You have kubectl and kubeconfig set up on the control node.
+Your Kubernetes cluster is accessible from the Ansible host.
+You have the kubernetes.core collection installed.
+1. Install Required Dependencies
+Ensure Ansible has the necessary Kubernetes modules:
+
+bash
+Copy
+Edit
+pip install kubernetes
+ansible-galaxy collection install kubernetes.core
+2. Ansible Playbook for Deploying Pods
+This playbook deploys a simple Nginx pod into a Kubernetes cluster.
+
+yaml
+Copy
+Edit
+- name: Deploy Kubernetes Pods
+  hosts: localhost
+  gather_facts: no
+  tasks:
+
+    - name: Create a Kubernetes Namespace
+      kubernetes.core.k8s:
+        name: demo-namespace
+        api_version: v1
+        kind: Namespace
+        state: present
+
+    - name: Deploy Nginx Pod
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: nginx-pod
+            namespace: demo-namespace
+          spec:
+            containers:
+              - name: nginx
+                image: nginx:latest
+                ports:
+                  - containerPort: 80
+
+    - name: Verify Pod Status
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: demo-namespace
+        name: nginx-pod
+      register: pod_info
+
+    - name: Show Pod Details
+      debug:
+        msg: "Pod Status: {{ pod_info.resources[0].status.phase }}"
+3. Running the Playbook
+Save the playbook as deploy_pod.yml, then execute:
+
+bash
+Copy
+Edit
+ansible-playbook deploy_pod.yml
+4. Verifying the Deployment
+After execution, check the pod status manually:
+
+bash
+Copy
+Edit
+kubectl get pods -n demo-namespace
+5. Cleanup (Delete the Pod & Namespace)
+To remove the deployed pod and namespace:
+
+yaml
+Copy
+Edit
+- name: Cleanup Kubernetes Deployment
+  hosts: localhost
+  gather_facts: no
+  tasks:
+
+    - name: Delete Nginx Pod
+      kubernetes.core.k8s:
+        state: absent
+        kind: Pod
+        name: nginx-pod
+        namespace: demo-namespace
+
+    - name: Delete Namespace
+      kubernetes.core.k8s:
+        state: absent
+        kind: Namespace
+        name: demo-namespace
+Would you like me to extend this to deploy a full-fledged application (Deployment, Service, Ingress, etc.)? 🚀
+
+Messages beyond this point are only visible to you
+
+
+
+Attach
+
+Search
+
+Reason
+
+Voice
+ChatGPT can make mistakes. Check important info.
+
+
+
+
+Roles:
+--------------
+ansible roles folder structure
+
+The Ansible roles folder structure is designed to help you organize your automation tasks in a modular, reusable, and scalable way. This structure is widely used in Ansible projects to encapsulate functionality and ensure that tasks can be reused across multiple playbooks.
+
+Standard Ansible Roles Folder Structure
+bash
+Copy
+Edit
+roles/
+└── <role_name>/
+    ├── defaults/            # Default variables for the role
+    │   └── main.yml         # Default variable file
+    ├── files/               # Files to be copied to managed nodes
+    │   └── <file_name>      # Static files such as .conf, .tar files
+    ├── handlers/            # Handlers for notifications (e.g., service restart)
+    │   └── main.yml         # Handlers to restart services
+    ├── meta/                # Metadata for the role
+    │   └── main.yml         # Role dependencies, authorship information
+    ├── tasks/               # Main tasks for the role
+    │   └── main.yml         # Tasks to be executed by Ansible
+    ├── templates/           # Jinja2 templates
+    │   └── <template>.j2    # Configuration templates
+    ├── tests/               # Tests for role functionality (optional)
+    │   └── test.yml         # Playbook to test the role
+    ├── vars/                # Variables specific to the role
+    │   └── main.yml         # Role-specific variables (may override defaults)
+    └── README.md            # Documentation for the role (optional)
+Explanation of Each Directory/Folder:
+defaults/:
+
+Default variables for the role that will be used unless explicitly overridden.
+Contains main.yml, which holds default values for the role's variables. These can be overridden by other sources (e.g., playbook, inventory).
+Example: nginx_port: 80
+yaml
+Copy
+Edit
+# roles/nginx/defaults/main.yml
+nginx_port: 80
+files/:
+
+Contains static files that will be copied to the target machines.
+Files could include .conf files, archives, scripts, etc.
+Example: nginx.conf
+handlers/:
+
+Handlers are special tasks that only run when notified by other tasks (e.g., restarting a service after a configuration change).
+Contains main.yml with handler definitions.
+Example: restart nginx if the configuration file changes.
+yaml
+Copy
+Edit
+# roles/nginx/handlers/main.yml
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+meta/:
+
+Contains metadata about the role. This includes role dependencies, platform-specific details, and authorship information.
+main.yml is the default file for this.
+Example: Defines any dependent roles.
+Example: dependencies: - { role: common, some_variable: value }
+yaml
+Copy
+Edit
+# roles/nginx/meta/main.yml
+dependencies:
+  - { role: common }
+tasks/:
+
+Main tasks that the role performs. These tasks could install software, configure services, etc.
+The main.yml file in this directory contains the tasks to be executed.
+Example: Install Nginx and start the service.
+yaml
+Copy
+Edit
+# roles/nginx/tasks/main.yml
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Start nginx service
+  service:
+    name: nginx
+    state: started
+templates/:
+
+Contains Jinja2 templates used to generate configuration files for services or other software.
+Example: A configuration file for Nginx that gets rendered with dynamic variables (like port numbers).
+nginx
+Copy
+Edit
+# roles/nginx/templates/nginx.conf.j2
+server {
+    listen {{ nginx_port }};
+    server_name {{ server_name }};
+}
+tests/ (Optional):
+
+Contains a test playbook to ensure the role works as expected.
+You can test the role in isolation to verify its correctness before deploying it in production environments.
+Example: A test.yml playbook to apply the role to localhost.
+yaml
+Copy
+Edit
+# roles/nginx/tests/test.yml
+- name: Test nginx role
+  hosts: localhost
+  roles:
+    - nginx
+vars/:
+
+Contains role-specific variables that are typically used to customize the role's behavior.
+These variables override the defaults if necessary.
+Example: Set a custom port for Nginx.
+yaml
+Copy
+Edit
+# roles/nginx/vars/main.yml
+nginx_port: 8080
+server_name: example.com
+README.md (Optional):
+
+A documentation file for the role that describes its purpose, usage, and variables.
+Example Role: nginx
+Here’s how the folder structure would look for an Nginx role:
+
+bash
+Copy
+Edit
+roles/
+└── nginx/
+    ├── defaults/
+    │   └── main.yml         # Default variables (e.g., nginx_port: 80)
+    ├── files/
+    │   └── nginx.conf       # Static files to copy (nginx.conf)
+    ├── handlers/
+    │   └── main.yml         # Handlers for restarting Nginx
+    ├── meta/
+    │   └── main.yml         # Role metadata
+    ├── tasks/
+    │   └── main.yml         # Main tasks (install nginx, start service)
+    ├── templates/
+    │   └── nginx.conf.j2    # Template for Nginx config file
+    ├── tests/
+    │   └── test.yml         # Test playbook for Nginx role
+    ├── vars/
+    │   └── main.yml         # Variables (e.g., custom nginx_port)
+    └── README.md            # Documentation about the nginx role
+Using the Role in a Playbook
+Once the role is structured, you can use it in a playbook like this:
+
+yaml
+Copy
+Edit
+---
+- name: Configure web server
+  hosts: web_servers
+  become: yes
+  roles:
+    - nginx
+This way, roles are reusable and maintainable. You can include them in different playbooks across multiple projects.
+
+Would you like help creating an example role or applying this structure to a specific task?
