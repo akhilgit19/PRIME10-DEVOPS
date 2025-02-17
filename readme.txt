@@ -5461,6 +5461,7 @@ Ansible
 
 
 Ansible  needs below to peform task
+-------------------------------------
 - host inventory file( consits of 100 servers ip address)
 - playbook yaml
 - SSH Connection
@@ -5480,6 +5481,32 @@ tasks:
 
 https://docs.ansible.com/ansible/2.8/modules/list_of_all_modules.html
 
+copy – Copy files to remote locations
+------------------------------------------
+- name: Copy file with owner and permissions
+  copy:
+    src: /srv/myfiles/foo.conf
+    dest: /etc/foo.conf
+    owner: foo
+    group: foo
+    mode: '0644'
+
+lineinfile – Manage lines in text files
+------------------------------------------
+# NOTE: Before 2.3, option 'dest', 'destfile' or 'name' was used instead of 'path'
+- name: Ensure SELinux is set to enforcing mode
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: SELINUX=enforcing
+
+
+yum – Manages packages with the yum package manager
+-----------------------------------------------------
+- name: install the latest version of Apache
+  yum:
+    name: httpd
+    state: latest
 
 
 
@@ -5517,6 +5544,118 @@ https://docs.ansible.com/ansible/2.8/modules/list_of_all_modules.html
         msg: "{{ filepath }} doesnt have the correct content"
       when: '"{{ content }}" not in cnt.stdout'
 
+
+
+aws_s3 – manage objects in S3
+--------------------------------
+- name: Simple PUT operation
+  aws_s3:
+    bucket: mybucket
+    object: /my/desired/key.txt
+    src: /usr/local/myfile.txt
+    mode: put
+
+- name: Simple PUT operation in Ceph RGW S3
+  aws_s3:
+    bucket: mybucket
+    object: /my/desired/key.txt
+    src: /usr/local/myfile.txt
+    mode: put
+    rgw: true
+    s3_url: "http://localhost:8000"
+
+- name: Simple GET operation
+  aws_s3:
+    bucket: mybucket
+    object: /my/desired/key.txt
+    dest: /usr/local/myfile.txt
+    mode: get
+
+- name: Get a specific version of an object.
+  aws_s3:
+    bucket: mybucket
+    object: /my/desired/key.txt
+    version: 48c9ee5131af7a716edc22df9772aa6f
+    dest: /usr/local/myfile.txt
+    mode: get
+
+- name: PUT/upload with metadata
+  aws_s3:
+    bucket: mybucket
+    object: /my/desired/key.txt
+    src: /usr/local/myfile.txt
+    mode: put
+    metadata: 'Content-Encoding=gzip,Cache-Control=no-cache'
+
+- name: PUT/upload with custom headers
+  aws_s3:
+    bucket: mybucket
+    object: /my/desired/key.txt
+    src: /usr/local/myfile.txt
+    mode: put
+    headers: 'x-amz-grant-full-control=emailAddress=owner@example.com'
+
+- name: List keys simple
+  aws_s3:
+    bucket: mybucket
+    mode: list
+
+- name: List keys all options
+  aws_s3:
+    bucket: mybucket
+    mode: list
+    prefix: /my/desired/
+    marker: /my/desired/0023.txt
+    max_keys: 472
+
+- name: Create an empty bucket
+  aws_s3:
+    bucket: mybucket
+    mode: create
+    permission: public-read
+
+- name: Create a bucket with key as directory, in the EU region
+  aws_s3:
+    bucket: mybucket
+    object: /my/directory/path
+    mode: create
+    region: eu-west-1
+
+- name: Delete a bucket and all contents
+  aws_s3:
+    bucket: mybucket
+    mode: delete
+
+- name: GET an object but don't download if the file checksums match. New in 2.0
+  aws_s3:
+    bucket: mybucket
+    object: /my/desired/key.txt
+    dest: /usr/local/myfile.txt
+    mode: get
+    overwrite: different
+
+- name: Delete an object from a bucket
+  aws_s3:
+    bucket: mybucket
+    object: /my/desired/key.txt
+    mode: delobj
+
+ec2 – create, terminate, start or stop an instance in ec2
+--------------------------------------------------------------
+
+
+# Note: These examples do not set authentication details, see the AWS Guide for details.
+
+# Basic provisioning example
+- ec2:
+    key_name: mykey
+    instance_type: t2.micro
+    image: ami-123456
+    wait: yes
+    group: webserver
+    count: 3
+    vpc_subnet_id: subnet-29e63245
+    assign_public_ip: yes
 
 
 
@@ -5593,8 +5732,11 @@ Would you like help integrating this into an automation workflow? 🚀
 
 You said:
 
+
+
 Ansible playbook automation to deploy the pods in kubernetes 
 -------------------------------------------------------------------
+
 ChatGPT said:
 Here’s an Ansible playbook to automate the deployment of Kubernetes pods. It assumes that:
 
@@ -5875,3 +6017,54 @@ Edit
 This way, roles are reusable and maintainable. You can include them in different playbooks across multiple projects.
 
 Would you like help creating an example role or applying this structure to a specific task?
+
+
+
+-----EX:
+https://github.com/praveen1994dec/Ansible/blob/main/create_user.yml
+
+#
+#About: This will create-user
+#
+---
+- hosts: 'localhost'
+  become: yes
+  roles:
+  - create-user
+
+https://github.com/praveen1994dec/Ansible/blob/main/roles/create-user/tasks/main.yml
+
+---
+- name: set group with name shadow
+  group:
+   name: shadow
+
+- name: set group with name sudo
+  group:
+   name: sudo
+  
+- name: Adding new user
+  user: name=devops groups=sudo,shadow shell=/bin/bash append=yes generate_ssh_key=yes ssh_key_file=.ssh/id_rsa
+  tags:
+    - create-user
+
+
+- name: Adding public key to authorized_keys
+  file: src=/home/devops/.ssh/id_rsa.pub dest=/home/devops/.ssh/authorized_keys state=link
+  tags:
+    - create-user-authorized-keys
+
+- name: Get the private key
+  shell: cat /home/devops/.ssh/id_rsa
+  register: ssh_key
+  tags:
+    - create-user-display-keys
+
+- debug: var=ssh_key
+  tags:
+    - create-user-display-keys
+
+
+
+---------------------
+Handlers
