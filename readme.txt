@@ -6068,3 +6068,33 @@ https://github.com/praveen1994dec/Ansible/blob/main/roles/create-user/tasks/main
 
 ---------------------
 Handlers
+
+
+==========================================================================================================
+                                     RED HAT
+
+
+
+cd /etc/yum.repos.d/
+
+NMCLI- NetworkManger command line interface
+- Ip adrress
+- subnets
+- cidrs (class less inter domain routing)
+- dns
+- route configurations
+- ethernet cards and ports
+- DHCP
+
+
+
+SELINUX
+
+
+
+
+
+
+
+
+
