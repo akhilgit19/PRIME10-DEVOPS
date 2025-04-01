@@ -1,0 +1,73 @@
+PROJECT1 👍
+***0-14 years of exp
+**INTERVIWER/HR will not check your
+projects with your current organization
+JENKINS CICD PIPELINE:
+Client Name: Mercedes Benz
+Project Name : DMS [ Dealer Management System ]
+Mercedes Benz dealer onboarding applications were handled by the DevOps/SRE team, the
+16 microservices were onboarded into the CICD pipeline with end to end integration of all
+tools where we had various suites like Security, build, docker, ansible and k8
+deployment.The Jenkins shared library along with the Jenkinsfile design for each
+microservice was done by both in an individual contribution and as a team work.
+- Integrated all tools with the Jenkins and designed various automation scripts in shell
+and python to check the various stages conditions in pipeline
+- Sonarqube QG was checked with shell script for each module and each microservice
+was on boarded to sonar
+- Automation of GITLAB/SONAR/JENKINS/JIRA rest apis was done where I have
+received appreciation emails
+- Maintained the build servers of jenkins where we had docker installed which
+converted the Jar into image
+- Jfrog rest api automation for cleanup of old binaries was done
+- Kubernetes manifest file design as per the development teams was handled where
+we had various kinds of deployments, daemonset, services etc.
+- Troubleshooting the pod deployment along with RCA was performed
+PROJECT2 👍
+KUBERNETES AND APPLICATION MONITORING
+Client Name: Palo Alto Networks
+Project Name : KMMS [Kubernetes Managed Metric System]
+The project had a baseline of applications which were dealing with the Security of Network,
+Cloud workloads, Hybrid Workforce, Leverage Threat Intelligence & Security Consulting.
+- The Prometheus was installed on all the two clusters of our AWS EKS with the help of
+helm charts
+- The DB for the prometheus we used was influx database where we inserted the Time
+series data
+- The two clusters along with 10 nodes had the Prometheus exporters which continuously
+extracted the data based on the pull mechanism.
+- The Grafana was installed on the system and integrated with the help of GQL to show
+the data on the grafana dashboard like cluster and node along with pod monitoring
+- The helm charts management was done via the helm repo where each sub folder was
+formed based on the Palo alto project repositories
+- The splunk was integrated with each application to get the application logs
+PROJECT3 👍
+CHATBOT DEVELOPMENT
+Client Name: EPAM
+Project Name : SDSBOT [Strides Support BOT]
+The SRE/DevOps team were getting the Kubernetes and MMS requests in the slack channel
+day in and out and the team wanted to design the bot to solve the various use cases which
+included the JIRA ticket creation to solving the user related queries.
+- The BOT was designed in python and Nodejs by using special node modules like the
+Hubot framework
+- Design and deployment was done in kubernetes along with Jenkinsfile and Manifest file
+placed in github
+- The Jira rest apis along with team rosters endpoint were used to get the data from
+platforms and to represent in slack to the end user
+- The entire architecture was deployed in AWS EKS
+PROJECT4 👍
+INFRA SERVICES DEVELOPMENT
+Client Name: Cognizant
+Project Name : DevOps/Tech Infra Support [TIS]
+The primary aim was to create the infra in AWS with the terraform in place and with one
+touch deployment [ OTD ] via jenkins jobs. The infra was primarily designed for the
+Cognizant internal applications which were based on payroll rollout data of the
+employees.
+- Designed the terraform scripts from scratch for various AWS components
+- Collaborated with dev teams in order to gather requirements and based on which the
+scripts were written
+- Github repo was used to place the scripts which was integrated with jenkins via
+webhook
+- AWS VPC, Subnets, AZs, Route53, Load balancers, ASG along with launch
+configuration were used.
+- The terraform state files were maintained by our team in the S3 bucket
+- The CDNs, API Gateway and the ACM design was done and implemented in order to
+give the E2E flow for the applications
