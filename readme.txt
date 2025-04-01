@@ -511,6 +511,16 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
   -H "X-GitHub-Api-Version: 2022-11-28" \
   https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches
 
+
+command updated:
+akhilpagadapoola@Akhils-MacBook-Air test % curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer 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" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches 
+
+
+Solution
 [
   {
     "name": "gitdocuments",
