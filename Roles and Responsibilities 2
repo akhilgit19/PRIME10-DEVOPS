@@ -1,0 +1,95 @@
+ROLES AND RESPONSIBILITIES PART2
+***0-14 years of exp
+**INTERVIEWER/HR will not check
+your projects with your current
+organisation
+DEVOPS/LINUX SYSTEM ADMINISTRATION:
+Client Name: Zeta
+Project Name : Payzapp
+HDFC Bank’s Payzapp is an online payment app that doubles as a digital wallet and a
+virtual card. You can use PayZapp to pay for online and offline services like paying bills,
+sending money, shopping online, etc., without having to use your bank account or cards.
+- Maintaining the linux centos servers of Payzapp by taking care of OS patching and
+software upgrades with the help of ansible playbooks
+- Disk management and volume management were performed on all the servers to
+support the server uptime
+- Log optimization scripts were deployed with the help of ansible on all the Payzapp
+servers to make sure the server logs are archived and stored in s3
+- The user management and the log management along with the SELINUX was setup
+to make sure the enhanced security is provided to the servers.
+- Performing systems administration, maintenance, and engineering in multiple large
+enterprise server environments (Linux, Red Hat, CentOS)
+- Maintain Linux-based servers, both hardware and software
+- Manage in-house Java developed applications that run on the Linux systems
+- Demonstrate knowledge of essential network services such as DNS, NFS, Apache,
+NTP, sendmail, and OpenSSH
+DEVOPS/TEST ENGINEER:
+Client Name - Groww
+Project Name - XYZ
+Project Details - Groww Mutual Fund is a new asset management company with a simple
+mission - creating mutual funds that help you achieve your financial goals.
+● Participate in deep-dive analysis and maturity assessment of current DevOps practices
+● Identify and define Automation Architecture Principles and ensuring to apply them in
+building or re-working the automation framework(s)
+● Develop automation solutions for Cloud (IAC - Terraform), CI/CD pipelines (YAML) and
+QE process areas application technologies
+● Develop design patterns, modules, and libraries to integrate SDLC processes into the
+CI/CD pipeline
+● Provide Technical expertise in resolving automation engineering, coding, and
+architecture issues
+● Interface with Cloud Engineering/Ops, DevTools on all DevSecOps Automation-related
+issues
+● Participate in tools Proof of Concept (POCs) and provide final analysis and
+recommendations such as Chatbot and Gitlab automation
+● Contribute to creating educational materials and conducting training and mentoring
+sessions on DevSecOps-related subjects
+● Identify industry trends and ensure that these are reflected in the resources provided to
+development teams, working with policy and platform owners where necessary to effect
+change
+● Act as an advocate for the development team, working to understand and mitigate
+challenges and gaps with regards to all aspects of the intake process Essential
+Technical Skills
+● Good knowledge of Infrastructure as Code concepts (IAC)
+● Knowledge and implementation experience of DevOps, CI/CD, DevSecOps concepts
+● Good level of understanding of Architecture principles, design methodologies and their
+applicability
+● Ability to work in an Enterprise organisation and be able to communicate with senior
+members of Dev, Infrastructure, and Architecture teams as needed.
+● Hands-on experience of the following: o Creating and deploying CI/CD pipelines (GitLab
+/ Jenkins / Nexus)
+● Configuring and running Code/Binary scans using solutions like SonarQube, etc.
+● Configuring and using Secrets management tools like Vault and Cloud native solutions
+● Broad knowledge of SDLC Tools, specifically Build, Test and Deploy Automation tools,
+e.g., Maven, Gradle, Selenium, Ansible, etc. o Good understanding on Dockers
+● Good understanding of Test Automation implementation across at least one of the
+platforms – Web, Desktop, Cloud, Mobile, etc.
+DEVOPS/SRE ENGINEER:
+Client Name - Myntra
+Project Name - MPT [ Myntra platform team ]
+Project Details - Site Reliability Engineering team at Myntra prime responsibility is to
+bring reliability to Myntra's production infrastructure. This project makes sure to
+automate infrastructure provisioning, cloud security, monitoring, and troubleshooting
+and also this project uses a lot of open-source tools and languages to accomplish
+tasks like Python, Ansible, Terraform, etc
+● System Reliability: Ensure the reliability and availability of our systems and services
+through proactive monitoring, incident response, and performance optimisation.
+● Automation: Design, develop, and maintain automation tools and scripts for
+deployment, configuration management, and continuous integration/continuous
+delivery (CI/CD) pipelines.
+● Scalability: Collaborate with the engineering and Observability team to design and
+implement scalable solutions that can handle growing workloads and traffic.
+● Incident Management: Participate in on-call rotations to respond to and resolve
+incidents, identify root causes, and implement preventive measures to avoid recurrence.
+● Infrastructure as Code (IaC): Implement and manage infrastructure as code practices,
+using tools like Terraform, CloudFormation, Serverless, or similar, to maintain
+infrastructure consistency and version control.
+● Monitoring and Alerting: Develop and maintain monitoring, alerting, and logging
+systems to proactively identify and address issues, as well as provide insights for
+continuous improvement.
+● Security: Collaborate with security teams to ensure systems and services meet security
+and compliance standards, performing regular security audits and vulnerability
+assessments.
+● Capacity Planning: Analyse system performance and usage trends to provide
+recommendations for capacity planning and infrastructure optimisation.
+● Documentation: Create and maintain comprehensive documentation for system
+configurations, incident response procedures, and best practices.
