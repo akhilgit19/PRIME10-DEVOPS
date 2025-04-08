@@ -1,3 +1,305 @@
+
+
+How to Download & Install Jenkins on Windows
+===============================================
+
+Step 1) Got to https://www.jenkins.io/download/ and select the platform. In our case Windows
+Step 2) Go to download location from local computer and unzip the downloaded package.
+Double-click on unzipped jenkins.msi. You can also Jenkin using a WAR (Web application
+ARchive) but that is not recommended.
+Step 3) In the Jenkin Setup screen, click Next.
+Step 4) Choose the location where you want to have the Jenkins instance installed (default
+location is C:\Program Files (x86)\Jenkins), then click on Next button.
+Step 5)Click on the Install button.
+Step 6) Once install is complete, click Finish.
+Step 7) During the installation process an info panel may pop-up to inform the user that for a
+complete setup, the system should be rebooted at the end of the current installation. Click on OK
+button when the Info panel is popping-up:
+
+
+Logging into Jenkins
+================================
+Step 1) After completing the Jenkins installation process, a browser tab will pop-up asking for
+the initial Administrator password. To access Jenkins, you need to go to browse the following
+path in your web browser.
+http://localhost:8080
+If you can access the above URL, then it confirms that Jenkins is successfully installed in your
+system.
+Step 2) The initial Administrator password should be found under the Jenkins installation path
+(set at Step 4 in Jenkins Installation).
+For default installation location to C:\Program Files (x86)\Jenkins, a file
+called initialAdminPassword can be found under C:\Program Files (x86)\Jenkins\secrets.
+However, If a custom path for Jenkins installation was selected, then you should check that
+location for initialAdminPassword file.
+Step 3) Open the highlighted file and copy the content of the initialAdminPassword file.
+Step 4) Paste the password it into browser's pop-up tab (http://localhost:8080/login?form=%2F)
+and click on Continue button.
+Customize Jenkins
+You can also customize your Jenkins environment by below-given steps:
+Step 1) Click on the "Install suggested plugins button" so Jenkins will retrieve and install the
+essential plugins
+Jenkins will start to download and install all the necessary plugins needed to create new Jenkins
+Jobs.
+Note: You can choose the Option "Select Plugins to Install" and select the plugins you want to
+install
+Step 2) After all suggested plugins were installed, the "Create First Admin User" panel will
+show up. Fill all the fields with desired account details and hit the "Save and Finish" button.
+Step 3) Once you have filled the above data, finally it will ask for URL information where you
+can configure the default instance path for Jenkins. Leave it as it is to avoid any confusions later.
+However, if another application is already using 8080 port, you can use another port for Jenkins
+and finally save the settings, and you are done with installation of Jenkins. Hit the "Save and
+Continue" button:
+Congratulations! We have successfully installed a new Jenkins Server. Hit the "Start using
+Jenkins" button.
+Below you can find the Jenkins instance up and run, ready to create first Jenkins jobs:
+
+How to Install Git Plugin in Jenkins
+===========================================
+Following is a step by step process on how to Install Git plugin in Jenkins:
+Step 1: Click on the Manage Jenkins button on your Jenkins dashboard:
+Step 2: Click on Manage Plugins:
+Step 3: In the Plugins Page
+1. Select the GIT Plugin
+2. Click on Install without restart. The plugin will take a few moments to finish downloading
+depending on your internet connection, and will be installed automatically.
+3. You can also select the option Download now and Install after restart button. In which plugin is
+installed after restart
+4. You will be shown a "No updates available" message if you already have the Git plugin installed.
+Step 4: Once the plugins have been installed, go to Manage Jenkins on your Jenkins dashboard.
+You will see your plugins listed among the rest.
+
+How to Integrate Jenkins With GitHub
+====================================================
+We shall now discuss the process of integrating Jenkins and GitHub a Windows system:
+Step 1) Create a new job in Jenkins, open the Jenkins dashboard with your Jenkins URL. For
+example, http://localhost:8080/
+Click on create new jobs:
+Step 2) Enter the item name, select job type and click OK. We shall create a Freestyle project as
+an example.
+Step 3) Once you click OK, the page will be redirected to its project form. Here you will need to
+enter the project information:
+Step 4) You will see a Git option under Source Code Management if your Git plugin has been
+installed in Jenkins:
+NOTE: If the Git option does not appear, try re-installing the plugins, followed by a restart and a
+re-login into your Jenkins dashboard. You will now be able to see the Git option as mentioned
+above.
+Step 5) Enter the Git repository URL to pull the code from GitHub.
+Step 6) You might get an error message the first time you enter the repository URL. For
+example:
+This happens if you do not have Git installed in your local machine. To install Git in your local
+machine, go to https://git-scm.com/downloads
+Download the appropriate Git file for your Operating System, in this case, Windows, and install
+it onto your local machine running Jenkins. Complete the onscreen instructions to install GIT.
+Step 7) You can execute Git repositories in your Jenkins once Git has been installed on your
+machine. To check if it has been successfully installed onto your system, open your command
+prompt, type "Git" and press enter. You should see different options come up for Git:
+This means that Git has been installed in your system.
+Note: If you have GIT already installed in your system, just add git.exe path in Global Tool
+Configuration.
+Step 8) Once you have everything in place, try adding the Git URL into Jenkins. You will not
+see any error messages for Jenkins Git integration:
+
+
+
+
+How to Create/Add Users in Jenkins & Manage Permissions
+================================================================
+
+Generally, in a large organization, there are multiple, separate teams to manage and run jobs in
+Jenkins. But managing this crowd of users and assigning roles to them can prove troublesome.
+By default, Jenkins comes with very basic user creation options. You can create multiple users
+but can only assign the same global roles and privileges to them. This not ideal, especially for a
+large organization.
+The Role Strategy Plugin enable you to assign different roles and privileges to different
+users. You will first need to install the plugin in your Jenkins mange environment.
+In this Jenkins tutorial, you will learn
+• How to Create a User in Jenkins
+• How to Install Role Strategy Plugin in Jenkins
+• How to Manage Users and Roles in Jenkins
+• How to Assign Roles in Jenkins
+• How to Create Project Roles in Jenkins
+
+How to Create/Add a User in Jenkins
+================================================================
+Below are the steps to create new user in Jenkins:
+Step 1) Login to Jenkins Dashboard
+Login to your Jenkins dashboard by visiting http://localhost:8080/
+If you haven't installed Jenkins in your local server, go to the appropriate URL and access your
+dashboard by using your login credentials.
+Step 2) Choose the option
+You will now see options to create and add user in Jenkins and manage current users.
+Step 3) Create a new User
+• Under Manage Jenkins, Click Create User
+• Enter Jenkins add user details like password, name, email etc.
+• Click Create User
+Step 4) User is created
+You will see on the dashboard that a new Jenkins create user as per the details entered.
+
+How to Install Role Strategy Plugin in Jenkins
+================================================================
+There are two methods for installing plugins in Jenkins:
+1. Installing it through your Jenkins dashboard
+2. Downloading the plugin from Jenkins website and installing it manually.
+Step 1)
+1. Go to Manage Jenkins
+2. Click on the Manage Plugins option
+Step 2)
+1. In available section, screen Search for "role".
+2. Select Role-based Authorization Strategy plugin
+3. Click on "Install without restart" (make sure you have an active internet connection)
+Step 3)
+Once the plugin is installed, a "success" status will be displayed.
+Click on Go back to the top page.
+Step 4) Go to Manage Jenkins -> Configure Global Security ->
+Under Authorization, select Role Based Strategy. Click on Save.
+
+How to Manage Users and Roles in Jenkins
+================================================================
+Following are the steps on how to manage and assign roles in Jenkins:
+Step 1)
+1. Go to Manage Jenkins
+2. Select Manage and Assign Roles
+Note: that the Manage and Assign Roles option will only be visible if you've installed the role
+strategy plugin.
+Step 2) Click on Manage Roles to add new roles based on your organization.
+Step 3) To create a new role called "developer",
+1. Type "developer" under "role".
+2. Click on "Add" to create a new role.
+3. Now, select the Jenkins user permissions you want to assign to the "Developer" role.
+4. Click Save
+
+How to Assign Roles in Jenkins
+================================================================
+Step 1) Now that you have created roles, let us assign them to specific users.
+1. Go to Manage Jenkins
+2. Select Manage and Assign Roles
+Step 2) We shall add the new role "developer" to user "guru99"
+1. Selector developer role checkbox
+2. Click Save
+You can assign any role to any user, as per your need.
+
+How to Create Project Roles in Jenkins
+================================================================
+You can create project specific roles under Project Roles.
+Step 1) In Jenkin's Manage and Assign Roles
+1. Enter a role as "tester"
+2. Add a pattern to this by adding tester.*, so that any username starting with "tester" will be
+assigned the project role you specify.
+3. Click Add
+4. Select privileges
+5. Click Save
+
+
+
+How to Create a New Build Job in Jenkins
+=====================================================
+The freestyle build job is a highly flexible and easy-to-use option. You can use it for any type of
+project; it is easy to set up, and many of its options appear in other build jobs. Below is a step by
+step process to create job in Jenkin.
+Step 1) Login to Jenkins
+To create a Jenkins freestyle job, log on to your Jenkins dashboard by visiting your Jenkins
+installation path. Usually, it will be hosted on localhost at http://localhost:8080 If you have
+installed Jenkins in another path, use the appropriate URL to access your dashboard as shown in
+the below Jenkins job creation example.
+Step 2) Create New Item
+Click on "New Item" at the top left-hand side of your dashboard.
+Step 3) Enter Item details
+In the next screen,
+1. Enter the name of the item you want to create. We shall use the "Hello world" for this demo.
+2. Select Freestyle project
+3. Click Okay
+Step 4) Enter Project details
+Enter the details of the project you want to test.
+Step 5) Enter repository URL
+Under Source Code Management, Enter your repository URL. We have a test repository located
+at https://github.com/kriru/firstJava.git
+It is also possible for you to use a local repository.
+If your GitHub repository is private, Jenkins will first validate your login credentials with
+GitHub and only then pull the source code from your GitHub repository.
+Step 6) Tweak the settings
+Now that you have provided all the details, it's time to build the code. Tweak the settings under
+the build section to build the code at the time you want. You can even schedule the build to
+happen periodically, at set times.
+Under build,
+1. Click on "Add build step"
+2. Click on "Execute Windows batch command" and add the commands you want to execute
+during the build process.
+Here, I have added the java commands to compile the java code.
+I have added the following windows commands:
+javac HelloWorld.java
+java HelloWorld
+Step 7) Save the project
+When you have entered all the data,
+1. Click Apply
+2. Save the project.
+Step 8) Build Source code
+Now, in the main screen, Click the Build Now button on the left-hand side to build the source
+code.
+Step 9) Check the status
+After clicking on Build now, you can see the status of the build you run under Build History.
+Step 10) See the console output
+Click on the build number and then Click on console output to see the status of the build you
+run. It should show you a success message, provided you have followed the setup properly as
+shown in the below Jenkins create new job example.
+In sum, we have executed a HelloWorld program hosted on GitHub. Jenkin pulls the code from
+the remote repository and builds continuously at a frequency you define
+
+
+
+Install Build Pipeline Plugin in Jenkins
+=========================================================
+With the build pipeline plugin, you can create a pipeline view of incoming and outgoing jobs,
+and create triggers which require manual intervention.
+Here is how you can install the build pipeline plugin in your Jenkins:
+Step 1) The settings for the plugin can be found under,
+Manage Jenkins > Manage Plugins.
+If you have already installed the plugin, it is shown under the installed tab.
+Step 2) If you do not have the plugin previously installed,
+it shows up under the Available tab.
+Once you have successfully installed the build pipeline plugin in your Jenkins, follow these
+steps to create your Jenkins pipeline:
+
+How to Create Jenkins Pipeline
+================================
+Once you are logged in to your Jenkins dashboard:
+Step 1) Click on the "+" button on the left-hand side of your Jenkins dashboard to create a
+pipeline.
+Step 2)
+1. You will be asked to give a name to the pipeline view. We shall call it "Guru99 Pipeline" for the
+duration of this demo.
+2. Select Build a pipeline view under options
+3. Click ok
+Step 3) In the next page, you will be asked for some more details to configure your Jenkins
+pipeline. Just accept the default settings, and make sure you choose the first job under the
+settings.
+Click on Apply and then OK.
+This will show you the sample pipeline view of your item, as given below:
+Running a Pipeline build
+=============================
+Step 1) For running a pipeline build, you need to chain your jobs first. For this, go to your first
+job and click on configure.
+Step 2) Now, under Build Triggers, check the Build after other projects are built option.
+Thus, a chain for all your jobs has been created.
+Step 3) Install the Build Pipeline view plugin if you don't have it installed already.
+Step 4) Go to your Jenkins dashboard and create a view by clicking on the "+" button. Select
+the Build Pipeline View option and click OK.
+Step 5) Under Pipeline view configuration, locate Pipeline Flow.
+Under Pipeline flow, select the initial job to run. Now choose the job which has chains to other
+jobs, as shown in Step 1 and Step 2.
+Here we have selected Guru99 Project 1 as the initial job, chained to other jobs. So, one by one,
+the jobs will run in the pipeline.
+When the Jenkins pipeline is running, you can check its status with the help of Red and Green
+status symbols. Red means the pipeline has failed, while green indicates success.
+In this Jenkins pipeline example, we see that the button is green. Hence, the pipeline is
+successful.
+
+Running Jenkins pipeline
+================================
+Click on Run to run the Jenkins pipeline. It will look something like this:
+In the Jenkins pipeline script example above, we are demonstrating a simple "helloworld.java"
+program. But in real time projects, you will be responsible for creating and building complex
+pipelines in Jenkins. See below for a sample pipeline view.
+
 1.macOS Installers for Jenkins LTS Homebrew Installer 
 -----------------------------------------------------------
 
@@ -51,7 +353,5 @@ javac HelloWorld.java && java HelloWorld
 
 
 root@ip-172-31-23-59:/home/ubuntu# cd /var/lib/jenkins/workspace/
-root@ip-172-31-23-59:/var/lib/jenkins/workspace# ls
-react-nginx
 
 
