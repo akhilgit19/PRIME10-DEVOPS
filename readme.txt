@@ -644,41 +644,596 @@ git push origin master
 
  https://github.com/praveen1994dec/Knowledge_Base.git
 
-
-1. Ping:
-Purpose: To check the reachability of a host on an Internet Protocol (IP)
-network.
-Usage Example: ping google.com
-2. Traceroute (or traceroute6):
-Purpose: To display the route and measure transit delays of packets across an
-Internet Protocol network.
-Usage Example: traceroute google.com
-3. Netstat:
-Purpose: To display active network connections, routing tables, interface
-statistics, masquerade connections, and multicast memberships.
-Usage Example: netstat -a
-4. Nmap:
-Purpose: To discover hosts and services on a computer network, creating a
-"map" of the network.
-Usage Example: nmap -p 1-1000 target
-5. Tcpdump:
-Purpose: To capture and analyze network traffic.
-Usage Example: tcpdump -i eth0
-6. Ipconfig (Windows) / ifconfig (Linux):
-Purpose: To display the configuration of network interfaces.
-Usage Example (Linux): ifconfig
-7. Dig (Domain Information Groper):
-Purpose: To query DNS name servers for information about host addresses,
-mail exchanges, name servers, and related information.
-Usage Example: dig google.com
-8. Nslookup (Windows) / host (Linux):
-Purpose: To query DNS servers for domain information.
-
 Logs:
 
          
      SSL/TLS                UDP/TCP/
 User-------------> Request------------------> Regional server---------> DNS Server
+
+
+
+1. Ping:
+===================================
+Purpose: To check the reachability of a host on an Internet Protocol (IP)
+network.
+Usage Example: ping google.com
+
+akhilpagadapoola@Akhils-MacBook-Air ~ % ping google.com
+PING google.com (142.250.195.110): 56 data bytes
+64 bytes from 142.250.195.110: icmp_seq=0 ttl=55 time=22.666 ms
+64 bytes from 142.250.195.110: icmp_seq=1 ttl=55 time=67.757 ms
+64 bytes from 142.250.195.110: icmp_seq=2 ttl=55 time=33.472 ms
+64 bytes from 142.250.195.110: icmp_seq=3 ttl=55 time=60.244 ms
+64 bytes from 142.250.195.110: icmp_seq=4 ttl=55 time=30.264 ms
+
+2. Traceroute (or traceroute6):
+======================================
+Purpose: To display the route and measure transit delays of packets across an
+Internet Protocol network.
+Usage Example: traceroute google.com
+
+akhilpagadapoola@Akhils-MacBook-Air ~ % traceroute google.com
+traceroute to google.com (142.250.195.110), 64 hops max, 52 byte packets
+ 1  172.20.10.1 (172.20.10.1)  4.986 ms  4.561 ms  3.784 ms
+ 2  100.64.0.100 (100.64.0.100)  145.373 ms  190.336 ms  201.034 ms
+ 3  192.168.27.154 (192.168.27.154)  16.888 ms
+    192.168.27.158 (192.168.27.158)  18.311 ms  13.785 ms
+ 4  192.168.28.18 (192.168.28.18)  15.178 ms  18.244 ms  15.133 ms
+ 5  192.168.28.49 (192.168.28.49)  15.114 ms  19.953 ms  17.953 ms
+ 6  * * *
+ 7  125.18.92.77 (125.18.92.77)  39.321 ms  17.756 ms
+    125.18.92.137 (125.18.92.137)  14.844 ms
+ 8  116.119.68.247 (116.119.68.247)  23.189 ms
+    182.79.243.201 (182.79.243.201)  24.294 ms  51.116 ms
+ 9  72.14.205.196 (72.14.205.196)  26.582 ms  28.362 ms  32.187 ms
+10  * * *
+11  74.125.252.90 (74.125.252.90)  83.450 ms
+    142.251.55.90 (142.251.55.90)  34.901 ms
+    216.239.47.142 (216.239.47.142)  26.572 ms
+12  172.253.75.14 (172.253.75.14)  31.451 ms
+    142.251.230.90 (142.251.230.90)  20.453 ms
+    142.251.55.69 (142.251.55.69)  36.297 ms
+13  maa03s39-in-f14.1e100.net (142.250.195.110)  26.802 ms  28.112 ms  27.130 ms
+akhilpagadapoola@Akhils-MacBook-Air ~ %
+
+When you ran:
+
+nginx
+Copy
+Edit
+traceroute google.com
+It showed the path from your device to google.com (142.250.195.110) through up to 64 hops, using 52-byte packets.
+
+Let’s go line by line:
+
+Copy
+Edit
+ 1  172.20.10.1           4.986 ms  4.561 ms  3.784 ms
+Hop 1: Your local router or gateway (likely your phone hotspot or home Wi-Fi).
+
+The three numbers are three round-trip time (RTT) measurements in milliseconds.
+
+Copy
+Edit
+ 2  100.64.0.100         145.373 ms  190.336 ms  201.034 ms
+Hop 2: An internal carrier-grade NAT address, common in ISP networks.
+
+High delay here might indicate congestion.
+
+markdown
+Copy
+Edit
+ 3  192.168.27.154       16.888 ms
+    192.168.27.158       18.311 ms  13.785 ms
+Hop 3: Shows multiple possible routers at the same hop (load balancing).
+
+These are also private IPs, still within your ISP’s internal routing.
+
+pgsql
+Copy
+Edit
+ 4-5**: More internal hops** with similar latencies. 
+Copy
+Edit
+ 6  * * *
+Hop 6: No response. The router didn’t reply (often due to a firewall or ICMP being blocked).
+
+markdown
+Copy
+Edit
+ 7-12**: These are public IPs**
+- You’re now outside private networks, reaching ISP routers and peering points.
+- IPs like `125.18.92.77`, `72.14.205.196`, and `142.251.55.69` belong to ISPs or Google’s network.
+
+13 maa03s39-in-f14.1e100.net (142.250.195.110)
+
+yaml
+Copy
+Edit
+- **Final Destination**: You reached Google’s server.
+- `maa03s39` likely indicates a **data center in Chennai (MAA = Chennai Airport Code)**.
+
+---
+
+### 💡 Key Notes:
+- Three RTT values are shown for each hop to detect variability.
+- `* * *` indicates lost or blocked probes.
+- Private IPs (`192.168.x.x`, `100.64.x.x`, etc.) indicate internal ISP routing.
+
+---
+
+Would you like me to help you visualize this as a path diagram?
+
+
+You said:
+
+
+🌐 Visualizing the Traceroute Path
+The traceroute output you provided indicates the following hops:
+
+Your Local Router: 172.20.10.1
+
+ISP's Internal Router: 100.64.0.100
+
+Intermediate Routers: 192.168.27.154, 192.168.27.158, 192.168.28.18, 192.168.28.49
+
+Public ISP Routers: 125.18.92.77, 182.79.243.201, 72.14.205.196, 74.125.252.90, 142.251.230.90
+
+Google's Server: 142.250.195.110
+
+Here's a simplified path diagram illustrating the hops:
+
+plaintext
+Copy
+Edit
+Your Device (Bengaluru)
+       |
+       v
+Local Router (172.20.10.1)
+       |
+       v
+ISP Router (100.64.0.100)
+       |
+       v
+Intermediate Routers
+       |
+       v
+Public ISP Routers
+       |
+       v
+Google's Server (142.250.195.110)
+
+3. Netstat:
+========================================================
+Purpose: To display active network connections, routing tables, interface
+statistics, masquerade connections, and multicast memberships.
+Usage Example: netstat -a
+
+akhilpagadapoola@Akhils-MacBook-Air ~ % netstat -a
+Active Internet connections (including servers)
+Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)    
+tcp6       0      0  2401:4900:4e74:f.61920 2600:9000:2179:7.https ESTABLISHED
+tcp4       0      0  172.20.10.4.61919      lb-140-82-114-22.https ESTABLISHED
+tcp4       0      0  172.20.10.4.61918      lb-140-82-114-22.https ESTABLISHED
+tcp4       0      0  172.20.10.4.61917      20.207.73.85.https     ESTABLISHED
+tcp4       0      0  172.20.10.4.61880      76.191.118.28.https    ESTABLISHED
+tcp4       0      0  172.20.10.4.61597      aa1ba9bef7b18c26.https ESTABLISHED
+tcp6       0      0  2401:4900:4e74:f.61596 si-in-f188.1e100.5228  ESTABLISHED
+tcp4       0      0  172.20.10.4.61576      lb-140-82-113-25.https ESTABLISHED
+tcp4       0      0  172.20.10.4.61574      172.20.10.1.60782      ESTABLISHED
+tcp6       0      0  *.61574                *.*                    LISTEN     
+tcp4       0      0  *.61574                *.*                    LISTEN     
+tcp6       0      0  akhils-macbook-a.black fe80::d196:404d:.1026  ESTABLISHED
+tcp6       0      0  akhils-macbook-a.1024  fe80::d196:404d:.1024  ESTABLISHED
+tcp4       0      0  192.168.29.120.64229   del12s06-in-f14..https CLOSE_WAIT 
+tcp4      31      0  192.168.29.120.64224   www.eclipse.org.https  CLOSE_WAIT 
+tcp4       0      0  192.168.29.120.64220   49.44.131.112.https    ESTABLISHED
+tcp4       0      0  192.168.29.120.64219   49.44.131.112.https    ESTABLISHED
+tcp4       0      0  192.168.29.120.64218   49.44.131.112.https    ESTABLISHED
+tcp4       0      0  192.168.29.120.64217   49.44.131.112.https    ESTABLISHED
+tcp4       0      0  192.168.29.120.64215   49.44.131.112.https    ESTABLISHED
+tcp4       0      0  localhost.9922         *.*                    LISTEN     
+tcp6       0      0  *.commplex-main        *.*                    LISTEN     
+tcp4       0      0  *.commplex-main        *.*                    LISTEN     
+tcp6       0      0  *.afs3-fileserver      *.*                    LISTEN     
+tcp4       0      0  *.afs3-fileserver      *.*                    LISTEN     
+tcp46      0      0  *.mysql                *.*                    LISTEN     
+tcp46      0      0  *.33060                *.*                    LISTEN     
+tcp4       0      0  localhost.intu-ec-clie *.*                    LISTEN     
+tcp6       0      0  localhost.intu-ec-clie *.*                    LISTEN     
+tcp6       0      0  2401:4900:4e74:f.61908 2600:9000:2179:7.https TIME_WAIT  
+tcp6       0      0  2401:4900:4e74:f.61909 2600:9000:2179:7.https TIME_WAIT  
+tcp6       0      0  2401:4900:4e74:f.61911 2600:9000:2179:7.https TIME_WAIT  
+tcp6       0      0  2401:4900:4e74:f.61912 2600:9000:2179:7.https TIME_WAIT  
+tcp4       0      0  172.20.10.4.54268      17.242.13.6.5223       ESTABLISHED
+tcp4       0      0  172.20.10.4.54254      whatsapp-chatd-e.443   ESTABLISHED
+     
+udp6       0      0  2401:4900:4e74:f.54178 maa03s35-in-x03..https            
+udp4       0      0  *.57290                *.*                               
+udp4       0      0  172.20.10.4.63135      bom12s13-in-f10..https            
+udp4       0      0  172.20.10.4.56710      bom07s25-in-f14..https            
+udp4       0      0  172.20.10.4.58944      bom12s13-in-f10..https            
+udp4       0      0  172.20.10.4.56976      maa03s37-in-f14..https            
+udp4       0      0  172.20.10.4.62302      104.18.41.41.https                
+udp4       0      0  172.20.10.4.52648      bom07s25-in-f14..https            
+udp4       0      0  *.xserveraid           *.*                               
+udp4       0      0  172.20.10.4.57583      bom07s30-in-f10..https            
+udp4       0      0  *.*                    *.*                               
+                         
+udp4       0      0  *.*                    *.*                               
+udp4       0      0  *.*                    *.*                               
+                        
+udp4       0      0  *.*                    *.*                               
+udp46      0      0  *.*                    *.*                               
+udp4       0      0  *.netbios-ns           *.*                               
+udp4       0      0  *.netbios-dgm          *.*                               
+icm4    4524      0  *.*                    *.*                               
+Active Multipath Internet connections
+Proto/ID  Flags      Local Address          Foreign Address        (state)    
+icm6       0      0  *.*                    *.*                               
+Active LOCAL (UNIX) domain sockets
+Address          Type   Recv-Q Send-Q            Inode             Conn             Refs          Nextref Addr
+3c34f15613c38a3f stream      0      0                0 3c34f15613c38977                0                0 
+3c34f15613c3058f stream      0      0                0 3c34f15613c303ff                0                0
+3c34f15613c303ff stream      4      0                0 3c34f15613c3058f                0                0
+3c34f15613c2c967 stream      0      0                0 3c34f15613c2c0cf                0                0 /var/run/mDNSResponder
+3c34f15613c2c0cf stream      0      0                0 3c34f15613c2c967                0                0
+3c34f15613c2bb57 stream      0      0                0 3c34f15613c339e7                0                0 /var/run/mDNSResponder
+3c34f15613c339e7 stream      0      0                0 3c34f15613c2bb57                0                0
+/var/run/mDNSResponder
+3c34f15613c3ab0f stream      0      0                0 3c34f15613c3b46f                0                0
+3c34f15613c31c37 stream      0      0                0 3c34f15613c31b6f                0                0 /var/run/mDNSResponder
+3c34f15613c31b6f stream      0      0                0 3c34f15613c31c37                0                0
+3c34f15613c30017 stream      0      0                0 3c34f15613c2ff4f                0                0 /var/run/mDNSResponder
+3c34f15613c2ff4f stream      0      0                0 3c34f15613c30017                0                0
+3c34f15613c37077 stream      0      0                0 3c34f15613c34647                0                0 /var/run/mDNSResponder
+3c34f15613c34647 stream      0      0                0 3c34f15613c37077                0                0
+3c34f15613c31147 stream      0      0                0 3c34f15613c3107f                0                0 /var/run/mDNSResponder
+3c34f15613c3107f stream      0      0                0 3c34f15613c31147                0                0
+3c34f15613c30337 stream      0      0                0 3c34f15613c3826f                0                0 /var/run/mDNSResponder
+3c34f15613c3826f stream      0      0                0 3c34f15613c30337                0                0
+3c34f15613c3696f stream      0      0                0                0                0                0
+3c34f15613c363f7 stream      0      0                0 3c34f15613c3551f                0                0 /var/run/mDNSResponder
+3c34f15613c3551f stream      0      0                0 3c34f15613c363f7                0                0
+3c34f15613c3ac9f stream      0      0                0 3c34f15613c3abd7                0                0 /var/run/mDNSResponder
+3c34f15613c3abd7 stream      0      0                0 3c34f15613c3ac9f                0                0
+3c34f15613c2ea37 stream      0      0                0 3c34f15613c2e96f                0                0
+3c34f15613c2e96f stream      0      0                0 3c34f15613c2ea37                0                0
+3c34f15613c2e8a7 stream      0      0                0 3c34f15613c2e7df                0                0
+3c34f15613c2e7df stream      0      0                0 3c34f15613c2e8a7                0                0
+3c34f15613c2e717 stream      0      0                0 3c34f15613c2e64f                0                0
+3c34f15613c2e64f stream      0      0                0 3c34f15613c2e717                0                0
+3c34f15613c2e587 stream      0      0                0 3c34f15613c2e4bf                0                0
+3c34f15613c2e4bf stream      0      0                0 3c34f15613c2e587                0                0
+3c34f15613c2e3f7 stream      0      0                0 3c34f15613c2e32f                0                0
+3c34f15613c33ce7 dgram       0      0                0 3c34f15613c33c1f                0                0
+3c34f15613c33c1f dgram       0      0 3c34f14c7b8bdfdf                0 3c34f15613c388af                0 /private//var/run/syslog
+unexpected kind 242 which 0xf2
+Registered kernel control modules
+id       flags    pcbcount rcvbuf   sndbuf   name 
+       1        5        0     8192    32768 com.apple.network.tcp_ccdebug 
+       2       28        1     8192   131072 com.apple.flow-divert 
+       3        1       39    65536    65536 com.apple.net.netagent 
+       4        9        0   524288   524288 com.apple.content-filter 
+       5       29        6   524288   524288 com.apple.net.utun_control 
+       6       21        0    65536    65536 com.apple.net.ipsec_control 
+       7        0       42     8192     2048 com.apple.netsrc 
+       8       18        3     8192     2048 com.apple.network.statistics 
+       9        1        0     8192     2048 com.apple.network.advisory 
+       a        1        0    65536    65536 com.apple.net.rvi_control 
+       b        1        0    16384     2048 com.apple.nke.sockwall 
+       c        4        0    65536     2048 com.apple.spmi.nfc 
+       d        4        0    65536     2048 com.apple.uart.wlan-debug 
+       e        4        0     8192     2048 com.apple.uart.sk.wlan-debug 
+Active kernel event sockets
+Proto Recv-Q Send-Q vendor  class  subcl
+kevt       0      0      1      1      9
+kevt       0      0      1      1      2
+kevt       0      0      1      6      1
+kevt       0      0      1      1      6
+kevt       0      0      1      1      1
+kevt       0      0      1      1      2
+
+
+
+You're looking at the complete output of the netstat -a command on your Mac, and it's a very detailed snapshot of your system’s current network activity and socket status. Let's break this down section by section so you clearly understand what's going on.
+
+🔍 1. What Is netstat -a?
+netstat -a shows all active connections and listening ports on your machine, including:
+
+TCP/UDP over IPv4 & IPv6
+
+Listening services
+
+Local ↔ Remote connections
+
+Unix domain sockets
+
+Kernel socket info (like multicast, masquerade, etc.)
+
+🧱 2. Section-by-Section Explanation
+✅ Active Internet Connections (TCP/UDP)
+Key Columns:
+Column	Meaning
+Proto	Protocol: tcp, udp, with 4 or 6 for IPv4/IPv6
+Recv-Q	Bytes in queue waiting to be received
+Send-Q	Bytes waiting to be sent
+Local Address	Your device’s IP and port
+Foreign Addr	Remote IP and port you’re communicating with
+(state)	TCP state: ESTABLISHED, LISTEN, CLOSE_WAIT, TIME_WAIT, etc.
+
+🔗 Examples from your output:
+nginx
+Copy
+Edit
+tcp4       0      0  172.20.10.4.61919      lb-140-82-114-22.https  ESTABLISHED
+A TCP connection from your device to a remote server (possibly GitHub) on port 443 (HTTPS).
+
+Connection is active and functioning.
+
+nginx
+Copy
+Edit
+tcp4       0      0  *.commplex-main        *.*                    LISTEN
+A local service is listening for incoming connections on this port.
+
+*.* means it’s listening on all interfaces and from all remote ports.
+
+ruby
+Copy
+Edit
+tcp6       0      0  2401:4900:4e74:f.61596 si-in-f188.1e100.5228  ESTABLISHED
+An IPv6 connection to a Google server (1e100.net is a Google domain).
+
+💤 Common TCP States:
+State	Meaning
+ESTABLISHED	Active connection in use (data can be sent/received)
+LISTEN	Local app is waiting for incoming connections
+CLOSE_WAIT	Remote closed, local app hasn’t closed yet
+TIME_WAIT	Connection closed; OS waiting to make sure all data is processed
+
+📡 UDP Entries
+UDP is connectionless, so no ESTABLISHED/LISTEN states.
+
+Shows which UDP ports are in use or open.
+
+Example:
+
+nginx
+Copy
+Edit
+udp4       0      0  172.20.10.4.62302      104.18.41.41.https
+You're sending data over UDP to IP 104.18.41.41 (Cloudflare or similar).
+
+📁 Active UNIX Domain Sockets
+This section shows internal inter-process communication (IPC) on your local system.
+
+These are used by services (e.g., mDNSResponder) for local-only communication.
+
+Example:
+
+arduino
+Copy
+Edit
+/var/run/mDNSResponder
+Your machine is using this socket to resolve .local hostnames (e.g., AirDrop, Bonjour).
+
+🧠 Special Sections Explained
+🔁 Multipath Internet Connections
+Rare, advanced routing or redundant networking setups (e.g., Apple’s network multipath).
+
+⚙️ Registered Kernel Control Modules
+These are internal Apple network control interfaces like:
+
+flow-divert (used by VPNs)
+
+ipsec_control
+
+network.statistics
+
+🎯 Active Kernel Event Sockets
+Low-level kernel event listeners. You usually won't need to deal with these unless debugging system-level networking.
+
+🗺️ Summary Diagram (Textual)
+less
+Copy
+Edit
+[Your MacBook]
+   |
+   |---> [Google: 1e100.net:5228]         (TCP/ESTABLISHED)
+   |---> [GitHub: lb-140-82-114-22:443]   (TCP/ESTABLISHED)
+   |---> [Localhost Services]             (TCP/Listening on MySQL, afs3, etc.)
+   |---> [Cloudflare: 104.18.41.41:443]   (UDP traffic)
+   |---> [mDNSResponder]                  (UNIX domain socket)
+
+4. Nmap:
+==========================================================
+Purpose: To discover hosts and services on a computer network, creating a
+"map" of the network.
+Usage Example: nmap -p 1-1000 target
+
+
+
+
+Nmap (Network Mapper) is used to:
+
+Discover devices (hosts) on a network
+
+Detect open ports on a target machine
+
+Identify running services and operating systems
+
+Perform security audits or vulnerability scans
+
+🧪 Command Example:
+bash
+Copy
+Edit
+nmap -p 1-1000 target
+🔧 Breakdown:
+nmap: The tool itself
+
+-p 1-1000: Scan ports 1 through 1000
+
+target: This can be an IP address, hostname, or domain (e.g., 192.168.1.1, google.com, etc.)
+
+📘 Example Output:
+Let’s say you run:
+
+bash
+Copy
+Edit
+nmap -p 1-1000 192.168.1.10
+You might get:
+
+kotlin
+Copy
+Edit
+Starting Nmap 7.91 ( https://nmap.org ) at 2025-05-04
+Nmap scan report for 192.168.1.10
+Host is up (0.0012s latency).
+Not shown: 996 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+443/tcp  open  https
+631/tcp  open  ipp
+📖 Interpretation:
+Port	State	Service
+22	open	SSH (secure shell access)
+80	open	HTTP (web server)
+443	open	HTTPS (secure web server)
+631	open	IPP (Internet Printing Protocol)
+
+This tells you:
+
+The machine at 192.168.1.10 is online
+
+It is running services on ports 22, 80, 443, and 631
+
+Each open port corresponds to a known network service
+
+🎯 Real-World Use Cases
+Sysadmins use it to audit what services are running on devices.
+
+Pentesters use it to find vulnerabilities by seeing what ports/services are exposed.
+
+Network engineers use it to map out entire subnets.
+
+
+
+🆚 Netstat vs. Nmap – Key Differences
+===========================================
+Feature	netstat	nmap
+🔍 Purpose	Shows local system’s network connections	Scans remote systems/networks for open ports
+👤 Perspective	Internal (local machine)	External (targeting other machines)
+📡 Usage	Monitoring, debugging, checking active sockets	Network discovery, security auditing, vulnerability scanning
+📄 Output	List of active connections, ports in use, listeners	List of detected hosts, open ports, running services
+🔒 Security Use	Basic monitoring	Full security scans / footprinting
+📥 Installation	Built into most OSes	Needs to be installed (nmap package)
+⚙️ Example	netstat -a (all connections)	nmap -p 1-1000 target.com (port scan)
+
+
+
+5. Tcpdump:
+========================
+Purpose: To capture and analyze network traffic.
+Usage Example: tcpdump -i eth0
+
+
+
+🐾 Tcpdump – Explained
+✅ Purpose:
+tcpdump is a command-line packet analyzer. It’s used to capture and inspect network traffic that passes through an interface (like Ethernet or Wi-Fi) on your machine.
+
+🔧 Basic Usage:
+bash
+Copy
+Edit
+tcpdump -i eth0
+📖 What it means:
+tcpdump: The tool
+
+-i eth0: Capture packets on the eth0 interface (typically a wired Ethernet interface)
+
+⚠️ You may need sudo privileges to run it.
+
+🎯 What It Does:
+This command listens to all packets going in/out of the eth0 network interface and displays:
+
+Source and destination IPs
+
+Protocols (TCP, UDP, ICMP, etc.)
+
+Port numbers
+
+Flags (SYN, ACK, FIN, etc.)
+
+Timestamps
+
+Packet details (headers, sizes)
+
+📘 Sample Output:
+bash
+Copy
+Edit
+12:34:56.789012 IP 192.168.1.10.54321 > 142.250.195.110.443: Flags [S], seq 12345, win 65535, length 0
+🔍 Explanation:
+192.168.1.10.54321: Your local machine's IP and source port
+
+142.250.195.110.443: Target IP (e.g. Google) and destination port (443 for HTTPS)
+
+Flags [S]: A SYN packet (starting a TCP connection)
+
+seq 12345: Sequence number of the packet
+
+length 0: No data in this packet
+
+💡 Common Tcpdump Use Cases:
+------------------------------
+Debugging network issues (latency, dropped packets)
+
+Detecting unusual or malicious traffic
+
+Verifying if packets are reaching a destination
+
+Network performance tuning
+
+Real-time monitoring of specific traffic (e.g. DNS, HTTP)
+
+🧪 More Examples:
+Capture only HTTP traffic:
+
+tcpdump -i eth0 port 80
+Save to a file for later analysis:
+
+bash
+Copy
+Edit
+tcpdump -i eth0 -w capture.pcap
+Read from a .pcap file:
+
+bash
+Copy
+Edit
+tcpdump -r capture.pcap
+
+6. Ipconfig (Windows) / ifconfig (Linux):
+================================================
+Purpose: To display the configuration of network interfaces.
+Usage Example (Linux): ifconfig
+7. Dig (Domain Information Groper):
+=========================================
+Purpose: To query DNS name servers for information about host addresses,
+mail exchanges, name servers, and related information.
+Usage Example: dig google.com
+8. Nslookup (Windows) / host (Linux):
+===========================================
+Purpose: To query DNS servers for domain information.
+
+
+
+
 
 Important networking tools for Devops Engineering
 =======================================================
