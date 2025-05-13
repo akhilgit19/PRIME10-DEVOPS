@@ -1054,7 +1054,6 @@ Usage Example: nmap -p 1-1000 target
 
 
 
-
 Nmap (Network Mapper) is used to:
 
 Discover devices (hosts) on a network
@@ -1222,73 +1221,565 @@ tcpdump -r capture.pcap
 ================================================
 Purpose: To display the configuration of network interfaces.
 Usage Example (Linux): ifconfig
+
+
+akhilpagadapoola@Akhils-MacBook-Air ~ % ifconfig
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
+	options=1203<RXCSUM,TXCSUM,TXSTATUS,SW_TIMESTAMP>
+	inet 127.0.0.1 netmask 0xff000000
+	inet6 ::1 prefixlen 128 
+	inet6 fe80::1%lo0 prefixlen 64 scopeid 0x1 
+	nd6 options=201<PERFORMNUD,DAD>
+gif0: flags=8010<POINTOPOINT,MULTICAST> mtu 1280
+stf0: flags=0<> mtu 1280
+anpi1: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=400<CHANNEL_IO>
+	ether e2:45:d0:05:0a:9e
+	media: none
+	status: inactive
+anpi0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=400<CHANNEL_IO>
+	ether e2:45:d0:05:0a:9d
+	media: none
+	status: inactive
+en3: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=400<CHANNEL_IO>
+	ether e2:45:d0:05:0a:7d
+	nd6 options=201<PERFORMNUD,DAD>
+	media: none
+	status: inactive
+en4: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=400<CHANNEL_IO>
+	ether e2:45:d0:05:0a:7e
+	nd6 options=201<PERFORMNUD,DAD>
+	media: none
+	status: inactive
+en1: flags=8963<UP,BROADCAST,SMART,RUNNING,PROMISC,SIMPLEX,MULTICAST> mtu 1500
+	options=460<TSO4,TSO6,CHANNEL_IO>
+	ether 36:84:1c:ce:24:c0
+	media: autoselect <full-duplex>
+	status: inactive
+en2: flags=8963<UP,BROADCAST,SMART,RUNNING,PROMISC,SIMPLEX,MULTICAST> mtu 1500
+	options=460<TSO4,TSO6,CHANNEL_IO>
+	ether 36:84:1c:ce:24:c4
+	media: autoselect <full-duplex>
+	status: inactive
+ap1: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=6460<TSO4,TSO6,CHANNEL_IO,PARTIAL_CSUM,ZEROINVERT_CSUM>
+	ether fe:e2:6c:06:04:d3
+	inet6 fe80::fce2:6cff:fe06:4d3%ap1 prefixlen 64 scopeid 0xa 
+	nd6 options=201<PERFORMNUD,DAD>
+	media: autoselect (<unknown type>)
+	status: inactive
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=6460<TSO4,TSO6,CHANNEL_IO,PARTIAL_CSUM,ZEROINVERT_CSUM>
+	ether fc:e2:6c:06:04:d3
+	inet6 fe80::454:cf89:3d12:fcc2%en0 prefixlen 64 secured scopeid 0xb 
+	inet 172.20.10.4 netmask 0xfffffff0 broadcast 172.20.10.15
+	inet6 2401:4900:4e52:53df:1c1d:b9dc:734c:cf04 prefixlen 64 autoconf secured 
+	inet6 2401:4900:4e52:53df:30e3:e412:17d4:ad26 prefixlen 64 autoconf temporary 
+	nd6 options=201<PERFORMNUD,DAD>
+	media: autoselect
+	status: active
+bridge0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=63<RXCSUM,TXCSUM,TSO4,TSO6>
+	ether 36:84:1c:ce:24:c0
+	Configuration:
+		id 0:0:0:0:0:0 priority 0 hellotime 0 fwddelay 0
+		maxage 0 holdcnt 0 proto stp maxaddr 100 timeout 1200
+		root id 0:0:0:0:0:0 priority 0 ifcost 0 port 0
+		ipfilter disabled flags 0x0
+	member: en1 flags=3<LEARNING,DISCOVER>
+	        ifmaxaddr 0 port 8 priority 0 path cost 0
+	member: en2 flags=3<LEARNING,DISCOVER>
+	        ifmaxaddr 0 port 9 priority 0 path cost 0
+	nd6 options=201<PERFORMNUD,DAD>
+	media: <unknown type>
+	status: inactive
+awdl0: flags=8843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=6460<TSO4,TSO6,CHANNEL_IO,PARTIAL_CSUM,ZEROINVERT_CSUM>
+	ether e6:41:f3:1e:bc:ef
+	inet6 fe80::e441:f3ff:fe1e:bcef%awdl0 prefixlen 64 scopeid 0xd 
+	nd6 options=201<PERFORMNUD,DAD>
+	media: autoselect
+	status: active
+llw0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	options=400<CHANNEL_IO>
+	ether e6:41:f3:1e:bc:ef
+	inet6 fe80::e441:f3ff:fe1e:bcef%llw0 prefixlen 64 scopeid 0xe 
+	nd6 options=201<PERFORMNUD,DAD>
+	media: autoselect
+	status: inactive
+utun0: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1380
+	inet6 fe80::47f2:1b12:5eda:2113%utun0 prefixlen 64 scopeid 0xf 
+	nd6 options=201<PERFORMNUD,DAD>
+utun1: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 2000
+	inet6 fe80::c060:d5c5:279c:b7c4%utun1 prefixlen 64 scopeid 0x10 
+	nd6 options=201<PERFORMNUD,DAD>
+utun2: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1000
+	inet6 fe80::ce81:b1c:bd2c:69e%utun2 prefixlen 64 scopeid 0x11 
+	nd6 options=201<PERFORMNUD,DAD>
+utun3: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1500
+	inet6 fe80::296d:d5ce:1703:e983%utun3 prefixlen 64 scopeid 0x12 
+	nd6 options=201<PERFORMNUD,DAD>
+
+🔧 Command Purpose
+ifconfig (short for interface configuration) is used on Unix/Linux/macOS systems to:
+
+View or configure network interfaces (NICs).
+
+Display IP addresses, MAC addresses, status, etc.
+
+In macOS or Linux, you just run:
+
+bash
+Copy
+Edit
+ifconfig
+This shows the network interfaces and their configurations.
+
+🧵 Your Output (Line-by-Line Explanation)
+▶ lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
+lo0: This is the loopback interface (used to communicate with itself, i.e., localhost).
+
+flags: Show status:
+
+UP: Interface is enabled.
+
+LOOPBACK: Internal communication.
+
+RUNNING: Operational.
+
+MULTICAST: Supports multicast traffic.
+
+mtu 16384: Maximum Transmission Unit (size of packets it can handle).
+
+options=1203<RXCSUM,TXCSUM,TXSTATUS,SW_TIMESTAMP>
+These are interface options like checksum offloading (hardware helps with data verification) and timestamping.
+
+inet 127.0.0.1 netmask 0xff000000
+IPv4 address for loopback: 127.0.0.1
+
+netmask 0xff000000: Same as 255.0.0.0 (subnet mask).
+
+inet6 ::1 prefixlen 128
+IPv6 version of 127.0.0.1 is ::1, used for self-communication.
+
+inet6 fe80::1%lo0 prefixlen 64 scopeid 0x1
+A link-local IPv6 address, only usable within the device/network segment.
+
+nd6 options=201<PERFORMNUD,DAD>
+ND6: IPv6 neighbor discovery options:
+
+PERFORMNUD: Checks if neighbors are reachable.
+
+DAD: Duplicate Address Detection.
+
+Now let’s go over other interfaces. Each block like this shows another interface.
+
+🧷 en0 - Your active Wi-Fi interface
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+en0: Ethernet or Wi-Fi interface (usually Wi-Fi).
+
+UP: Enabled.
+
+RUNNING: Working.
+
+BROADCAST: Can send to all on the network.
+
+MULTICAST: Supports multicast traffic.
+
+SIMPLEX: Can’t hear its own transmissions.
+
+mtu 1500: Normal MTU for Ethernet/Wi-Fi.
+
+options=6460<TSO4,TSO6,CHANNEL_IO,PARTIAL_CSUM,ZEROINVERT_CSUM>
+Various offloading and checksum options for performance.
+
+ether fc:e2:6c:06:04:d3
+MAC address of this interface (physical ID).
+
+inet6 fe80::...%en0 and inet6 2401:4900:...
+Several IPv6 addresses:
+
+fe80::...: Link-local IPv6.
+
+Others are global IPv6 addresses (publicly routable).
+
+inet 172.20.10.4 netmask 0xfffffff0 broadcast 172.20.10.15
+IPv4 address: 172.20.10.4
+
+netmask: 255.255.255.240 – defines network range.
+
+broadcast: Last address in that subnet – used to send to all devices.
+
+status: active
+This interface is currently in use and online.
+
+❌ Interfaces marked status: inactive
+Examples:
+
+bash
+Copy
+Edit
+en1, en2, anpi0, anpi1, ap1, bridge0, llw0
+These are:
+
+Either physical interfaces not connected.
+
+Virtual interfaces.
+
+Bridges or auxiliary connections.
+
+en1, en2: Often Thunderbolt/Ethernet adapters.
+bridge0: Software bridge between interfaces (like en1/en2).
+awdl0: Apple Wireless Direct Link – used for AirDrop, AirPlay.
+utun0, utun1...: Virtual interfaces used for VPNs.
+✅ Summary Table of Fields
+Field	Meaning
+flags	Interface capabilities & state
+inet	IPv4 address
+inet6	IPv6 address
+ether	MAC address
+mtu	Max transmission unit (packet size)
+status	Whether interface is active
+options	Offloading & performance options
+media	Connection type (e.g., full-duplex)
+
+✅ TL;DR
+The ifconfig output gives you a snapshot of all your network interfaces, showing:
+
+Which ones are up or down
+
+IP/MAC addresses
+
+Technical details like MTU, media type, etc.
+
+
+
+
 7. Dig (Domain Information Groper):
 =========================================
 Purpose: To query DNS name servers for information about host addresses,
 mail exchanges, name servers, and related information.
 Usage Example: dig google.com
+
+
+akhilpagadapoola@Akhils-MacBook-Air ~ % dig google.com
+
+; <<>> DiG 9.10.6 <<>> google.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 4141
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;google.com.			IN	A
+
+;; ANSWER SECTION:
+google.com.		295	IN	A	142.250.71.110
+
+;; Query time: 59 msec
+;; SERVER: fe80::ec28:d3ff:fe51:5464%11#53(fe80::ec28:d3ff:fe51:5464%11)
+;; WHEN: Tue May 13 10:47:18 IST 2025
+;; MSG SIZE  rcvd: 55
+
+akhilpagadapoola@Akhils-MacBook-Air ~ % 
+
+🔧 Purpose
+dig is used to:
+
+Query DNS servers
+
+Get info about domains like:
+
+IP addresses (A records)
+
+Mail servers (MX records)
+
+Name servers (NS records)
+
+And more.
+
+✅ Command used:
+bash
+Copy
+Edit
+dig google.com
+Now let's go line-by-line through your output:
+
+akhilpagadapoola@Akhils-MacBook-Air ~ % dig google.com
+You, the user akhilpagadapoola, executed the command in Terminal on your Mac.
+
+dig google.com: You're querying DNS for A record (default) of google.com.
+
+; <<>> DiG 9.10.6 <<>> google.com
+This is the version banner.
+
+DiG 9.10.6: You’re using version 9.10.6 of dig.
+
+It echoes the query: google.com.
+
+;; global options: +cmd
+This shows the default command-line options being used.
+
++cmd is just a flag to display command formatting in output.
+
+;; Got answer:
+This line indicates that a DNS response was received.
+
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 4141
+This is the DNS header info. Let’s break it down:
+
+opcode: QUERY: Type of DNS message (a standard query).
+
+status: NOERROR: No error in response. The domain exists.
+
+id: 4141: Random query ID used to match request/response.
+
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+flags: DNS flags set in the response:
+
+qr: Query Response (this is a response).
+
+rd: Recursion Desired (you asked the server to fetch answer recursively).
+
+ra: Recursion Available (server supports recursive queries).
+
+QUERY: 1: You asked 1 question (google.com A record).
+
+ANSWER: 1: One answer was received.
+
+AUTHORITY: 0: No authoritative name server listed in the reply.
+
+ADDITIONAL: 1: One extra record (usually metadata or EDNS info).
+
+;; OPT PSEUDOSECTION:
+This is a special section (not from actual DNS zones) for EDNS (Extended DNS).
+
+Used to improve DNS performance and add features.
+
+; EDNS: version: 0, flags:; udp: 4096
+EDNS: Extended DNS version 0 (standard).
+
+udp: 4096: Your system can handle DNS responses up to 4096 bytes over UDP.
+
+;; QUESTION SECTION:
+Shows what was asked in the query.
+
+;google.com. IN A
+You asked for the A (Address) record of google.com.
+
+IN: Internet class (standard).
+
+A: IPv4 address.
+
+;; ANSWER SECTION:
+This contains the actual answer returned by the DNS server.
+
+google.com. 295 IN A 142.250.71.110
+Breakdown:
+
+google.com.: The domain.
+
+295: TTL (Time To Live) in seconds – how long this record is valid in cache.
+
+IN: Internet.
+
+A: Address record (IPv4).
+
+142.250.71.110: This is Google’s IP address.
+
+;; Query time: 59 msec
+The entire DNS lookup took 59 milliseconds.
+
+;; SERVER: fe80::ec28:d3ff:fe51:5464%11#53(fe80::ec28:d3ff:fe51:5464%11)
+This is the DNS server that responded.
+
+It's an IPv6 link-local address on interface %11.
+
+#53: Port 53 (standard DNS port).
+
+;; WHEN: Tue May 13 10:47:18 IST 2025
+When the query was made – timestamp from your system clock.
+
+;; MSG SIZE rcvd: 55
+The DNS response size in bytes (55 bytes total received).
+
+🧠 Summary (TL;DR)
+Section	Meaning
+HEADER	Metadata about the query/response
+QUESTION	What you asked (google.com A record)
+ANSWER	The answer (Google’s IP address)
+AUTHORITY	Shows DNS servers for the domain (none here)
+ADDITIONAL	Extra DNS info (like EDNS)
+SERVER	The DNS server that answered
+TIME	How long the query took
+SIZE	Size of the DNS reply
+
+
+
 8. Nslookup (Windows) / host (Linux):
 ===========================================
 Purpose: To query DNS servers for domain information.
 
+8. Nslookup / host
+✅ Purpose
+Both tools are used to query DNS servers for domain-related information such as:
+
+IP addresses of domain names (A or AAAA records)
+
+Domain names of IP addresses (reverse lookup)
+
+Mail servers (MX records)
+
+Name servers (NS records)
+
+🖥️ 1. Using nslookup (Windows, macOS, Linux)
+📌 Example:
+bash
+Copy
+Edit
+nslookup google.com
+🔍 Sample Output Explained:
+bash
+Copy
+Edit
+Server:         192.168.1.1
+Address:        192.168.1.1#53
+
+Non-authoritative answer:
+Name:   google.com
+Address: 142.250.71.110
+✅ Line-by-line:
+Server: 192.168.1.1 – This is the DNS server being used for the lookup.
+
+Address: 192.168.1.1#53 – It used port 53 (standard for DNS).
+
+Non-authoritative answer: – The DNS info came from cache or a recursive DNS server, not directly from Google’s authoritative name server.
+
+Name: google.com – The domain queried.
+
+Address: 142.250.71.110 – The resolved IPv4 address.
+
+🔁 Reverse Lookup (IP ➡ Domain)
+bash
+Copy
+Edit
+nslookup 142.250.71.110
+Returns the domain name (PTR record) for that IP.
+
+🐧 2. Using host (Linux, macOS)
+📌 Example:
+bash
+Copy
+Edit
+host google.com
+🔍 Sample Output:
+bash
+Copy
+Edit
+google.com has address 142.250.71.110
+google.com has IPv6 address 2404:6800:4009:827::200e
+google.com mail is handled by 10 smtp.google.com.
+✅ What it shows:
+A record: google.com has address 142.250.71.110
+
+AAAA record: IPv6 version
+
+MX record: Mail server for the domain
+
+🧠 Summary: nslookup vs host
+Feature	nslookup	host
+Platforms	Windows, Linux, macOS	Linux, macOS
+Usage Style	Interactive & CLI mode	Simple one-line commands
+Best for	Detailed DNS diagnostics	Quick lookups
+Reverse Lookup	Yes	Yes
+MX/NS Records	Yes (set type=MX)	Yes (host -t MX domain.com)
+
+⚡ Example Usage Recap
+Task	nslookup	host
+A record	nslookup google.com	host google.com
+MX record	nslookup -type=MX gmail.com	host -t MX gmail.com
+Reverse IP	nslookup 8.8.8.8	host 8.8.8.8
+
+
+
+✅ Quick Summary
+Feature	                  dig	                                   nslookup
+Full Name	Domain Information Groper	Name Server Lookup
+Platforms	Linux, macOS (installable on Windows)	Windows, macOS, Linux
+Output	Detailed, structured, script-friendly	Simpler, human-readable
+Advanced DNS Info	Yes (EDNS, flags, TTLs, sections)	Basic (limited protocol details)
+Reverse Lookups	        sYes	                                     Yes
+Query Types	A, MX, TXT, NS, CNAME, etc.	A, MX, TXT, NS, etc.
+Batch Scripting	Ideal (clean format)	Poor (inconsistent formatting)
+Interactivity	No interactive mode (one command)	Can be used interactively
+Maintenance	Still actively maintained (by ISC)	Deprecated in some systems
+
+🧪 Example Comparison: Lookup A record for google.com
+Using dig:
+bash
+Copy
+Edit
+dig google.com
+Output (partial):
+
+css
+Copy
+Edit
+;; QUESTION SECTION:
+;google.com.            IN    A
+
+;; ANSWER SECTION:
+google.com.     295    IN    A    142.250.71.110
+✅ Shows:
+
+Detailed DNS flags
+
+Query time
+
+Server used
+
+Answer section separated and scriptable
+
+Using nslookup:
+bash
+Copy
+Edit
+nslookup google.com
+Output:
+
+yaml
+Copy
+Edit
+Server:  192.168.1.1
+Address: 192.168.1.1#53
+
+Non-authoritative answer:
+Name:    google.com
+Address: 142.250.71.110
+✅ Simpler output, but:
+
+Less structured
+
+No section headers
+
+Less detail on TTL or flags
+
+🛠️ When to Use What
+Use Case	Use dig	Use nslookup
+Scripting / Automation	✅ Preferred	❌ Not ideal
+Learning DNS details (TTL, flags)	✅ Very informative	❌ Limited info
+Quick manual lookup (Windows)	❌ Not installed by default	✅ Built-in
+Digging into DNS issues deeply	✅ Best choice	❌ Too basic
+Interactive querying	❌ (no interactive shell)	✅ Supports interactive mode
 
 
 
 
-Important networking tools for Devops Engineering
-=======================================================
-1.PING Command: ping google.com   - Purpose to check the reachability of a host on an Internet Protocol(IP)
-====================================
-akhilpagadapoola@Akhils-MacBook-Air Jenkins % ping google.com
-PING google.com (142.250.193.46): 56 data bytes
-64 bytes from 142.250.193.46: icmp_seq=0 ttl=112 time=56.100 ms
-64 bytes from 142.250.193.46: icmp_seq=1 ttl=112 time=53.291 ms
-64 bytes from 142.250.193.46: icmp_seq=2 ttl=112 time=51.908 ms
-
-2.Traceroute Command:  traceroute google.com - To display the routee and measue transit delays of packets across an Internet Protocol network
-============================================
-akhilpagadapoola@Akhils-MacBook-Air Jenkins % traceroute google.com 
-traceroute to google.com (142.250.192.206), 64 hops max, 52 byte packets
- 1  reliance.reliance (192.168.29.1)  9.278 ms  4.754 ms  4.402 ms
- 2  10.14.240.1 (10.14.240.1)  9.956 ms  9.464 ms  8.910 ms
- 3  172.31.2.102 (172.31.2.102)  18.370 ms
-    172.31.2.120 (172.31.2.120)  21.698 ms  21.247 ms
- 4  192.168.59.122 (192.168.59.122)  16.644 ms
-    192.168.59.120 (192.168.59.120)  33.227 ms
-    192.168.59.124 (192.168.59.124)  23.655 ms
-
-3.Netstat Command: netstat -a-- To display active network connections,routingtables, interface statistics,
-==================================   masquerade connections, and multicast membership
-
-akhilpagadapoola@Akhils-MacBook-Air Jenkins % netstat -a
-Active Internet connections (including servers)
-Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)    
-tcp4       0      0  192.168.29.120.60146   lb-140-82-113-25.https ESTABLISHED
-tcp6       0      0  2405:201:c01d:f8.60047 sd-in-f188.1e100.5228  ESTABLISHED
-tcp6       0      0  akhils-macbook-a.60003 fe80::44:eca7:f2.62327 ESTABLISHED
-tcp6       0      0  2405:201:c01d:f8.60006 2620:1ec:21::14.https  ESTABLISHED
-tcp6       0      0  *.60003                *.*                    LISTEN     
-tcp4       0      0  *.60003                *.*                    LISTEN     
-tcp6       0      0  akhils-macbook-a.black fe80::106:29a6:6.1026  ESTABLISHED
-tcp6       0      0  akhils-macbook-a.1024  fe80::106:29a6:6.1024  ESTABLISHED
-
-4.Nmap Command: nmap -p 1-1000 target -Purpose: To discover hosts and services on a computer network creating  a map of the network.
-================================================
-
-5.Tcpdump command :tcpdump -i eth0 - purpose: To capture and analyze network traffic. TCP- Transmission control protocol
-=====================================
-UDP- User data protocol
-
-6.Ipconfig( Window)/ifconfig(Linux)- To display the configuration of network interfaces
-==================================================
-
-7. Dig(Domain information Groper): dig google.com
-=======================================
-Purpose: To query DNS name servers for information about host addresses,mail exchange,
-name server and related information
-
-8.Nslookup:(Windows)/host(Linux)- To query DNS server for domain information
-=====================================
 
 
 Linux Network Protocols:
