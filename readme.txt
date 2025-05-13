@@ -1796,28 +1796,18 @@ NTP-Network Tim Protocol(UDP-123)
 SNMP-Simple Network Management Protocol(UDP-161/162)
 HTTPS-Secure (HTTPS) HTTP over TLS/SSL(TCP-443)
 
-CURL   
------
--Supports a wide range of protocols,
-including HTTP, HTTPS, FTP, FTPS,
-SCP, SFTP, and more.
--Can handle a variety of data formats,
-including JSON, XML, and CSV.
--Supports authentication and cookies.
--Can interact with APIs.
-
-WGET
------
--Supports HTTP and FTP protocols
--Can download recursively to
-download all linked files
--Can handle slow or unstable
-connections with ease.
--Can resume interrupted downloads.
 
 
 Linux Commands:
 =================
+booting process of linux:
+------------------------
+BIOS (Basic input output system)- MBR-GRUB- KERNETL-SYSTEM D PROCESS
+mbr- (master boot record)
+grub-(grand unified boot loader)
+kernel-(OS)
+System d process( alll the linux process start up at the time of booting)
+
 User and file management:
 ============================
 1. uname  
@@ -1933,17 +1923,19 @@ User and group managemen commands"
 3. sudo passwd pardeep
 4. su pardeep (switch user)
 5. sudo userdel pardeep
-6. sudo groupadd 
+6. sudo groupadd username groupname
 7. sudo gpasswd -a username groupname, To set the group password --gpasswd groupname, 
    To make a user the group's owner- gpasswd -m username groupname
 
-8. r- reasd
-   w- write
-   x- execute
+8. r- reasd -4
+   w- write 2
+   x- execute 2
+
+   user grop others
 
 9. umask 022
    defualt permission in linux system for files -666 folders-777
-   if we give umask 022  subtract from default permissions files 622 folders 755
+   if we give umask 022  subtract from default permissions files 644 folders 755
 
 10. zip: zip -r ldf.zip document
                 laf.tar 
@@ -1955,6 +1947,25 @@ User and group managemen commands"
 
 
 11. wget and curl are command line tools used for downloading files from remote server.
+
+CURL   
+-----
+-Supports a wide range of protocols,
+including HTTP, HTTPS, FTP, FTPS,
+SCP, SFTP, and more.
+-Can handle a variety of data formats,
+including JSON, XML, and CSV.
+-Supports authentication and cookies.
+-Can interact with APIs.
+
+WGET
+-----
+-Supports HTTP and FTP protocols
+-Can download recursively to
+download all linked files
+-Can handle slow or unstable
+connections with ease.
+-Can resume interrupted downloads.
 
 
                                                             Jenkins
