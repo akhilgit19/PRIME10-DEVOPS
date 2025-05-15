@@ -2076,9 +2076,13 @@ Nodejs/React---> Package.json----> npm/node
 android--------->build.gridle-->gridle
 python--------->req.txt ----->python
 
-For Code navagation structure always follows in this
+
+https://github.com/praveen1994dec/Java_app_3.0
+
+For Code navagation structure always follows in this https://github.com/praveen1994dec/Java_app_3.0
 -----------------------------------------------------
   -Java_app_3.0/src/main/java/com/minikube/sample/
+Java_app_3.0/src/main/java/com/minikube/sample/rest/controller/HomeResource.java
 
 
 POM-ProjectOjbectModel- 
@@ -2238,7 +2242,7 @@ The version number should increase.
                (OR)
 
 You can do it with without pom modification with the help of maven plugins and scripting.
-
+======================================================================================================
 For example to increment automatically the second digit of a version that doesn't have snapshot as prefix like in your case, on a linux system you can do :
 
 #get the current pom version and store it into a variable
@@ -2267,7 +2271,7 @@ Maven Commands:
 2 mvn test --- Runs all the test cases
 3 mvn install--- It cleans ,runs the test and install the depndeciess
 4 mvn build
-5 mvn deploy   
+5 mvn deploy   - sending to server
 6.mvn package--creates a package
 
 1. Validate: This step validates if the project structure is
