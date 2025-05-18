@@ -3267,7 +3267,7 @@ Automations with jenkins
 
 
 4.Write a jenkinsfile where the one stage variables are passed to other stage by using rest api automation script
-
+===================================================================================================================
 To pass variables from one stage to another using REST API calls in a Jenkins pipeline, the general idea is:
 
 Stage 1: Make a REST API call to fetch some data or variables.
@@ -3580,6 +3580,7 @@ sudo apt-get install jenkins -y
      Jfrog
 
 16. For any issue you can check this path--cd /var/lib/jenkins/
+16. build now in jenkins and check the console outputs you will get error as shared lib not found.
 
 17. Go to mange jenkins----configure system-- global pipeline library (global trusted pipeline  libraries
 
@@ -3606,6 +3607,283 @@ sudo apt-get install jenkins -y
     (....).jar file 
 
 
+=======================================================
+Assigments -1
+
+==========================
+✅ Assignment 1 – JFrog Setup & Manual Upload
+===========================
+
+🎯 Goal: Set up JFrog Artifactory on an EC2 instance and manually upload a Maven-built JAR file.
+
+---------------------------------
+🖥️ EC2 Configuration
+---------------------------------
+- Launch EC2 Instance (Ubuntu)
+- Instance Type: t2.medium (recommended) or t2.micro with 8GB EBS
+- Open ports in Security Group:
+    - TCP 22 (SSH)
+    - TCP 8081 (JFrog UI)
+    - TCP 8082 (JFrog Repo upload)
+
+---------------------------------
+🧱 Step-by-Step
+---------------------------------
+
+1. Install Docker
+---------------------
+curl -s https://raw.githubusercontent.com/praveen1994dec/tools_installation_scripts/main/docker.sh | bash
+
+2. Install JFrog Artifactory
+---------------------
+curl -s https://raw.githubusercontent.com/praveen1994dec/tools_installation_scripts/main/Jfrog.sh | bash
+
+3. Access JFrog UI
+---------------------
+URL: http://<EC2-IP>:8081/artifactory
+Login: admin
+Password: password
+
+4. Install Maven
+---------------------
+curl -s https://raw.githubusercontent.com/praveen1994dec/tools_installation_scripts/main/Maven.sh | bash
+
+5. Install Git
+---------------------
+sudo apt update
+sudo apt install -y git
+git --version
+
+6. Clone Java App Repository
+---------------------
+git clone https://github.com/praveen1994dec/Java_app_3.0.git
+cd Java_app_3.0
+
+7. Build Java App Using Maven
+---------------------
+mvn clean install -DskipTests
+
+8. Go to the `target` folder
+---------------------
+cd target
+# Locate JAR: kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar
+
+9. Upload JAR to JFrog Repo
+---------------------
+curl -X PUT -u admin:password -T kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar http://<EC2-IP>:8082/artifactory/example-repo-local/
+
+---------------------------------
+✅ Expected Output:
+JAR file successfully uploaded to JFrog at:
+http://<EC2-IP>:8081/artifactory/example-repo-local/
+
+
+
+
+===========================
+✅ Assignment 3 – Jenkins Pipeline with JFrog Upload
+===========================
+
+🎯 Goal: Automate the upload of the JAR file to JFrog Artifactory within a Jenkins pipeline.
+
+📂 File to Modify: Jenkinsfile in Java_app_3.0 repo
+
+---------------------------------
+🧱 Add This Stage AFTER Maven Build
+---------------------------------
+
+stage('Build and Add Artifact to the repo : JFrog') {
+  when { expression { params.action == 'create' } }
+  steps {
+    script {
+      // Artifactory configuration
+      def artifactoryUrl = 'http://<EC2-IP>:8081/artifactory'
+      def repoName = 'example-repo-local'
+      def targetPath = 'kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar'
+      def localArtifactPath = '/var/lib/jenkins/.m2/repository/com/minikube/sample/kubernetes-configmap-reload/0.0.1-SNAPSHOT/kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar'
+      def apiKeyOrUsername = 'admin'
+      def apiKeyOrPassword = 'Password@123'
+
+      // Extract the filename
+      def fileName = localArtifactPath.split('/').last()
+      def uploadUrl = "${artifactoryUrl}/${repoName}/${targetPath}/${fileName}"
+
+      // Upload using curl
+      def uploadCommand = """
+      curl -X PUT -u ${apiKeyOrUsername}:${apiKeyOrPassword} -T ${localArtifactPath} ${uploadUrl}
+      """
+
+      def uploadResult = sh(script: uploadCommand, returnStatus: true)
+
+      if (uploadResult == 0) {
+        echo "Artifact successfully uploaded to Artifactory."
+      } else {
+        error "Failed to upload artifact to Artifactory. Exit code: ${uploadResult}"
+      }
+    }
+  }
+}
+
+====
+Example of full code:
+@Library('my-shared-library') _
+
+pipeline {
+
+    agent any
+
+    parameters {
+        choice(name: 'action', choices: 'create\ndelete', description: 'Choose create/Destroy')
+        string(name: 'ImageName', description: "name of the docker build", defaultValue: 'javapp')
+        string(name: 'ImageTag', description: "tag of the docker build", defaultValue: 'v1')
+        string(name: 'DockerHubUser', description: "name of the Application", defaultValue: 'praveensingam1994')
+    }
+
+    stages {
+
+        stage('Git Checkout') {
+            when { expression { params.action == 'create' } }
+            steps {
+                gitCheckout(
+                    branch: "main",
+                    url: "https://github.com/praveen1994dec/Java_app_3.0.git"
+                )
+            }
+        }
+
+        stage('Unit Test maven') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    mvnTest()
+                }
+            }
+        }
+
+        stage('Integration Test maven') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    mvnIntegrationTest()
+                }
+            }
+        }
+
+        stage('Static code analysis: Sonarqube') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    def SonarQubecredentialsId = 'sonarqube-api'
+                    statiCodeAnalysis(SonarQubecredentialsId)
+                }
+            }
+        }
+
+        stage('Quality Gate Status Check : Sonarqube') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    def SonarQubecredentialsId = 'sonarqube-api'
+                    QualityGateStatus(SonarQubecredentialsId)
+                }
+            }
+        }
+
+        stage('Maven Build : maven') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    mvnBuild()
+                }
+            }
+        }
+
+        // 📦 New JFrog Upload Stage Inserted Here
+        stage('Build and Add Artifact to the repo : JFrog') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    // Artifactory configuration
+                    def artifactoryUrl = 'http://<EC2-IP>:8081/artifactory'
+                    def repoName = 'example-repo-local'
+                    def targetPath = 'kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar'
+                    def localArtifactPath = '/var/lib/jenkins/.m2/repository/com/minikube/sample/kubernetes-configmap-reload/0.0.1-SNAPSHOT/kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar'
+                    def apiKeyOrUsername = 'admin'
+                    def apiKeyOrPassword = 'Password@123'
+
+                    // Extract the filename
+                    def fileName = localArtifactPath.split('/').last()
+                    def uploadUrl = "${artifactoryUrl}/${repoName}/${targetPath}/${fileName}"
+
+                    // Upload using curl
+                    def uploadCommand = """
+                    curl -X PUT -u ${apiKeyOrUsername}:${apiKeyOrPassword} -T ${localArtifactPath} ${uploadUrl}
+                    """.stripIndent()
+
+                    def uploadResult = sh(script: uploadCommand, returnStatus: true)
+
+                    if (uploadResult == 0) {
+                        echo "Artifact successfully uploaded to Artifactory."
+                    } else {
+                        error "Failed to upload artifact to Artifactory. Exit code: ${uploadResult}"
+                    }
+                }
+            }
+        }
+
+        stage('Docker Image Build') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    dockerBuild("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
+                }
+            }
+        }
+
+        stage('Docker Image Scan: trivy') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    dockerImageScan("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
+                }
+            }
+        }
+
+        stage('Docker Image Push : DockerHub') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    dockerImagePush("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
+                }
+            }
+        }
+
+        stage('Docker Image Cleanup : DockerHub') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    dockerImageCleanup("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
+                }
+            }
+        }
+    }
+}
+
+
+
+This is the parent shared library 
+
+https://github.com/praveen1994dec/jenkins_shared_lib/blob/main/vars/gitCheckout.groovy
+
+========
+---------------------------------
+📝 Notes:
+- Replace <EC2-IP> with your JFrog EC2 instance IP.
+- Replace password if it’s different.
+- Ensure Jenkins has permission to access localArtifactPath.
+
+✅ Expected Output:
+Jenkins uploads the JAR to your Artifactory repository automatically after the Maven build.
 
                                         Docker
 ==============================================================================================================
