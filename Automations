@@ -1,0 +1,448 @@
+1.Give the python code for below scenario write a python script using boto3 to list all s3 buckets in an AWS account and their respective sizes.
+
+2.Give the python code for below scenario  You have an S3 bucket where a file is placed and you have to download that file in a container, how will you do?
+=======================
+AWS S3 Boto3 Script Notes
+=======================
+
+Scenario 1: List all S3 Buckets and Their Sizes
+------------------------------------------------
+Steps:
+1. Install boto3 using pip (pip install boto3)
+2. Configure AWS credentials (using AWS CLI or environment variables)
+3. Connect to AWS S3
+4. Fetch list of buckets
+5. For each bucket, sum sizes of all objects
+6. Print bucket name and total size in MB
+
+Python Code:
+------------
+import boto3
+
+def get_bucket_sizes():
+    s3 = boto3.client('s3')
+    buckets = s3.list_buckets()['Buckets']
+    
+    for bucket in buckets:
+        bucket_name = bucket['Name']
+        print(f"\nBucket: {bucket_name}")
+        
+        total_size = 0
+        s3_resource = boto3.resource('s3')
+        bucket_obj = s3_resource.Bucket(bucket_name)
+        
+        try:
+            for obj in bucket_obj.objects.all():
+                total_size += obj.size
+            print(f"Total Size: {total_size / (1024 ** 2):.2f} MB")
+        except Exception as e:
+            print(f"Error accessing bucket {bucket_name}: {str(e)}")
+
+get_bucket_sizes()
+
+Explanation:
+- Use client to get bucket list, use resource to iterate objects.
+- Total size is calculated in bytes, converted to MB.
+
+
+
+
+------------------------------------------------
+
+Scenario 2: Download a File from S3 to a Container
+--------------------------------------------------
+Steps:
+1. Install boto3
+2. Ensure AWS credentials are configured in the container
+3. Use S3 client to download a file
+4. Provide bucket name, S3 file key, and destination path in the container
+
+Python Code:
+------------
+import boto3
+
+def download_file_from_s3(bucket_name, s3_key, local_path):
+    s3 = boto3.client('s3')
+
+    try:
+        s3.download_file(bucket_name, s3_key, local_path)
+        print(f"File downloaded successfully to {local_path}")
+    except Exception as e:
+        print(f"Error downloading file: {str(e)}")
+
+# Example usage
+bucket_name = 'your-bucket-name'
+s3_key = 'path/to/your/file.txt'
+local_path = '/app/data/file.txt'
+
+download_file_from_s3(bucket_name, s3_key, local_path)
+
+Explanation:
+- Uses `download_file()` from boto3 to save file locally.
+- Useful in containerized environments if credentials are properly set.
+
+=======================
+End of Notes
+=======================
+
+
+
+
+🔍 Explanation of Each Line
+ ===============================
+SCRIPT 1: List All S3 Buckets and Their Sizes
+===============================
+
+Line-by-line Explanation:
+-------------------------
+
+import boto3
+# Imports the boto3 library, the AWS SDK for Python.
+
+def get_bucket_sizes():
+# Defines a function called get_bucket_sizes to hold the logic.
+
+    s3 = boto3.client('s3')
+    # Creates an S3 client to interact with S3 service.
+
+    buckets = s3.list_buckets()['Buckets']
+    # Calls list_buckets() to get a list of all buckets.
+    # Extracts the 'Buckets' key which contains the list.
+
+    for bucket in buckets:
+        bucket_name = bucket['Name']
+        # Loops through each bucket and stores the bucket name.
+
+        print(f"\nBucket: {bucket_name}")
+        # Prints the bucket name.
+
+        total_size = 0
+        # Initializes a counter for total size of all objects in the bucket.
+
+        s3_resource = boto3.resource('s3')
+        # Creates an S3 resource to access objects more easily.
+
+        bucket_obj = s3_resource.Bucket(bucket_name)
+        # Gets the bucket as a resource object to list its contents.
+
+        try:
+            for obj in bucket_obj.objects.all():
+                total_size += obj.size
+            # Loops through every object in the bucket and adds its size.
+
+            print(f"Total Size: {total_size / (1024 ** 2):.2f} MB")
+            # Converts size from bytes to MB and prints it with 2 decimal places.
+
+        except Exception as e:
+            print(f"Error accessing bucket {bucket_name}: {str(e)}")
+            # Catches and prints errors if access fails.
+
+get_bucket_sizes()
+# Calls the function to run the script.
+
+===============================
+SCRIPT 2: Download a File from S3 to Local (or Container)
+===============================
+
+Line-by-line Explanation:
+-------------------------
+
+import boto3
+# Imports the boto3 library for AWS interaction.
+
+def download_file_from_s3(bucket_name, s3_key, local_path):
+# Defines a function that takes the bucket name, S3 file key, and destination path.
+
+    s3 = boto3.client('s3')
+    # Creates an S3 client object.
+
+    try:
+        s3.download_file(bucket_name, s3_key, local_path)
+        # Downloads the file from S3 to the local path.
+
+        print(f"File downloaded successfully to {local_path}")
+        # Prints a success message if download completes.
+
+    except Exception as e:
+        print(f"Error downloading file: {str(e)}")
+        # Catches and prints any errors that occur.
+
+# Example usage:
+bucket_name = 'your-bucket-name'
+# Replace with the name of your actual bucket.
+
+s3_key = 'path/to/your/file.txt'
+# Replace with the key (path) to your file in S3.
+
+local_path = '/app/data/file.txt'
+# Replace with the full path where the file should be saved locally or in the container.
+
+download_file_from_s3(bucket_name, s3_key, local_path)
+# Calls the function to start the download.
+
+===============================
+END OF SCRIPT EXPLANATIONS
+===============================
+
+3.Give the python code for below scenario  ,Can you create the terraform code for having the EC2 instance with EMR setup?
+
+4 .Give the python code for below scenario  Write the Docker file to have the httpd container and you need to have the file to be copied from the local to container and whenever the refresh of the url is happening the page should refresh
+
+Give me the code and notes in notepad sytle with explanation of each line of code
+
+Goal: Create an EC2 instance with an EMR cluster using Terraform.
+Steps:
+
+Install and configure Terraform.
+
+Set up an AWS provider in Terraform.
+
+Define IAM roles and policies.
+
+Set up an EC2 instance to run the EMR cluster.
+
+Terraform Code (main.tf)
+hcl
+Copy
+Edit
+# Terraform configuration for AWS provider
+provider "aws" {
+  region = "us-east-1"
+}
+
+# Create an EMR cluster
+resource "aws_emr_cluster" "emr_cluster" {
+  name          = "demo-emr-cluster"
+  release_label = "emr-6.10.0"
+  applications  = ["Hadoop", "Spark"]
+
+  service_role = aws_iam_role.emr_service.arn
+  ec2_attributes {
+    instance_profile = aws_iam_instance_profile.emr_profile.arn
+    subnet_id        = "subnet-xxxxxxxx"  # Replace with your subnet ID
+  }
+
+  master_instance_group {
+    instance_type = "m5.xlarge"
+    instance_count = 1
+  }
+
+  core_instance_group {
+    instance_type = "m5.xlarge"
+    instance_count = 2
+  }
+
+  configurations_json = <<EOF
+[
+  {
+    "Classification": "spark",
+    "Properties": {
+      "maximizeResourceAllocation": "true"
+    }
+  }
+]
+EOF
+
+  tags = {
+    Name = "EMRCluster"
+  }
+
+  visible_to_all_users = true
+  autoscaling_role     = aws_iam_role.emr_autoscaling.arn
+}
+
+# IAM Role for EMR Service
+resource "aws_iam_role" "emr_service" {
+  name = "EMR_DefaultRole"
+
+  assume_role_policy = data.aws_iam_policy_document.emr_service.json
+}
+
+data "aws_iam_policy_document" "emr_service" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["elasticmapreduce.amazonaws.com"]
+    }
+  }
+}
+
+# EC2 Instance Profile
+resource "aws_iam_instance_profile" "emr_profile" {
+  name = "EMR_EC2_DefaultRole"
+  role = aws_iam_role.emr_ec2.name
+}
+
+resource "aws_iam_role" "emr_ec2" {
+  name = "EMR_EC2_DefaultRole"
+
+  assume_role_policy = data.aws_iam_policy_document.emr_ec2.json
+}
+
+data "aws_iam_policy_document" "emr_ec2" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+# IAM Role for Auto Scaling
+resource "aws_iam_role" "emr_autoscaling" {
+  name = "EMR_AutoScaling_DefaultRole"
+
+  assume_role_policy = data.aws_iam_policy_document.emr_autoscaling.json
+}
+
+data "aws_iam_policy_document" "emr_autoscaling" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["application-autoscaling.amazonaws.com"]
+    }
+  }
+}
+
+Line-by-Line Explanation
+provider "aws": Defines the AWS provider and specifies the region where the resources will be created.
+
+resource "aws_emr_cluster" "emr_cluster": Defines an EMR cluster resource with a specified name, release label, and applications.
+
+service_role: Specifies the IAM role that EMR will use to interact with other AWS services.
+
+ec2_attributes: Defines EC2 instance settings, such as instance profile and subnet.
+
+master_instance_group and core_instance_group: Defines the instance types and counts for master and core nodes.
+
+configurations_json: JSON configuration for Spark properties.
+
+resource "aws_iam_role": Creates IAM roles for EMR services and EC2 instances to manage permissions.
+
+aws_iam_instance_profile: Associates the IAM role with an EC2 instance.
+
+4. Python Code: Dockerfile for HTTPD Container with Refreshing Page
+Goal: Create a Docker container that runs httpd (Apache) and serves an index.html file from the local machine. The page will automatically refresh every time it's accessed.
+Python Code: (Dockerfile and Example HTML File)
+Dockerfile:
+
+dockerfile
+Copy
+Edit
+# Use the latest Apache HTTP server image
+FROM httpd:latest
+
+# Copy the local index.html file to the container's web server directory
+COPY ./index.html /usr/local/apache2/htdocs/index.html
+index.html (Example HTML File):
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome Page</title>
+  <!-- The page will refresh every 5 seconds -->
+  <meta http-equiv="refresh" content="5">
+</head>
+<body>
+  <h1>Welcome to My Apache Server!</h1>
+  <p>This page will refresh every 5 seconds.</p>
+</body>
+</html>
+Line-by-Line Explanation:
+FROM httpd:latest:
+
+Specifies the base image for the container. It pulls the latest version of the official Apache HTTP server (httpd) image from Docker Hub.
+
+COPY ./index.html /usr/local/apache2/htdocs/index.html:
+
+Copies the index.html file from the local machine to the default document root directory (/usr/local/apache2/htdocs/) inside the container.
+
+Explanation of index.html File:
+<meta http-equiv="refresh" content="5">:
+
+The <meta> tag causes the page to automatically refresh every 5 seconds. You can change the value from 5 to any other value to adjust the refresh rate.
+
+<h1>Welcome to My Apache Server!</h1>:
+
+The main heading on the page.
+
+<p>This page will refresh every 5 seconds.</p>:
+
+Displays a message on the page explaining that the page refreshes periodically.
+
+Build and Run the Docker Container:
+Build the Docker image:
+
+bash
+Copy
+Edit
+docker build -t my-httpd .
+Run the container:
+
+bash
+Copy
+Edit
+docker run -d -p 8080:80 my-httpd
+Access the container in your browser:
+Open http://localhost:8080 in your browser. The page will refresh automatically every 5 seconds.
+
+=================================================
+3. TERRAFORM CODE: EC2 INSTANCE WITH EMR SETUP
+=================================================
+
+Goal:
+- Create an EC2 instance with an EMR cluster using Terraform.
+
+Steps:
+1. Install Terraform and configure AWS provider.
+2. Define an EMR cluster with necessary IAM roles and policies.
+3. Define EC2 instance profile for running the cluster.
+4. Customize the number of master and core nodes as needed.
+
+Code Explanation:
+1. "provider" block specifies AWS region.
+2. "aws_emr_cluster" defines the EMR cluster with Hadoop and Spark.
+3. IAM roles are defined for EC2, EMR, and autoscaling.
+
+=================================================
+4. DOCKERFILE: HTTPD CONTAINER SERVING A LOCAL FILE
+=================================================
+
+Goal:
+- Build a Docker image running an Apache HTTP server.
+- Copy a local `index.html` file into the container.
+- Ensure the page refreshes every time it's accessed.
+
+Steps:
+1. Use the official `httpd` image as the base.
+2. Copy `index.html` into the Apache web root.
+3. Use the `<meta http-equiv="refresh">` tag to refresh the page.
+
+Code Explanation:
+1. "FROM httpd:latest" pulls the latest Apache HTTP image.
+2. "COPY" copies the local HTML file into the container.
+3. `meta` tag in HTML refreshes the page every 5 seconds.
+
+=================================================
+END OF NOTES
+=================================================
+
+
+
+
+Upcoming questions:
+---------------------
+Can you design the Istio Setup for your k8 cluster?
+AWS event bridge creation and setup via terraform?
+What will be the command to add the annotation and the labels for the existing pod?
+Design the kubernetes cluster with Ingress.
+A sudden surge in traffic causes a web application to become unresponsive what will be the steps you will take to mitigate
+Design the deployment of the pod with replica set set as 3 and having apache httpd image running as a container.
+How do you reduce the size of Dockerfile
