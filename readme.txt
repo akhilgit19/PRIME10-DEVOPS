@@ -3958,6 +3958,7 @@ Code----->jar--------------->|Image|--------------------------------- >| Docker-
 |                              |                     |
 ----------------------------------------------------------
 
+https://github.com/praveen1994dec/Java_app_3.0/blob/main/Dockerfile
 
 Example docker file:
 ---------------------
@@ -3966,6 +3967,45 @@ WORKDIR /app
 COPY ./target/*.jar /app.jar
 CMD ["java", "-jar", "/app.jar"]
 
+
+----
+FROM openjdk:8-jdk-alpine
+
+# Accept a JAR filename and app port as build args
+ARG JAR_FILE=target/app.jar
+ARG APP_PORT=8080
+
+# Set them as environment variables (optional, for runtime use)
+ENV APP_PORT=$APP_PORT
+
+# Set working directory
+WORKDIR /app
+
+# Copy the specified jar file into the container
+COPY ${JAR_FILE} app.jar
+
+# Expose the specified port
+EXPOSE ${APP_PORT}
+
+# Run the app
+CMD ["java", "-jar", "app.jar"]
+
+
+🏗 How to Build the Image:
+bash
+Copy
+Edit
+docker build \
+  --build-arg JAR_FILE=target/my-app-1.0.jar \
+  --build-arg APP_PORT=9090 \
+  -t my-dynamic-app .
+
+
+🚀 How to Run the Container:
+bash
+Copy
+Edit
+docker run -p 9090:9090 my-dynamic-app
 
  Multistage docker file:
 ---------------------------------
@@ -4017,8 +4057,12 @@ Docker containers
 2. overlay
 3. host
 
-Project 2 JFROG setup in docker container:
+Project 2 JFROG setup in docker container: 
 -------------------------------------------
+Ubuntu
+20gb
+launch instance
+
 
 ##Install in Amazon Ubuntu
 #!/bin/bash
@@ -4040,14 +4084,15 @@ sudo apt install docker-ce -y
 
 sudo chmod 777 /var/run/docker.sock
 
-##Install in Amazon Ubuntu
+##Install in Amazon Ubuntu---https://github.com/praveen1994dec/tools_installation_scripts
 sudo usermod -aG docker $USER
 docker pull docker.bintray.io/jfrog/artifactory-oss:latest
+docker images
 sudo mkdir -p /jfrog/artifactory
 sudo chown -R 1030 /jfrog/
 docker run --name artifactory -d -p 8081:8081 -p 8082:8082 -v /jfrog/artifactory:/var/opt/jfrog/artifactory docker.bintray.io/jfrog/artifactory-oss:latest
 
-
+now in the security grou change ito alltrafic ip4 and check with the IP address 
 
 
 Disadvantages of dockercompose
