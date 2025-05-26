@@ -1,0 +1,33 @@
+sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+    3  # Add Docker's official GPG key:
+    4  sudo apt-get update
+    5  sudo apt-get install ca-certificates curl
+    6  sudo install -m 0755 -d /etc/apt/keyrings
+    7  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    8  sudo chmod a+r /etc/apt/keyrings/docker.asc
+    9  # Add the repository to Apt sources:
+   10  echo   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" |   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   11  sudo apt-get update
+   12  sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+   13  sudo systemctl enable docker
+   14  sudo systemctl start docker
+   15  root@ip-172-31-13-46:~# sudo systemctl status docker
+   16  sudo systemctl status docker
+   20  export JFROG_HOME=/home/ubuntu
+   21  echo $jfrog
+   22  echo $JFROG_HOME
+   23  mkdir -p $JFROG_HOME/artifactory/var/etc/
+   24  cd $JFROG_HOME/artifactory/var/etc/
+   25  touch ./system.yaml
+   26  sudo chown -R 1030:1030 $JFROG_HOME/artifactory/var
+   27  sudo chmod -R 777 $JFROG_HOME/artifactory/var
+   28  ⧉
+   29  sudo chmod -R 777 $JFROG_HOME/artifactory/var
+   30  docker run --name postgres -itd -e POSTGRES_USER=artifactory -e POSTGRES_PASSWORD=password -e POSTGRES_DB=artifactorydb -p 5432:5432 library/postgres:16.8
+   31  ls
+   32  vi system.yaml
+   33  docker run --name artifactory -v $JFROG_HOME/artifactory/var/:/var/opt/jfrog/artifactory -d -p 8081:8081 -p 8082:8082 releases-docker.jfrog.io/jfrog/artifactory-pro:7.104.10
+   34  docker ps
+   35  docker logs -f artifactory
+   36  history
