@@ -1,0 +1,46 @@
+1 JFrog setup in docker 
+
+
+Pull the Artifactory Docker image:
+
+bash
+Copy
+Edit
+docker pull releases-docker.jfrog.io/jfrog/artifactory-pro:7.71.11
+Create necessary directories:
+
+bash
+Copy
+Edit
+mkdir -p /root/jfrog/artifactory/var/etc/
+touch /root/jfrog/artifactory/var/etc/system.yaml
+chown -R 1030:1030 /root/jfrog/artifactory/var
+
+Run the Artifactory container:
+
+bash
+Copy
+Edit
+docker run --name artifactory -v /root/jfrog/artifactory/var/:/var/opt/jfrog/artifactory -d -p 8081:8081 -p 8082:8082 releases-docker.jfrog.io/jfrog/artifactory-pro:7.71.11
+Check the logs:
+
+bash
+Copy
+Edit
+docker logs -f artifactory
+Access the Artifactory web interface:
+Navigate to http://192.168.56.13:8082 in your web browser. The default login credentials are:
+
+Username: admin
+
+Password: password
+JFrog
++6
+cidevops.com
++6
+jfrogchina.com
++6
+GitHub
++1
+ComputingForGeeks
++1
