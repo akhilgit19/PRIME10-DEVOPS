@@ -15,9 +15,6 @@
    14  mkdir -p /root/jfrog/artifactory/var/etc/
    15  touch /root/jfrog/artifactory/var/etc/system.yaml
    16  chown -R 1030:1030 /root/jfrog/artifactory/var
-   17  docker logs -f artifactory
-   18  docker ps
-   19  docker logs -f artifactory
    20  docker run --name artifactory -v /root/jfrog/artifactory/var/:/var/opt/jfrog/artifactory -d -p 8081:8081 -p 8082:8082 releases-docker.jfrog.io/jfrog/artifactory-pro:7.71.11
    21  docker ps
    22  docker logs -f artifactory
