@@ -4683,6 +4683,7 @@ spec:
 API Version   /apis/group/version
 
 Groups                       Version
+-------                      ------------------
 apps                           v1
 authetication.k8s.io           v1,v1batak,v1alpha1
 authorization.k8s.io           v1
@@ -4700,8 +4701,9 @@ storage.k8s.io                   v1
 
 
 
-kubectl get pods 
+kubectl api-resources -0 wide
 
+kubectl get pods 
 
 kubectl delete pods 
 
@@ -4724,7 +4726,7 @@ kind:                          |                 |
   APIService                   |                 ^
   name:                        |                 | 
       FlunderSrv              pods               nodes
-apiservices                    ^                 ^
+apiservices                    ^                 ^  /api/v1/nodes
      | (/apis/apiregistrations.|-----------------|         
      | k8s.io/v1/apiservices)          | 
   apiresgistrations.k8s.io/v1        api/v1
