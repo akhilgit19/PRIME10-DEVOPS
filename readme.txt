@@ -4926,6 +4926,135 @@ Step5: push the code to new branch
 Step6: validate the branch presence in github
 
 
+pip install requests GitPython
+
+import requests
+import os
+from git import Repo
+
+# Step 1: Setup variables
+GITHUB_TOKEN = "your_personal_access_token"  # Replace with your GitHub PAT
+REPO_OWNER = "your-username"                 # Replace with your GitHub username or org
+REPO_NAME = "your-repo"                      # Replace with your repo name
+BRANCH_NAME = "heydevops"
+CLONE_DIR = "./temp_repo"
+
+headers = {
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github.v3+json"
+}
+
+# Step 2: Fetch all branches
+branches_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/branches"
+response = requests.get(branches_url, headers=headers)
+response.raise_for_status()  # Raise an error for bad response
+branches = [branch['name'] for branch in response.json()]
+print("Branches in repo:", branches)
+
+# Step 3: Check if 'heydevops' exists, else create it
+if BRANCH_NAME not in branches:
+    # Get the SHA of the default branch (usually 'main')
+    repo_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}"
+    repo_data = requests.get(repo_url, headers=headers).json()
+    default_branch = repo_data['default_branch']
+    
+    default_branch_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/git/ref/heads/{default_branch}"
+    default_branch_data = requests.get(default_branch_url, headers=headers).json()
+    sha = default_branch_data['object']['sha']
+
+    # Create new branch reference
+    create_ref_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/git/refs"
+    payload = {
+        "ref": f"refs/heads/{BRANCH_NAME}",
+        "sha": sha
+    }
+    create_response = requests.post(create_ref_url, json=payload, headers=headers)
+    create_response.raise_for_status()
+    print(f"Branch '{BRANCH_NAME}' created.")
+else:
+    print(f"Branch '{BRANCH_NAME}' already exists.")
+
+# Step 4: Clone the repo
+if os.path.exists(CLONE_DIR):
+    os.system(f"rm -rf {CLONE_DIR}")  # Clean up if already exists
+repo = Repo.clone_from(
+    f"https://{GITHUB_TOKEN}:x-oauth-basic@github.com/{REPO_OWNER}/{REPO_NAME}.git",
+    CLONE_DIR
+)
+print("Repo cloned.")
+
+# Step 5: Checkout new branch and push
+new_branch = repo.create_head(BRANCH_NAME)
+new_branch.checkout()
+repo.git.push("--set-upstream", "origin", BRANCH_NAME)
+print(f"Branch '{BRANCH_NAME}' pushed to GitHub.")
+
+# Step 6: Validate branch presence
+validate_response = requests.get(branches_url, headers=headers)
+validate_response.raise_for_status()
+updated_branches = [branch['name'] for branch in validate_response.json()]
+if BRANCH_NAME in updated_branches:
+    print(f"Validation successful: '{BRANCH_NAME}' branch is present.")
+else:
+    print(f"Validation failed: '{BRANCH_NAME}' not found.")
+
+
+
+🧠 Line-by-Line Explanation
+Step 1: Setup Variables
+python
+Copy
+Edit
+GITHUB_TOKEN = "your_personal_access_token"
+REPO_OWNER = "your-username"
+REPO_NAME = "your-repo"
+BRANCH_NAME = "heydevops"
+CLONE_DIR = "./temp_repo"
+These store the config for your repo and access token.
+
+Step 2: Fetch All Branches
+python
+Copy
+Edit
+branches_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/branches"
+response = requests.get(branches_url, headers=headers)
+This hits the GitHub API to get a list of branches.
+
+Step 3: Create New Branch if Not Exists
+python
+Copy
+Edit
+if BRANCH_NAME not in branches:
+    ...
+If the heydevops branch doesn’t exist, get the SHA of the default branch and use it to create a new branch.
+
+Step 4: Clone the Repo
+python
+Copy
+Edit
+repo = Repo.clone_from(...)
+Uses GitPython to clone the repo locally with access token authentication.
+
+Step 5: Checkout and Push New Branch
+python
+Copy
+Edit
+new_branch = repo.create_head(BRANCH_NAME)
+new_branch.checkout()
+repo.git.push(...)
+Creates and checks out the new branch, then pushes it to GitHub.
+
+Step 6: Validate New Branch
+python
+Copy
+Edit
+if BRANCH_NAME in updated_branches:
+Re-checks the branch list from GitHub to verify it was created successfully.
+
+
+
+
+
 Loops and condtions
 ------------------------
  for /while (two loops are used majorly in python
@@ -4943,16 +5072,18 @@ import math
 import random
 
 
-
-digits="0123456789"
-OTP=""
-#Six digit password
-for i in range(6):
+def calculate();
+    digits="0123456789"
+    OTP=""
+    #Six digit password
+    for i in range(6):
     OTP+=digits[math.floor(random.random()*10)]
-otp = OTP + " is your OTP"
-msg= otp
+   otp = OTP + " is your OTP"
+   msg= otp
 
-print(msg)
+   print(msg)
+
+calculate()
 
 To execute:
 -python3 import os.py
@@ -5189,6 +5320,12 @@ You can further customize the manipulation logic depending on your use case, suc
 
 
 
+
+
+2. write a python code for hitting the mysqldatabase  and get the data and extract the data.
+-----------------------------------------------------------------------------------------------
+
+
 import mysql.connector
 # Establish the MySQL database connection
 def connect_to_mysql(host, user, password, database):
@@ -5261,11 +5398,7 @@ if __name__ == "__main__":
     main()
 
 
-
-
-2. write a python code for hitting the mysqldatabase  and get the data and extract the data.
------------------------------------------------------------------------------------------------
-
+(or)
 To interact with a MySQL database in Python, you typically use a library like mysql-connector-python or PyMySQL. Below is a simple Python script that connects to a MySQL database, fetches data, and extracts the results.
 
 Requirements:
