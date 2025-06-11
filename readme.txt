@@ -5675,7 +5675,7 @@ Automation
                                 Xmatters       
                                    |
 (can pull data from              Graphana -(Grpahana query languae),(Dashboard)
-promethuse,mysql,infix,posgress)   |
+promethuse,mysql,influx,posgress)   |
 inbuilt Time series databse-----Promethesu-(Scrapping the data from K8  in time interval ),( Prometheys Query language)
    or                              |             
   influx                           | (By deploying agents i interegrate prometheus and K8)
@@ -5882,10 +5882,167 @@ Once you've written the query, Grafana will automatically visualize the results 
 Let me know if you need further details or adjustments on your queries!
 
 
+4-grafana query language for getting the CPU of pod from Prometheus
 
 
-3.Prometheus configurations with targets as kubernetes
+To query the CPU usage of a pod in Grafana using PromQL (Prometheus Query Language), the most common metric is:
+
+arduino
+Copy
+Edit
+rate(container_cpu_usage_seconds_total{pod="<pod-name>", container!="", image!=""}[5m])
+🔍 Breakdown:
+container_cpu_usage_seconds_total: Cumulative CPU time consumed by the container.
+
+rate(...[5m]): Computes the per-second average rate of increase over the last 5 minutes.
+
+pod="<pod-name>": Filters the data to a specific pod.
+
+container!="" and image!="": Exclude "infra" containers like the pause container.
+
+✅ More General Queries
+1. CPU usage of all pods (in millicores):
+promql
+Copy
+Edit
+sum by (pod) (
+  rate(container_cpu_usage_seconds_total{container!="", image!=""}[5m])
+) * 1000
+Multiply by 1000 to convert CPU cores to millicores, which is how Kubernetes typically reports CPU requests/limits.
+
+2. CPU usage per pod in a specific namespace:
+promql
+Copy
+Edit
+sum by (pod) (
+  rate(container_cpu_usage_seconds_total{namespace="your-namespace", container!="", image!=""}[5m])
+) * 1000
+3. CPU usage grouped by deployment or app label:
+promql
+Copy
+Edit
+sum by (app) (
+  rate(container_cpu_usage_seconds_total{container!="", image!=""}[5m])
+) * 1000
+Make sure your pods are labeled with app=<name> for this to work.
+
+🧠 Tips:
+Use the container_cpu_cfs_throttled_seconds_total metric to monitor throttling if needed.
+
+If you’re using kube_pod_container_resource_requests_cpu_cores, that tells you the requested CPU, not actual usage.
+
+5.Prometheus configurations with targets as kubernetes
 -------------------------------------------------------------
+✅ Prometheus Configuration for Kubernetes Targets
+📄 prometheus.yml (Core Config File)
+Below is a minimal and functional configuration assuming Prometheus is deployed inside Kubernetes:
+
+yaml
+Copy
+Edit
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+
+  # Scrape Kubernetes API server metrics
+  - job_name: 'kubernetes-apiservers'
+    kubernetes_sd_configs:
+      - role: endpoints
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: default;kubernetes;https
+
+  # Scrape Kubelets
+  - job_name: 'kubernetes-nodes'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics
+
+  # Scrape kubelet cAdvisor
+  - job_name: 'kubernetes-cadvisor'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+
+  # Scrape all pods with the 'prometheus.io/scrape' annotation
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: (.+):(?:\d+);(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+
+🔍 Annotations Required for Pods (Optional Target Discovery)
+Prometheus can discover targets automatically if you annotate your pods like so:
+
+yaml
+Copy
+Edit
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+🧠 Key Concepts
+Component	Description
+kubernetes_sd_configs	Uses Kubernetes service discovery
+role: pod/node/endpoints	What Prometheus discovers (pods, services, nodes)
+relabel_configs	Modifies the discovered labels to turn them into scrape targets
+bearer_token_file	Enables Prometheus to authenticate to Kubernetes API (from inside a pod)
+
+🛠️ Deploying Prometheus in Kubernetes (Simple Way)
+bash
+Copy
+Edit
+kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
+Then use Prometheus Operator or Kube Prometheus Stack (Helm) for production.
+
+
+
+   or0-------------------
 
 Setting up Prometheus to monitor Kubernetes involves configuring Prometheus to scrape metrics from the various Kubernetes components and services running in your cluster. Kubernetes exposes metrics in a format Prometheus can scrape, and you can configure Prometheus to discover these targets dynamically. Here's a step-by-step guide on how to configure Prometheus with Kubernetes targets.
 
@@ -6311,7 +6468,7 @@ Would you like to dive deeper into any specific file or concept?
 
 
 
-4jenkins installation on kubernetes with helm charts
+4 jenkins installation on kubernetes with helm charts
 ------------------------------------------------------
 
 To install Jenkins on Kubernetes using Helm, you can follow these steps:
