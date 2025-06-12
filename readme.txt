@@ -6674,8 +6674,9 @@ Copy
 ./find_old_logs.sh
 
 
-Functions with shell:
+Functions with shell: sending email
 -------------------------
+
 #!/bin/bash
 
 # Function to find log files older than 7 days
