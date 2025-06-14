@@ -6954,6 +6954,222 @@ Copy
 terraform init
 terraform apply
 
+Project:
+--------
+######################################################
+# AWS Infrastructure Deployment using Terraform (With Explanations)
+######################################################
+
+=====================
+✅ STEP 1: PREREQUISITES
+=====================
+You need to install the following tools before running Terraform:
+
+1. Terraform → https://www.terraform.io/downloads
+2. Python → https://www.python.org/downloads/
+3. AWS CLI → https://docs.aws.amazon.com/cli/v1/userguide/install-macos.html
+
+=======================
+✅ STEP 2: AWS CLI CONFIGURATION
+=======================
+Set up your AWS credentials on your system.
+
+Command:
+> aws configure
+
+Prompts:
+- AWS Access Key ID: [Get it from AWS console]
+- AWS Secret Access Key: [Get it from AWS console]
+- Default region: us-west-2
+- Default output format: json
+
+=======================
+✅ STEP 3: CREATE SSH KEY PAIR
+=======================
+Generate a key pair locally. This is used to SSH into EC2 instances.
+
+Command:
+> ssh-keygen -f oregon-region-key-pair
+
+Generated files:
+- `oregon-region-key-pair` (private key)
+- `oregon-region-key-pair.pub` (public key)
+
+IMPORTANT: Use the full path of `.pub` file in `variables.tf`.
+
+=====================
+✅ STEP 4: TERRAFORM FILES
+=====================
+
+▶ variables.tf — This file declares input variables used in other files.
+
+variable "AWS_REGION" {
+  default = "us-west-2" // Default AWS region
+}
+
+variable "AMI" {
+  type = map(string)
+  default = {
+    us-west-2 = "ami-0d593311db5abb72b" // AMI ID for Oregon
+    us-east-1 = "ami-0c2a1acae6667e438" // AMI ID for N. Virginia
+  }
+}
+
+variable "PUBLIC_KEY_PATH" {
+  default = "/your/full/path/to/oregon-region-key-pair.pub" // Path to your SSH public key
+}
+
+▶ config.tf — Sets the AWS provider and region.
+
+provider "aws" {
+  region = "${var.AWS_REGION}"
+}
+
+▶ userdata.sh — Startup script to install Apache when EC2 launches.
+
+#!/bin/bash
+sudo yum install httpd -y
+sudo chkconfig httpd on
+sudo systemctl start httpd
+
+▶ VPC and Network Setup:
+
+resource "aws_vpc" "dev-vpc" {
+  cidr_block = "10.0.0.0/16"
+  enable_dns_support = "true"          // Needed for internal name resolution
+  enable_dns_hostnames = "true"        // Internal hostnames for EC2
+  instance_tenancy = "default"
+  tags = { Name = "dev-vpc" }
+}
+
+resource "aws_subnet" "dev-subnet-public-1" {
+  vpc_id = "${aws_vpc.dev-vpc.id}"
+  cidr_block = "10.0.1.0/24"
+  map_public_ip_on_launch = "true"     // Automatically assigns public IP
+  availability_zone = "us-west-2a"
+  tags = { Name = "dev-subnet-public-1" }
+}
+
+▶ Internet Access Resources:
+
+resource "aws_internet_gateway" "dev-igw" {
+  vpc_id = "${aws_vpc.dev-vpc.id}"
+  tags = { Name = "dev-igw" }
+}
+
+resource "aws_route_table" "dev-public-crt" {
+  vpc_id = "${aws_vpc.dev-vpc.id}"
+  route {
+    cidr_block = "0.0.0.0/0"           // All outbound traffic
+    gateway_id = "${aws_internet_gateway.dev-igw.id}"
+  }
+  tags = { Name = "dev-public-crt" }
+}
+
+resource "aws_route_table_association" "dev-crta-public-subnet-1" {
+  subnet_id = "${aws_subnet.dev-subnet-public-1.id}"
+  route_table_id = "${aws_route_table.dev-public-crt.id}"
+}
+
+▶ Security Group:
+
+resource "aws_security_group" "ssh-allowed" {
+  vpc_id = "${aws_vpc.dev-vpc.id}"
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = -1
+    cidr_blocks = ["0.0.0.0/0"]        // Allow all outbound
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]        // Allow SSH from anywhere (not safe for prod)
+  }
+
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]        // Allow HTTP
+  }
+
+  tags = { Name = "ssh-allowed" }
+}
+
+▶ Key Pair Upload:
+
+resource "aws_key_pair" "oregon-region-key-pair" {
+  key_name = "oregon-region-key-pair"
+  public_key = "${file(var.PUBLIC_KEY_PATH)}"
+}
+
+▶ Launch Template:
+
+resource "aws_launch_template" "dev-launch-config" {
+  name = "PROD-launch-config"
+  vpc_security_group_ids = ["${aws_security_group.ssh-allowed.id}"]
+  user_data = filebase64("${"userdata.sh"}")
+  instance_type = "t2.micro"
+  image_id = "${lookup(var.AMI, var.AWS_REGION)}"
+  key_name = "${aws_key_pair.oregon-region-key-pair.id}"
+}
+
+▶ Auto Scaling Group:
+
+resource "aws_autoscaling_group" "dev-autoscaling-group-3" {
+  name = "dev-asg-3"
+  min_size = "1"
+  max_size = "1"
+  
+  launch_template {
+    id = aws_launch_template.dev-launch-config.id
+    version = "$Latest"
+  }
+
+  vpc_zone_identifier = ["${aws_subnet.dev-subnet-public-1.id}"]
+  depends_on = [aws_subnet.dev-subnet-public-1]
+
+  tag {
+    key = "Name"
+    value = "dev-test"
+    propagate_at_launch = true
+  }
+}
+
+===========================
+✅ STEP 5: RUNNING TERRAFORM
+===========================
+
+1. Initialize Terraform:
+   > terraform init
+
+2. Preview changes:
+   > terraform plan -out="file.plan"
+
+3. Apply changes:
+   > terraform apply "file.plan"
+
+4. Destroy infrastructure:
+   > terraform destroy
+
+===========================
+✅ RESULT
+===========================
+
+✅ EC2 instance is launched via Auto Scaling Group  
+✅ Apache HTTP server is automatically installed and started  
+✅ You can SSH using:
+> ssh -i oregon-region-key-pair ec2-user@<public-ip>
+
+✅ You can open the server IP in your browser to see the Apache welcome page.
+
+===========================
+END OF FILE
+===========================
 
 
 ==============================================================
