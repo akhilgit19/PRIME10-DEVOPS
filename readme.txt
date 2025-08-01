@@ -17,6 +17,8 @@ Devops/Platform Engineer::                       SRE(Site Reliability Engineer:
 Tools Linux/networking  cloud  scability   coding(pythong)    efficiency monitoring   Reliablity   AWS/AZURE
     
 
+
+
 Tech Stack that i will cover in Devops
 ==========================================
               |====Git/Github        
@@ -42,6 +44,9 @@ Tech Stack that i will cover in Devops
               |=====Github actions/Maven Tool
               |=====Helm
               |=====Database----------------> Mysql
+
+
+Dev----> Feature---> QA---->Release---->Master
 
 
 Branching Stragies:
