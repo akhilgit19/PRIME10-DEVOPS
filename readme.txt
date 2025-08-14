@@ -489,8 +489,16 @@ GIT PUSH
 52. git stah drop
 
 
-Git Automation:
+Git Automation -2:
 -----------------
+
+I want to create 3 branches in 3 respositories in every 3 weeks---- Discusesed in scrum meeting
+
+Transportation              Inventory and Item               Purchase orders 
+
+180 branches                120 branches                       130 branches
+
+
 https://docs.github.com/en/rest/branches?apiVersion=2022-11-28
 https://github.com/praveen1994dec/Knowledge_Base/blob/main/Jenkins/Jenkins%20Notes.pdf
 
@@ -591,6 +599,27 @@ Solution
     "protection_url": "https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches/main/protection"
   }
 ]
+
+
+Lab:
+Cloning the repository:
+-git clone URL
+-cd directory
+-ls
+-touch batch10.txt
+-git status
+-it will be in unstagged aread. Push it to stagged aread
+-git add .
+-from staged to local repository
+- git commit -m "message"
+For Authenticaion of github from CLI:
+- click on profile in github, click on setting, click on developer setting ,click on personal access tokens
+- Note- BATCH10 and select the scopes like repo , workflow, delete:packages,admin:org_hook etc
+- git push 
+username : akhilgit19
+token:  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
+- It will push to the remote repository
+
 
 
 
@@ -7997,6 +8026,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
