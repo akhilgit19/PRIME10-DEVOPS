@@ -528,7 +528,7 @@ akhilpagadapoola@Akhils-MacBook-Air prime10devops % curl -L \
 command updated:
 akhilpagadapoola@Akhils-MacBook-Air test % curl -L \
   -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer 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" \
+  -H "Authorization: Bearer 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" \
   -H "X-GitHub-Api-Version: 2022-11-28" \
   https://api.github.com/repos/akhilgit19/PRIME10-DEVOPS/branches 
 
@@ -678,11 +678,24 @@ git push origin master
 
  https://github.com/praveen1994dec/Knowledge_Base.git
 
+- IPaddress:port/servicename:  10.12.13.14:9000/service1
+- www.heydevops.in - Domain name
+- HTTP - unsecure, HTTPS -secured
+- When ever user hits the google.com, The data is transferred on the SSL layer and TLS layer,
+  These are security aspects for data transfer
+- SSL- Secured socket layer
+- TSL- Transport socket layer
+- when ever we are sending the data , it is divided into data packets or chunks
+- when ever we are converting http to https by adding teh certificats from godaddy
+- Handshake
+- regional server take the request from the user to DNS server , it will convert/check the url(domain name to IP addrss)
+- Hence it will give back the response to the user
+
 Logs:
 
          
      SSL/TLS                UDP/TCP/
-User-------------> Request------------------> Regional server---------> DNS Server
+User-------------> Request------------------> Regional server(webserver)---------> DNS Server
 
 
 
@@ -8026,6 +8039,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
