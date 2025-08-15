@@ -1913,7 +1913,7 @@ Linux Commands:
 =================
 booting process of linux:
 ------------------------
-BIOS (Basic input output system)- MBR-GRUB- KERNETL-SYSTEM D PROCESS
+BIOS (Basic input output system)- MBR-GRUB- KERNETL-SYSTEM D PROCESS 
 mbr- (master boot record)
 grub-(grand unified boot loader)
 kernel-(OS)
@@ -1946,6 +1946,8 @@ The command display how long the system has been running and  the current system
 akhilpagadapoola@Akhils-MacBook-Air prime10devops % uptime
 11:01  up 4 days, 21:31, 2 users, load averages: 1.79 2.19 2.22
 
+here load average shows for 1min 5min 15 min
+ 
 
 3. date:
 ==========
@@ -2035,15 +2037,17 @@ User and group managemen commands"
 4. su pardeep (switch user)
 5. sudo userdel pardeep
 6. sudo groupadd username groupname
-7. sudo gpasswd -a username groupname, To set the group password --gpasswd groupname, 
-   To make a user the group's owner- gpasswd -m username groupname
-
+7. To ass a user to the group-- sudo gpasswd -a username groupname, 
+   To set the group password --gpasswd groupname, 
+   To make a user the group's owner-- gpasswd -m username groupname
+   
 8. r- reasd -4
-   w- write 2
-   x- execute 2
+   w- write - 2
+   x- execute- 1
 
    user grop others
 
+To change the permissions chmod 777 devops
 9. umask 022
    defualt permission in linux system for files -666 folders-777
    if we give umask 022  subtract from default permissions files 644 folders 755
@@ -8103,6 +8107,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
