@@ -698,6 +698,64 @@ Logs:
 User-------------> Request------------------> Regional server(webserver)---------> DNS Server
 
 
+🔹 TCP – Transmission Control Protocol
+
+TCP is a connection-oriented protocol, which means it establishes a connection before transmitting data and ensures that the data is delivered reliably and in the correct order.
+
+✅ Key Features:
+
+Reliable: Guarantees delivery of data.
+
+Ordered: Data arrives in the same order it was sent.
+
+Error-checking: Automatically detects errors and requests retransmission.
+
+Connection-based: Requires a connection (like a phone call).
+
+Slower, but safer.
+
+📦 Used For:
+
+Web browsing (HTTP/HTTPS)
+
+Email (SMTP, IMAP, POP3)
+
+File transfers (FTP, SFTP)
+
+🔸 UDP – User Datagram Protocol
+
+UDP is a connectionless protocol, meaning it sends data without setting up a connection and does not guarantee delivery, order, or error checking.
+
+✅ Key Features:
+
+Faster than TCP.
+
+Unreliable: No guarantees data will arrive or be in order.
+
+No connection needed.
+
+Lightweight (less overhead).
+
+📦 Used For:
+
+Streaming (video, audio)
+
+Online gaming
+
+VoIP (Voice over IP)
+
+DNS queries
+
+🆚 Summary Comparison
+Feature	TCP	UDP
+Connection	Yes (connection-oriented)	No (connectionless)
+Reliability	Reliable (with acknowledgments)	Unreliable (no guarantees)
+Speed	Slower	Faster
+Use Case	Web, email, file transfers	Streaming, gaming, DNS, VoIP
+Ordering	Yes	No
+Overhead	Higher	Lower
+
+
 
 1. Ping:
 ===================================
@@ -712,6 +770,12 @@ PING google.com (142.250.195.110): 56 data bytes
 64 bytes from 142.250.195.110: icmp_seq=2 ttl=55 time=33.472 ms
 64 bytes from 142.250.195.110: icmp_seq=3 ttl=55 time=60.244 ms
 64 bytes from 142.250.195.110: icmp_seq=4 ttl=55 time=30.264 ms
+
+ttl- time to live
+time- time to response
+if more than the ttl it will throw error as website is not available
+
+
 
 2. Traceroute (or traceroute6):
 ======================================
@@ -1171,13 +1235,13 @@ Network engineers use it to map out entire subnets.
 🆚 Netstat vs. Nmap – Key Differences
 ===========================================
 Feature	netstat	nmap
-🔍 Purpose	Shows local system’s network connections	Scans remote systems/networks for open ports
-👤 Perspective	Internal (local machine)	External (targeting other machines)
-📡 Usage	Monitoring, debugging, checking active sockets	Network discovery, security auditing, vulnerability scanning
+🔍 Purpose	Shows local system’s network connections	     Scans remote systems/networks for open ports
+👤 Perspective	Internal (local machine)	                 External (targeting other machines)
+📡 Usage	Monitoring, debugging, checking active sockets	 Network discovery, security auditing, vulnerability scanning
 📄 Output	List of active connections, ports in use, listeners	List of detected hosts, open ports, running services
-🔒 Security Use	Basic monitoring	Full security scans / footprinting
-📥 Installation	Built into most OSes	Needs to be installed (nmap package)
-⚙️ Example	netstat -a (all connections)	nmap -p 1-1000 target.com (port scan)
+🔒 Security Use	Basic monitoring	                         Full security scans / footprinting
+📥 Installation	Built into most OSes	                      Needs to be installed (nmap package)
+⚙️ Example	netstat -a (all connections)	                   nmap -p 1-1000 target.com (port scan)
 
 
 
@@ -1756,13 +1820,13 @@ Reverse IP	nslookup 8.8.8.8	host 8.8.8.8
 
 ✅ Quick Summary
 Feature	                  dig	                                   nslookup
-Full Name	Domain Information Groper	Name Server Lookup
-Platforms	Linux, macOS (installable on Windows)	Windows, macOS, Linux
-Output	Detailed, structured, script-friendly	Simpler, human-readable
-Advanced DNS Info	Yes (EDNS, flags, TTLs, sections)	Basic (limited protocol details)
+Full Name	Domain Information Groper	                       Name Server Lookup
+Platforms	Linux, macOS (installable on Windows)	           Windows, macOS, Linux
+Output	Detailed, structured, script-friendly	                 Simpler, human-readable
+Advanced DNS Info	Yes (EDNS, flags, TTLs, sections)      	Basic (limited protocol details)
 Reverse Lookups	        sYes	                                     Yes
-Query Types	A, MX, TXT, NS, CNAME, etc.	A, MX, TXT, NS, etc.
-Batch Scripting	Ideal (clean format)	Poor (inconsistent formatting)
+Query Types	A, MX, TXT, NS, CNAME, etc.	                    A, MX, TXT, NS, etc.
+Batch Scripting	Ideal (clean format)	                 Poor (inconsistent formatting)
 Interactivity	No interactive mode (one command)	Can be used interactively
 Maintenance	Still actively maintained (by ISC)	Deprecated in some systems
 
@@ -8039,6 +8103,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
