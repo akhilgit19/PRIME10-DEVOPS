@@ -1,4 +1,79 @@
-1.Give the python code for below scenario write a python script using boto3 to list all s3 buckets in an AWS account and their respective sizes.
+
+1. Give the python code for below scenario Write a python script using boto3 to list all S3 buckets in an AWS account and their respective sizes
+====================================================================================================================================================================
+A.
+To list all S3 buckets in an AWS account and their respective sizes using boto3, you need to:
+
+List all S3 buckets.
+
+For each bucket, list all objects and sum their sizes.
+
+Here's a full Python script that does this:
+
+✅ Prerequisites:
+
+Make sure boto3 is installed: pip install boto3
+
+You must have AWS credentials configured (via ~/.aws/credentials, environment variables, or an IAM role if running in EC2/Lambda).
+
+📜 Script: List all S3 buckets and their sizes
+import boto3
+from botocore.exceptions import ClientError
+from datetime import datetime
+
+def get_bucket_size(bucket_name):
+    """Calculate total size of all objects in an S3 bucket."""
+    s3 = boto3.client('s3')
+    total_size = 0
+    try:
+        paginator = s3.get_paginator('list_objects_v2')
+        for page in paginator.paginate(Bucket=bucket_name):
+            if 'Contents' in page:
+                for obj in page['Contents']:
+                    total_size += obj['Size']
+    except ClientError as e:
+        print(f"Error accessing bucket {bucket_name}: {e}")
+    return total_size
+
+def human_readable_size(size_bytes):
+    """Convert size in bytes to a human-readable format."""
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if size_bytes < 1024:
+            return f"{size_bytes:.2f} {unit}"
+        size_bytes /= 1024
+    return f"{size_bytes:.2f} PB"
+
+def list_buckets_and_sizes():
+    """List all S3 buckets and their sizes."""
+    s3 = boto3.client('s3')
+    try:
+        response = s3.list_buckets()
+        print(f"Retrieved {len(response['Buckets'])} buckets at {datetime.now()}\n")
+        for bucket in response['Buckets']:
+            name = bucket['Name']
+            creation_date = bucket['CreationDate']
+            print(f"Bucket: {name} (created on {creation_date.strftime('%Y-%m-%d')})")
+            size_bytes = get_bucket_size(name)
+            print(f"Size: {human_readable_size(size_bytes)}\n")
+    except ClientError as e:
+        print(f"Error listing buckets: {e}")
+
+if __name__ == '__main__':
+    list_buckets_and_sizes()
+
+🧪 Output Example:
+Retrieved 3 buckets at 2025-08-16 14:23:12.453761
+
+Bucket: example-bucket-1 (created on 2020-05-15)
+Size: 1.23 GB
+
+Bucket: logs-bucket (created on 2019-11-03)
+Size: 567.89 MB
+
+Bucket: empty-bucket (created on 2022-01-20)
+Size: 0.00 B
+
+
 
 2.Give the python code for below scenario  You have an S3 bucket where a file is placed and you have to download that file in a container, how will you do?
 =======================
