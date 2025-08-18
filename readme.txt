@@ -2196,7 +2196,7 @@ https://github.com/praveen1994dec/Java_app_3.0
 
 For Code navagation structure always follows in this https://github.com/praveen1994dec/Java_app_3.0
 -----------------------------------------------------
-  -Java_app_3.0/src/main/java/com/minikube/sample/
+  Any project structure is same till com -Java_app_3.0/src/main/java/com/minikube/sample/
 Java_app_3.0/src/main/java/com/minikube/sample/rest/controller/HomeResource.java
 
 
@@ -2218,7 +2218,7 @@ ex:
     </parent>
     <groupId>com.minikube.sample</groupId>--------------------> Application structure
     <artifactId>kubernetes-configmap-reload</artifactId>------>Binary file name
-    <version>0.0.1-SNAPSHOT</version>-------------------------->kubernetes-configmap-reload-.0.0.1-SNAPSHOT.jar
+    <version>0.0.1-SNAPSHOT</version>-------------------------->kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar
     <packaging>jar</packaging>
     <name>minikube-sample</name>
     <description>Demo project for Spring Cloud Kubernetes</description>
@@ -8107,6 +8107,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
