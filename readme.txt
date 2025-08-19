@@ -3663,9 +3663,9 @@ Master ---------------| (jarfile)
 5.launch instance
 6.sudo su
 7. 
-sudo apt update -y
+sudo apt update -y ( is for system)
 
-sudo apt upgrade -y 
+sudo apt upgrade -y  ( is for software)
 sudo apt install openjdk-17-jre -y
 
 8.
@@ -3676,6 +3676,8 @@ echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins
 
 sudo apt-get update -y 
 sudo apt-get install jenkins -y
+
+1:32
 
 9. security -->security groups----> edit inbound rules--> type- all traffice && source anywhere IPV4
 9.1 Take iP address:8080 in the browser 
@@ -8109,6 +8111,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
