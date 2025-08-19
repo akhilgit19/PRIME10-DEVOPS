@@ -3357,7 +3357,9 @@ Path -Java_app_3.0/Jenkinsfile(Parent)---vars---different use cases using groovy
 Assignment-1
 Write the the groovy code to send the jar file to the jfrog
 -------------------------------------------------------------
-
+Assignment -2
+Write Different jenkins file scenarios
+------------------------------
 
 
 Jenkins Server installation:
@@ -8107,6 +8109,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
