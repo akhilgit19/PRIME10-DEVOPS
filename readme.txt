@@ -3686,6 +3686,16 @@ sudo apt-get install jenkins -y
 12. create first admin user ----save and continue
 13. Create a pipeline jobs
     --click on new item---->pipeline---> pipelinescript from SCM--->GIT--->git repository url--->*/main -->scriptpath-Jenkinsfile
+
+optional:
+    click on pipelinesyntax
+    sample directive stages: Stages
+    click on add stage
+    name build
+    parallel stages
+    click on generate declarative directive
+    You will get the code
+
 14. Add the plugins
      Dashboard-->managejenkins-->plugins--> available plugins
 
@@ -8111,6 +8121,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
