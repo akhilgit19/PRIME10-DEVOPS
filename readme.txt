@@ -4233,6 +4233,40 @@ docker run --name artifactory -d -p 8081:8081 -p 8082:8082 -v /jfrog/artifactory
 now in the security grou change ito alltrafic ip4 and check with the IP address 
 
 
+
+
+
+# Stage 1:  Base Image
+FROM python:3.11-slim AS builder
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir --target=/app/requirements -r requirements.txt
+
+# Stage2: Final Image
+FROM python:3.11-slim
+WORKDIR /app
+COPY --from=builder /app/requirements /usr/local/lib/pythong3.11/site-packages/
+COPY . /app
+EXPOSE 8000
+RUN useradd -m appuser
+USER appuser
+CMD ["python3", "app.py"]
+
+# Bloated Image
+FROM ubuntu:latest
+RUN apt-get update && apt-get install -y python3
+COPY requirements.txt /app/
+RUN pip3 install -r /app/requirements.txt
+COPY . /app
+WORKDIR /app
+EXPOSE  8000
+CMD ["python3", "app.py"]
+
+
+
+
+
 Disadvantages of dockercompose
 ---------------------------
 1. No security
@@ -8130,6 +8164,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
