@@ -4087,6 +4087,10 @@ Code----->jar--------------->|Image|--------------------------------- >| Docker-
 |                              |                     |
 ----------------------------------------------------------
 
+ENV <JAVA -JAR AGENT.JAR -XARGS >        
+ARGS< >  
+
+
 https://github.com/praveen1994dec/Java_app_3.0/blob/main/Dockerfile
 
 Example docker file:
@@ -4179,6 +4183,7 @@ Docker containers
 5. To find the complete skeleton json of container- docker inspect c39b83a46949
 6. To stop the container - docker stop c39b83a46949
 7. docker network ls
+8. docker inspect dockerid
 
 3 types of docker network
 ---------------------------
@@ -4189,6 +4194,7 @@ Docker containers
 Project 2 JFROG setup in docker container: 
 -------------------------------------------
 Ubuntu
+t2medium
 20gb
 launch instance
 
@@ -8121,6 +8127,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
