@@ -4467,7 +4467,7 @@ yaml
            |                                                            --  namespace
                                                                         -- istio
 2|->    ETCD 6(It stores all the data in kub)                     >>Kube Proxy  10 [Thrid componenet
- |        ^                                                        (d means distributed database)Continer d or Container Runtime
+ |        ^                                                        >> Fourth component ContainerD(d means distributed database)Continer d or Container Runtime
  |        |(it stores the data in key: value format)
 3|-->   Control Manager   5< --<--------<--------- |
  |     CPU                                         ^
@@ -4612,7 +4612,7 @@ spec:
 Project 3: EKS Project
 =----------
 1. Amazon linux
-2. Amazon linux 2 AMI
+2. AMI- Amazon linux 2 AMI
 3. T2.medium
 4. 20 gb
 5. sudo su
@@ -4643,6 +4643,7 @@ Install maven
 25. source $HOME/.bashrc
 26 kubectl version --short -client
 
+
 27. git clone https://github.com/praveen1994dec/kubernetes_java_deployment.git
 28. 
 
@@ -4671,6 +4672,8 @@ praveensingam1994
  SERVICE2
   SERVICE3
  praveensingam1994
+
+
   STEP 6 - GO TO KUBERNETES FOLDER IN SAME PROJECT
 cd kubernetes
 kubectl apply -f shopfront-service.yaml kubectl apply -f productcatalogue-service.yaml kubectl apply -f stockmanager-service.yaml
@@ -8164,6 +8167,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
