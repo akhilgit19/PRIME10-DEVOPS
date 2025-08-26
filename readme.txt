@@ -5061,11 +5061,180 @@ EKS Cloud project see the documentation
 
 Autop scale pod based on load  - Horizontal_pod_autoscaler.yml
 
-- name- k8
-- AMI amazon linux , t2.medium
-- pemfile- key-test
-- storage 30gb
-- launch instance
+
+AWS EKS PROJECT
+SETUP CLOUD
+NOTE – COST WILL BE INCURRED FOR
+AWS EKS SETUP SO MAKE SURE YOU
+ARE DOING THE PROJECT ON YOUR ON
+INTEREST AND IF YOU ARE NOT OK
+THEN PROJECT2 IS IN THE SAME
+DOCUMENT WITH LOCAL SETUP
+Step 1 – LOGIN to the AWS Console
+https://aws.amazon.com/console/
+Step 2 – Select EC2 and create T2.MEDIUM INSTANCE IN US WEST1
+STEP3 – Select AMAZON LINUX 2 AMI 30 GB
+STEP3.1 – Make sure to create the PEM file in the EC2 instance with name
+key-test
+Step 4 – Install all tools Pre-requisites
+- Install Git
+yum install git -y
+Step 5 – INSTALL SETUP FOR EKS
+- Install kubectl
+
+
+# Download the latest stable kubectl for EKS 
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.24.11/2023-03-17/bin/linux/amd64/kubectl
+
+# Make it executable
+chmod +x ./kubectl
+
+# Move it to a local bin directory
+[root@ip-172-31-21-53 Custom_Resource_Definition]# mkdir -p $HOME/bin
+[root@ip-172-31-21-53 Custom_Resource_Definition]# mv ./kubectl $HOME/bin/kubectl
+
+# Add to PATH
+[root@ip-172-31-21-53 Custom_Resource_Definition]# export PATH=$HOME/bin:$PATH
+[root@ip-172-31-21-53 Custom_Resource_Definition]# echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+[root@ip-172-31-21-53 Custom_Resource_Definition]# source ~/.bashrc
+
+# Check the kubectl version
+[root@ip-172-31-21-53 Custom_Resource_Definition]# kubectl version --client
+WARNING: This version information is deprecated and will be replaced with the output from kubectl version --short.  Use --output=yaml|json to get the full version.
+Client Version: version.Info{Major:"1", Minor:"24+", GitVersion:"v1.24.11-eks-a59e1f0", GitCommit:"03b59f0e4433fe430fa988d4b44bbc1e548d1850", GitTreeState:"clean", BuildDate:"2023-03-09T19:54:45Z", GoVersion:"go1.19.6", Compiler:"gc", Platform:"linux/amd64"}
+Kustomize Version: v4.5.4
+
+
+
+
+- Install eksctl
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/bin
+eksctl version
+
+Step6 - ATTACH THE IAM ROLE
+Go to IAM -> CLICK CREATE NEW IAM ROLE ->
+SELECT EC2 -> CLICK ON ADMINISTRATOR ACCESS
+-> CREATE ROLE
+
+STEP 7 –
+Go toEC2 instance you have created -> Click on
+ACTIONS -> SECURITY -> MODIFY IAM ROLE ->
+ATTACH YOUR NEW ROLE
+
+Step 8 -
+- MASTER Cluster creation [ Change the master cluster name eksdemo as per your
+wish and select region as us-west-1]
+
+eksctl create cluster --name=eksdemo \
+--region=us-east-1 \
+--zones=us-east-1b,us-east-1c \
+--without-nodegroup
+
+eksctl create cluster --name=eksdemo --region=us-east-1 --zones=us-east-1b,us-east-1c --without-nodegroup
+
+
+- Add Iam-Oidc-Providers
+eksctl utils associate-iam-oidc-provider \
+--region us-east-1 \
+--cluster eksdemo \
+--approve
+
+
+- WORKER NODE Create node-group [ Change the PEM key ssh-public-key to your
+key created in step 3.1]
+eksctl create nodegroup --cluster=eksdemo \
+--region=us-west-1 \
+--name=eksdemo-ng-public \
+--node-type=t2.micro \
+--nodes=2 \
+--nodes-min=1 \
+--nodes-max=2 \
+--ssh-access \
+--ssh-public-key=key-test \
+--node-volume-size=10 \
+--managed \
+--asg-access \
+--external-dns-access \
+--full-ecr-access \
+--appmesh-access \
+--alb-ingress-access
+
+eksctl create nodegroup --cluster=eksdemo --region=us-east-1 --name=eksdemo-ng-public --node-type=t2.micro --nodes=2 --nodes-min=1 --nodes-max=2 --ssh-access --ssh-public-key=key-test --node-volume-size=10 --managed --asg-access --external-dns-access --full-ecr-access --appmesh-access --alb-ingress-access
+
+
+
+STEP 9 –
+** Clone the repository
+https://github.com/praveen1994dec/Custom_Resource_Definition.git
+** cd Custom_Resource_Definition/ and hit the below command
+kubectl apply -f crd.yml
+
+[root@ip-172-31-21-53 Custom_Resource_Definition]# kubectl apply -f crd.yml
+customresourcedefinition.apiextensions.k8s.io/myplatforms.contoso.com created
+
+
+** Once the CRD is registered, verify that by running the
+kubectl api-resources | grep myplatform
+
+[root@ip-172-31-21-53 Custom_Resource_Definition]# kubectl api-resources | grep myplatforms
+myplatforms                         myp          contoso.com/v1alpha1              true         MyPlatform
+error: unable to retrieve the complete list of server APIs: metrics.k8s.io/v1beta1: the server is currently unable to handle the request
+
+** Creating the custom resource
+kubectl apply -f cr.yml
+
+[root@ip-172-31-21-53 Custom_Resource_Definition]# kubectl apply -f cr.yml
+myplatform.contoso.com/test-dotnet-app created
+
+
+** Hit the below command
+kubectl get myp
+
+[root@ip-172-31-21-53 Custom_Resource_Definition]# kubectl get myp
+NAME              AGE
+test-dotnet-app   4s
+[root@ip-172-31-21-53 Custom_Resource_Definition]# kubectl get myp -o wide
+NAME              AGE
+test-dotnet-app   19s
+
+
+
+STEP 10 – DELETE NODE AND THEN THE CLUSTER
+eksctl delete nodegroup --cluster=eksdemo
+--region=us-east-1 --name=eksdemo-ng-public
+
+eksctl delete nodegroup --cluster=eksdemo --region=us-east-1 --name=eksdemo-ng-public
+
+[root@ip-172-31-21-53 Custom_Resource_Definition]# eksctl delete nodegroup --cluster=eksdemo --region=us-east-1 --name=eksdemo-ng-public
+2025-08-26 16:08:42 [ℹ]  1 nodegroup (eksdemo-ng-public) was included (based on the include/exclude rules)
+2025-08-26 16:08:42 [ℹ]  will drain 1 nodegroup(s) in cluster "eksdemo"
+2025-08-26 16:08:42 [ℹ]  starting parallel draining, max in-flight of 1
+2025-08-26 16:08:42 [!]  no nodes found in nodegroup "eksdemo-ng-public" (label selector: "alpha.eksctl.io/nodegroup-name=eksdemo-ng-public")
+2025-08-26 16:08:42 [ℹ]  will delete 1 nodegroups from cluster "eksdemo"
+2025-08-26 16:08:42 [ℹ]  1 task: { 1 task: { delete nodegroup "eksdemo-ng-public" [async] } }
+2025-08-26 16:08:42 [ℹ]  will delete stack "eksctl-eksdemo-nodegroup-eksdemo-ng-public"
+2025-08-26 16:08:42 [✔]  deleted 1 nodegroup(s) from cluster "eksdemo"
+
+-
+eksctl delete cluster --name=eksdemo
+--region=us-east-1
+
+eksctl delete cluster --name=eksdemo --region=us-east-1
+
+[root@ip-172-31-21-53 Custom_Resource_Definition]# eksctl delete cluster --name=eksdemo --region=us-east-1
+2025-08-26 16:09:11 [ℹ]  deleting EKS cluster "eksdemo"
+2025-08-26 16:09:11 [ℹ]  deleted 0 Fargate profile(s)
+2025-08-26 16:09:11 [✔]  kubeconfig has been updated
+2025-08-26 16:09:11 [ℹ]  cleaning up AWS load balancers created by Kubernetes objects of Kind Service or Ingress
+2025-08-26 16:09:12 [ℹ]  
+2 sequential tasks: { delete IAM OIDC provider, delete cluster control plane "eksdemo" [async] 
+}
+2025-08-26 16:09:12 [ℹ]  will delete stack "eksctl-eksdemo-cluster"
+2025-08-26 16:09:12 [✔]  all cluster resources were deleted
+[root@ip-172-31-21-53 Custom_Resource_Definition]#
+
+
 
 
 
@@ -8212,6 +8381,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
