@@ -4609,8 +4609,142 @@ spec:
             - containerPort: 80
 
 
-Project 3: EKS Project
-=----------
+Project 3:  KUBERNETES PROJECT SETUP
+-==============================================
+
+DEPLOY 3 PODS IN k8 AND CHECK THE
+ENDPOINTS / VISUALISE k8 DASHBOARD
+
+
+
+
+PROJECT2 LINK -
+https://github.com/praveen1994dec/kubernetes_java_deploym
+ent.git
+STEP 1 –MINIKUBE AND DOCKER INSTALLATION ON
+AMAZON LINUX
+1. Launch an instance from an Amazon Linux 2 or Amazon
+Linux AMI
+2. Connect to your instance.
+3. Update the packages and package caches you have
+installed on your instance.
+yum update -y
+4. Install the latest Docker Engine packages.
+Amazon Linux 2 amazon-linux-extras install docker
+yum install docker -y
+
+STEP2 – INSTALL DOCKER/MAVEN/GIT/JAVA
+DOCKER
+yum install docker -y
+systemctl start docker
+systemctl enable docker
+MAVEN
+cd /opt/
+wget http://mirrors.estointernet.in/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+tar xvzf apache-maven-3.6.3-bin.tar.gz
+vi /etc/profile.d/maven.sh
+export MAVEN_HOME=/opt/apache-maven-3.6.3
+export PATH=$PATH:$MAVEN_HOME/bin
+GIT
+yum install git -y
+JAVA
+yum install java -y
+STEP 3 – INSTALL KUBECTL
+curl -o kubectl
+https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.4/2021
+-04-12/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+mkdir -p $HOME/bin
+cp ./kubectl $HOME/bin/kubectl
+export PATH=$HOME/bin:$PATH
+echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+source $HOME/.bashrc
+kubectl version --short –client
+STEP 4 –
+git clone https://github.com/praveen1994dec/kubernetes_java_deployment.git
+STEP 5 – IMPORTANT STEP
+[ 3 SERVICES IN PROJECT ]
+SERVICE1 [ Give your dockerhub ID in place of
+praveensingam1994 ]
+cd shopfront/
+mvn clean install -DskipTests
+docker build -t praveensingam1994/shopfront:latest .
+docker push praveensingam1994/shopfront:latest
+SERVICE2 [ Give your dockerhub ID in place of
+praveensingam1994 ]
+cd productcatalogue/
+mvn clean install -DskipTests
+docker build -t praveensingam1994/productcatalogue:latest .
+docker push praveensingam1994/productcatalogue:latest
+SERVICE3 [ Give your dockerhub ID in place of
+praveensingam1994 ]
+cd stockmanager/
+mvn clean install -DskipTests
+docker build -t praveensingam1994/stockmanager:latest .
+docker push praveensingam1994/stockmanager:latest
+STEP 6 - GO TO KUBERNETES FOLDER IN SAME
+PROJECT
+cd kubernetes
+kubectl apply -f shopfront-service.yaml
+kubectl apply -f productcatalogue-service.yaml
+kubectl apply -f stockmanager-service.yaml
+STEP 7 – kubectl get pods
+STEP 8 – Hit the below command to start the kubernetes
+dashboard in EC2
+/usr/local/bin/minikube dashboard
+STEP 9 [ IN NEW EC2 WINDOW ] -
+Open the EC2 in new window and set the PROXY
+kubectl proxy --address='0.0.0.0' --accept-hosts='^*$'
+STEP 9 - Hit in browser to view the dashboard
+http://<EC2-IP>:8001/api/v1/namespaces/kubernetes-da
+shboard/services/http:kubernetes-dashboard:/proxy/#/po
+d?namespace=default
+[YOU WILL SEE YOUR APPS]
+STEP 10 – Hit the below command for each service in
+different console of EC2
+[ EC2 LOGIN FIRST ]
+kubectl port-forward --address 0.0.0.0 svc/shopfront
+8080:8010
+[EC2 LOGIN FIRST]
+kubectl port-forward --address 0.0.0.0 svc/productcatalogue
+8090:8020
+[ EC2 LOGIN FIRST ]
+kubectl port-forward --address 0.0.0.0 svc/stockmanager
+9008:8030
+STEP 11 –
+- http://<EC2IP>:8090/products
+- [{"id":"1","name":"Widget","descriptio
+n":"Premium ACME
+Widgets","price":1.1999999999999999555
+910790149937383830547332763671875},{"i
+d":"2","name":"Sprocket","description"
+:"Grade B
+sprockets","price":4.09999999999999964
+47286321199499070644378662109375},{"id
+":"3","name":"Anvil","description":"La
+rge
+Anvils","price":45.5},{"id":"4","name"
+:"Cogs","description":"Grade Y
+cogs","price":1.8000000000000000444089
+209850062616169452667236328125},{"id":
+"5","name":"Multitool","description":"
+Multitools","price":154.09999999999999
+4315658113919198513031005859375}]
+- http://<EC2IP>:9008/stocks
+- [{"productId":"1","sku":"12345678","am
+ountAvailable":5},{"productId":"2","sk
+u":"34567890","amountAvailable":2},{"p
+roductId":"3","sku":"54326745","amount
+Available":999},{"productId":"4","sku"
+:"93847614","amountAvailable":0},{"pro
+ductId":"5","sku":"11856388","amountAv
+ailable":1}]
+STEP 12 – ANALYZE THE DASHBOARD
+[ IGNORE THE ERROR IN 1 POD, It is due to PROBES as
+discussed in class ]
+GO TO EACH SEGMENT ON LEFT HAND SIDE AND
+
+
 1. Amazon linux
 2. AMI- Amazon linux 2 AMI
 3. T2.medium
@@ -4643,27 +4777,51 @@ Install maven
 25. source $HOME/.bashrc
 26 kubectl version --short -client
 
+# Download the latest stable kubectl for EKS 
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.24.11/2023-03-17/bin/linux/amd64/kubectl
+
+# Make it executable
+chmod +x ./kubectl
+
+# Move it to a local bin directory
+[root@ip-172-31-21-53 Custom_Resource_Definition]# mkdir -p $HOME/bin
+[root@ip-172-31-21-53 Custom_Resource_Definition]# mv ./kubectl $HOME/bin/kubectl
+
+# Add to PATH
+[root@ip-172-31-21-53 Custom_Resource_Definition]# export PATH=$HOME/bin:$PATH
+[root@ip-172-31-21-53 Custom_Resource_Definition]# echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+[root@ip-172-31-21-53 Custom_Resource_Definition]# source ~/.bashrc
+
+# Check the kubectl version
+[root@ip-172-31-21-53 Custom_Resource_Definition]# kubectl version --client
+WARNING: This version information is deprecated and will be replaced with the output from kubectl version --short.  Use --output=yaml|json to get the full version.
+Client Version: version.Info{Major:"1", Minor:"24+", GitVersion:"v1.24.11-eks-a59e1f0", GitCommit:"03b59f0e4433fe430fa988d4b44bbc1e548d1850", GitTreeState:"clean", BuildDate:"2023-03-09T19:54:45Z", GoVersion:"go1.19.6", Compiler:"gc", Platform:"linux/amd64"}
+Kustomize Version: v4.5.4
+
 
 27. git clone https://github.com/praveen1994dec/kubernetes_java_deployment.git
 28. 
 
+- docker login -u akhilpagadapoola
 STEP 5 – IMPORTANT STEP [ 3 SERVICES IN PROJECT ]
 [ Give your dockerhub ID in place of ]
 cd shopfront/
 mvn clean install -DskipTests
-docker build -t /shopfront:latest . 
-docker push /shopfront:latest
+docker build -t  akhilpagadapoola/shopfront:latest . 
+docker push akhilpagadapoola/shopfront:latest
 
 [ Give your dockerhub ID in place of ]
 cd productcatalogue/
 mvn clean install -DskipTests
-docker build -t praveensingam1994/productcatalogue:latest . 
-docker push praveensingam1994/productcatalogue:latest
+docker build -t akhilpagadapoola/productcatalogue:latest . 
+docker push akhilpagadapoola/productcatalogue:latest
 
 [ Give your dockerhub ID in place of ]
 cd stockmanager/
 mvn clean install -DskipTests
-docker build -t praveensingam1994/stockmanager:latest . docker push praveensingam1994/stockmanager:latest
+docker build -t akhilpagadapoola/stockmanager:latest . 
+docker push akhilpagadapoola/stockmanager:latest
+
  SERVICE1
  praveensingam1994
  praveensingam1994
@@ -4676,7 +4834,9 @@ praveensingam1994
 
   STEP 6 - GO TO KUBERNETES FOLDER IN SAME PROJECT
 cd kubernetes
-kubectl apply -f shopfront-service.yaml kubectl apply -f productcatalogue-service.yaml kubectl apply -f stockmanager-service.yaml
+kubectl apply -f shopfront-service.yaml
+kubectl apply -f productcatalogue-service.yaml 
+kubectl apply -f stockmanager-service.yaml
 STEP 7 – kubectl get pods
 STEP 8 – Hit the below command to start the kubernetes dashboard in EC2
 /usr/local/bin/minikube dashboard
@@ -5055,8 +5215,8 @@ spec:
  replicas: 3
 
 
-Project4:
-----------
+Project4: AWS EKS PROJECT SETUP CLOUD
+=================================================
 EKS Cloud project see the documentation
 
 Autop scale pod based on load  - Horizontal_pod_autoscaler.yml
@@ -8381,6 +8541,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
