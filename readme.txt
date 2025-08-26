@@ -4857,6 +4857,7 @@ spec:
 
 API Version   /apis/group/version
 
+
 Groups                       Version
 -------                      ------------------
 apps                           v1
@@ -4883,6 +4884,21 @@ kubectl get pods
 kubectl delete pods 
 
 
+$ kubectl api-resources
+
+NAME                SHORTNAMES           APIVERSION        NAMESPACED             KIND
+bindings                                    v1                true              Binding
+componenetstatuses    cs                    v1                false             ComponenetStatus
+configmaps            cm                    v1                true              CongifMap
+endpoints             ep                    v1                true              Endpoints
+events                ev                    v1                true              Event
+limitranges           limits                v1                true              LimitRange
+namespaces             ns                   v1                false             Namespace
+nodes                  no                   v1                false             Node
+persistentVolumeclaims pvc                  v1                true              PersistentVolumeClaim
+persistentvolumes      pv                   v1                false             PersistentVolume
+pods                   po                   v1                true              Pod
+
 
 
 
@@ -4890,6 +4906,29 @@ kubectl delete pods
 
 Custom_Resource_DefinitioN
 ================================
+
+
+API Version   /apis/group/version
+
+
+I need to create a resource with name Heydevops and it should have the values as 
+environment variables, system type, deployement version 
+
+apiVersion: apps/Heydevops/v1
+kind: Hey devops
+metadata: 
+   name : heydevops
+spec:
+   systemtype: linux
+    deployment : v1
+    environment variable :abc
+
+
+Kubernetes API Structure
+================================
+- kubectl api-resources -o wide
+
+
 
       /api/v1/namespaces/{namespac3s}/pods
       _________________                            _________________
@@ -4935,6 +4974,7 @@ name:                                                                           
 
 
 --https://github.com/praveen1994dec/Custom_Resource_Definition.git
+
 
 
 apiVersion: apiextensions.k8s.io/v1
@@ -5019,8 +5059,13 @@ Project4:
 ----------
 EKS Cloud project see the documentation
 
+Autop scale pod based on load  - Horizontal_pod_autoscaler.yml
 
-
+- name- k8
+- AMI amazon linux , t2.medium
+- pemfile- key-test
+- storage 30gb
+- launch instance
 
 
 
@@ -8167,6 +8212,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
