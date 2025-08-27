@@ -4822,6 +4822,13 @@ mvn clean install -DskipTests
 docker build -t akhilpagadapoola/stockmanager:latest . 
 docker push akhilpagadapoola/stockmanager:latest
 
+[root@ip-172-31-29-157 stockmanager]# docker images
+REPOSITORY                          TAG       IMAGE ID       CREATED         SIZE
+akhilpagadapoola/stockmanager       latest    0f97db3362eb   2 minutes ago   317MB
+akhilpagadapoola/productcatalogue   latest    d5238ae9c90e   4 minutes ago   291MB
+akhilpagadapoola/shopfront          latest    1a90369216c9   7 minutes ago   320MB
+gcr.io/k8s-minikube/kicbase         v0.0.47   795ea6a69ce6   3 months ago    1.31GB
+
  SERVICE1
  praveensingam1994
  praveensingam1994
@@ -4837,11 +4844,35 @@ cd kubernetes
 kubectl apply -f shopfront-service.yaml
 kubectl apply -f productcatalogue-service.yaml 
 kubectl apply -f stockmanager-service.yaml
+
+[root@ip-172-31-29-157 kubernetes]# ls
+productcatalogue-service.yaml  shopfront-service.yaml  stockmanager-service.yaml
+[root@ip-172-31-29-157 kubernetes]# kubectl apply -f shopfront-service.yaml
+service/shopfront created
+deployment.apps/shopfront created
+[root@ip-172-31-29-157 kubernetes]# kubectl apply -f productcatalogue-service.yaml 
+service/productcatalogue created
+deployment.apps/productcatalogue created
+[root@ip-172-31-29-157 kubernetes]# kubectl apply -f stockmanager-service.yaml
+service/stockmanager created
+deployment.apps/stockmanager created
+
+
 STEP 7 – kubectl get pods
+
+[root@ip-172-31-29-157 kubernetes]# kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+productcatalogue-5bb8f688dc-l27pf   1/1     Running   0          8s
+shopfront-6c67cdbc47-f5xgs          1/1     Running   0          12s
+stockmanager-69fb476557-c7rlh       1/1     Running   0          4s
+
+
 STEP 8 – Hit the below command to start the kubernetes dashboard in EC2
 /usr/local/bin/minikube dashboard
 STEP9[INNEWEC2WINDOW] -
-Open the EC2 in new window and set the PROXY kubectl proxy --address='0.0.0.0' --accept-hosts='^*$'
+Open the EC2 in new window and set the PROXY 
+
+kubectl proxy --address='0.0.0.0' --accept-hosts='^*$'
     
   STEP 9 - Hit in browser to view the dashboard
 http://<EC2-IP>:8001/api/v1/namespaces/kubernetes-da shboard/services/http:kubernetes-dashboard:/proxy/#/po d?namespace=default
@@ -5330,8 +5361,84 @@ https://github.com/praveen1994dec/Custom_Resource_Definition.git
 ** cd Custom_Resource_Definition/ and hit the below command
 kubectl apply -f crd.yml
 
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+ # name must match the spec fields below, and be in the form: <plural>.<group>
+ name: myplatforms.contoso.com
+spec:
+ # group name to use for REST API: /apis/<group>/<version>
+ group: contoso.com
+ names:
+   # plural name to be used in the URL: /apis/<group>/<version>/<plural>
+   plural: myplatforms
+   # singular name to be used as an alias on the CLI and for display
+   singular: myplatform
+   # kind is normally the CamelCased singular type. Your resource manifests use this.
+   kind: MyPlatform
+   # shortNames allow shorter string to match your resource on the CLI
+   shortNames:
+   - myp
+ # either Namespaced or Cluster
+ scope: Namespaced
+ versions:
+   - name: v1alpha1
+     # Each version can be enabled/disabled by Served flag.
+     served: true
+     # One and only one version must be marked as the storage version.
+     storage: true
+     schema:
+       openAPIV3Schema:
+         type: object
+         properties:
+           spec:
+             type: object
+             properties:
+               appId:
+                 type: string
+               language:
+                 type: string
+                 enum:
+                 - csharp
+                 - python
+                 - go
+               os:
+                 type: string
+                 enum:
+                 - windows
+                 - linux
+               instanceSize:
+                 type: string
+                 enum:
+                   - small
+                   - medium
+                   - large
+               environmentType:
+                 type: string
+                 enum:
+                 - dev
+                 - test
+                 - prod
+               replicas:
+                 type: integer
+                 minimum: 1
+             required: ["appId", "language", "environmentType"]
+         required: ["spec"]
+
 [root@ip-172-31-21-53 Custom_Resource_Definition]# kubectl apply -f crd.yml
 customresourcedefinition.apiextensions.k8s.io/myplatforms.contoso.com created
+
+apiVersion: contoso.com/v1alpha1
+kind: MyPlatform
+metadata:
+ name: test-dotnet-app
+spec:
+ appId: testdotnetapp
+ language: csharp
+ os: linux
+ instanceSize: small
+ environmentType: dev
+ replicas: 3
 
 
 ** Once the CRD is registered, verify that by running the
@@ -8541,6 +8648,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
