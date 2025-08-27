@@ -2,7 +2,7 @@
 ==============================================================================================================
 
 
-Devops/Platform Engineer::                       SRE(Site Reliability Engineer:   
+Devops/Platform Engineer:::                       SRE(Site Reliability Engineer:   
 ============================                     ==================================
 1. Managing the tools stack                      1.Monitoring
 2. Security                                      2.System uptime
@@ -8541,6 +8541,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
