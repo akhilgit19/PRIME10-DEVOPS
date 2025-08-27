@@ -3670,6 +3670,8 @@ sudo apt install openjdk-17-jre -y
 
 8.
 
+https://github.com/praveen1994dec/tools_installation_scripts/blob/main/jenkins.sh
+
 curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
 
 echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
@@ -3681,7 +3683,11 @@ sudo apt-get install jenkins -y
 
 9. security -->security groups----> edit inbound rules--> type- all traffice && source anywhere IPV4
 9.1 Take iP address:8080 in the browser 
-10. to get password- cat /var/lib/jenkins/....
+10. to get password- cat /var/lib/jenkins/secrets/initialAdminPassword
+
+Step 7 – Install all suggested plugins
+Step 8 – Create first user
+Step 9** – Create a pipeline Job
 11. install suggested pluggins
 12. create first admin user ----save and continue
 13. Create a pipeline jobs
@@ -3707,6 +3713,110 @@ optional:
      Quality Gates
      Artifactory
      Jfrog
+
+
+- Install docker
+##Install in Amazon Ubuntu
+#!/bin/bash
+sudo apt update -y
+
+sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" -y
+
+sudo apt update -y
+
+apt-cache policy docker-ce -y
+
+sudo apt install docker-ce -y
+
+#sudo systemctl status docker
+
+sudo chmod 777 /var/run/docker.sock
+
+
+
+
+-  Install sonarqube
+ docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
+
+
+-
+
+ Start docker container if it's not
+up
+docker ps -a [ Get the container ID ]
+
+root@ip-172-31-28-191:~# docker ps -a
+CONTAINER ID   IMAGE       COMMAND                  CREATED         STATUS         PORTS                                                                                  NAMES
+de0b89fd5969   sonarqube   "/opt/sonarqube/dock…"   2 minutes ago   Up 2 minutes   0.0.0.0:9000->9000/tcp, :::9000->9000/tcp, 0.0.0.0:9092->9092/tcp, :::9092->9092/tcp   sonarqube
+root@ip-172-31-28-191:~# 
+
+
+Step 13.2 -> Login into sonar dashboard
+Username – admin
+Password – admin
+Step 13.3 -> Create Sonar token for Jenkins
+Sonar Dashboard -> Administration -> My
+Account -> Security -> Create token -> Save
+the token to some text file
+
+
+Step 13.4 -> Integrate Sonar to Jenkins
+Sonar Dashboard -> Administration ->
+Configuration -> webhooks -> Add the below
+name and url and save
+http://<EC2_IP>:8080/sonarqube-webhook/
+
+
+Install mavem:
+
+sudo apt update -y
+sudo apt install maven -y
+mvn -version
+
+Step 15 – Install TRIVY for docker image scan
+
+# A Simple and Comprehensive Vulnerability Scanner for Containers and other Artifacts, Suitable for CI.
+
+sudo apt-get install wget apt-transport-https gnupg lsb-release
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+sudo apt-get update
+sudo apt-get install trivy
+
+
+Integrate All tools
+with Jenkins
+Jenkins Dashboard -> Manage Jenkins ->
+configure system
+Step 16 – ADD SONARQUBE
+Step 16.1 -> Click on sonarqube
+servers -> add url and name -> Click on
+add token -> Select Secret text -> Add
+the sonar token from step13.3 -> Give
+name of token as sonarqube-api
+Step 17 - Add the docker HUB
+credentials ID
+Jenkins dashboard -> Manage
+Jenkins -> Credentials -> System ->
+click on global credentials
+ADD the docker hub credentials with
+name as docker
+Step 18 – Add the Jenkins Shared library
+Go to Manage Jenkins -> Configure system ->
+Global pipeline library -> Add below data
+Name - my-shared-library
+Default version – main
+Git -
+https://github.com/praveen1994dec/jenkins
+_shared_lib.git
+Step 19 - Once pipeline is Run Check
+- The Jenkins logs
+- The Trivy scan vulnerabilities
+
 
 16. For any issue you can check this path--cd /var/lib/jenkins/
 16. build now in jenkins and check the console outputs you will get error as shared lib not found.
@@ -3734,6 +3844,8 @@ optional:
     ls -lhtr
     cd target 
     (....).jar file 
+
+
 
 
 =======================================================
@@ -8645,6 +8757,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
