@@ -3798,6 +3798,8 @@ servers -> add url and name -> Click on
 add token -> Select Secret text -> Add
 the sonar token from step13.3 -> Give
 name of token as sonarqube-api
+
+
 Step 17 - Add the docker HUB
 credentials ID
 Jenkins dashboard -> Manage
@@ -3805,6 +3807,7 @@ Jenkins -> Credentials -> System ->
 click on global credentials
 ADD the docker hub credentials with
 name as docker
+
 Step 18 – Add the Jenkins Shared library
 Go to Manage Jenkins -> Configure system ->
 Global pipeline library -> Add below data
@@ -8757,6 +8760,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
