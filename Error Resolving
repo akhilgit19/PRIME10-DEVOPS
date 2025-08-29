@@ -1,0 +1,107 @@
+1. Issue tomcat server was down. Here are the steps i have taken to resolve the issue:
+============================================================================================
+
+To check if Apache Tomcat is active (running), there are several ways depending on your operating system and setup.
+
+✅ If You’re on Linux / macOS:
+1. Check if Tomcat Process is Running
+ps aux | grep tomcat
+
+Look for lines that include java and your Tomcat installation path. If found, Tomcat is likely running.
+
+2. Check Listening Port (default is 8080)
+sudo netstat -tulnp | grep 8080
+
+or
+
+sudo lsof -i :8080
+
+
+If something is listening on port 8080, Tomcat is likely active.
+
+3. Use curl or browser
+curl http://localhost:8080
+
+
+You should see the Tomcat welcome page HTML or at least a response.
+
+Or, in a browser:
+👉 Go to http://localhost:8080
+
+4. Tomcat Logs
+
+Go to your Tomcat folder → logs/ → open catalina.out
+
+tail -f /path/to/tomcat/logs/catalina.out
+
+
+Check for startup success messages or errors.
+
+✅ If You’re on Windows:
+1. Check via Task Manager
+
+Open Task Manager
+
+Look for a Java process (often running Tomcat)
+
+2. Check Services (if installed as a service)
+
+Press Win + R, type services.msc, and hit Enter
+
+Look for Apache Tomcat [version]
+
+Check if it’s Running
+
+3. Command Prompt
+netstat -ano | findstr :8080
+
+
+If a PID is listening on port 8080, match it in Task Manager to verify it’s Tomcat.
+
+✅ Bonus: Use Tomcat Manager (Web Interface)
+
+If enabled, go to:
+
+http://localhost:8080/manager/html
+
+
+Log in with the admin credentials (defined in tomcat-users.xml), and you'll see app status and controls.
+
+Would you like help confirming which OS you’re on or where your Tomcat is installed?
+
+
+✅ Next Steps to Confirm or Start Tomcat:
+1. Try starting Tomcat manually
+
+If Tomcat is installed in /opt, try:
+
+cd /opt/tomcat/bin
+./startup.sh
+
+
+If it starts successfully, you’ll see output like:
+
+Tomcat started.
+
+2. Check if it's running again
+
+After startup, re-run:
+
+ps aux | grep tomcat
+
+
+You should now see a Java process associated with Tomcat.
+
+3. Check access via browser or curl
+curl http://localhost:8080
+
+
+Or, from your browser:
+
+http://<your-server-public-ip>:8080
+
+4. Check logs if startup fails
+
+If it doesn’t start, check logs:
+
+cat /opt/tomcat/logs/catalina.out
