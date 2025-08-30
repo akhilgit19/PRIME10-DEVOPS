@@ -105,3 +105,82 @@ http://<your-server-public-ip>:8080
 If it doesn’t start, check logs:
 
 cat /opt/tomcat/logs/catalina.out
+
+
+
+2.  Error in Jenkins Pipline for pipeline syntax issue
+=========================================================================
+Started by user akhilp
+org.codehaus.groovy.control.MultipleCompilationErrorsException: startup failed:
+WorkflowScript: 50: expecting '}', found '' @ line 50, column 2.
+   }
+    ^
+
+1 error
+
+	at org.codehaus.groovy.control.ErrorCollector.failIfErrors(ErrorCollector.java:309)
+	at org.codehaus.groovy.control.ErrorCollector.addFatalError(ErrorCollector.java:149)
+	at org.codehaus.groovy.control.ErrorCollector.addError(ErrorCollector.java:119)
+	at org.codehaus.groovy.control.ErrorCollector.addError(ErrorCollector.java:131)
+	at org.codehaus.groovy.control.SourceUnit.addError(SourceUnit.java:349)
+	at org.codehaus.groovy.antlr.AntlrParserPlugin.transformCSTIntoAST(AntlrParserPlugin.java:225)
+	at org.codehaus.groovy.antlr.AntlrParserPlugin.parseCST(AntlrParserPlugin.java:191)
+	at org.codehaus.groovy.control.SourceUnit.parse(SourceUnit.java:233)
+	at org.codehaus.groovy.control.CompilationUnit$1.call(CompilationUnit.java:189)
+	at org.codehaus.groovy.control.CompilationUnit.applyToSourceUnits(CompilationUnit.java:966)
+	at org.codehaus.groovy.control.CompilationUnit.doPhaseOperation(CompilationUnit.java:626)
+	at org.codehaus.groovy.control.CompilationUnit.processPhaseOperations(CompilationUnit.java:602)
+	at org.codehaus.groovy.control.CompilationUnit.compile(CompilationUnit.java:579)
+	at groovy.lang.GroovyClassLoader.doParseClass(GroovyClassLoader.java:323)
+	at groovy.lang.GroovyClassLoader.parseClass(GroovyClassLoader.java:293)
+	at PluginClassLoader for script-security//org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.GroovySandbox$Scope.parse(GroovySandbox.java:162)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsGroovyShell.doParse(CpsGroovyShell.java:188)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsGroovyShell.reparse(CpsGroovyShell.java:173)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsFlowExecution.parseScript(CpsFlowExecution.java:653)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsFlowExecution.start(CpsFlowExecution.java:599)
+	at PluginClassLoader for workflow-job//org.jenkinsci.plugins.workflow.job.WorkflowRun.run(WorkflowRun.java:341)
+	at hudson.model.ResourceController.execute(ResourceController.java:101)
+	at hudson.model.Executor.run(Executor.java:454)
+Finished: FAILURE
+ChatGPT said:
+
+The error you're seeing:
+
+WorkflowScript: 50: expecting '}', found '' @ line 50, column 2.
+
+
+means that your Jenkins pipeline script (written in Groovy) is missing a closing brace } somewhere before or at line 50.
+
+🔍 Problem
+
+Groovy (used in Jenkins Pipeline scripts) uses { ... } to define blocks — like stages, steps, conditions, etc. If you forget to close one, the script will fail to compile.
+
+✅ Fixing It
+Step 1: Go to your Jenkins Pipeline Script
+
+You need to inspect your Jenkinsfile or inline script.
+
+Step 2: Check around line 50
+
+Look for an opening { that doesn’t have a matching }. For example:
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo "Building..."
+            }  // <- good
+        }
+
+        stage('Test') {
+            steps {
+                echo "Testing..."
+            // MISSING CLOSING BRACE HERE
+        }
+    }
+}
+
+
+In this case, the stage('Test') block is missing its }.
