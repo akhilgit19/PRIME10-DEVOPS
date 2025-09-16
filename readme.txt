@@ -5694,130 +5694,119 @@ Step5: push the code to new branch
 Step6: validate the branch presence in github
 
 
-pip install requests GitPython
+✅ Assumptions
+You have a GitHub personal access token with repo access.
+The repository already exists.
+You have git installed locally.
+The repository is cloned locally or you are okay with the script cloning it.
 
-import requests
+📦 Required Packages
+
+Install dependencies first:
+
+- pip install requests GitPython
+
+🐍 Python Script
 import os
+import requests
 from git import Repo
 
-# Step 1: Setup variables
-GITHUB_TOKEN = "your_personal_access_token"  # Replace with your GitHub PAT
-REPO_OWNER = "your-username"                 # Replace with your GitHub username or org
-REPO_NAME = "your-repo"                      # Replace with your repo name
-BRANCH_NAME = "heydevops"
-CLONE_DIR = "./temp_repo"
+# --- Configuration ---
+GITHUB_TOKEN = "your_github_token"
+GITHUB_USER = "your_github_username"
+REPO_NAME = "your_repo_name"
+REPO_OWNER = "your_repo_owner"  # same as user/org name
+LOCAL_REPO_PATH = "./temp_repo"
+NEW_BRANCH = "heydevops"
+BASE_BRANCH = "main"  # or whatever your default branch is
+GITHUB_API_URL = "https://api.github.com"
 
-headers = {
+# --- Headers for GitHub API ---
+HEADERS = {
     "Authorization": f"token {GITHUB_TOKEN}",
     "Accept": "application/vnd.github.v3+json"
 }
 
-# Step 2: Fetch all branches
-branches_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/branches"
-response = requests.get(branches_url, headers=headers)
-response.raise_for_status()  # Raise an error for bad response
-branches = [branch['name'] for branch in response.json()]
-print("Branches in repo:", branches)
+# Step 1 & 2: Fetch all branches
+def get_branches():
+    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/branches"
+    response = requests.get(url, headers=HEADERS)
+    response.raise_for_status()
+    return [branch['name'] for branch in response.json()]
 
-# Step 3: Check if 'heydevops' exists, else create it
-if BRANCH_NAME not in branches:
-    # Get the SHA of the default branch (usually 'main')
-    repo_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}"
-    repo_data = requests.get(repo_url, headers=headers).json()
-    default_branch = repo_data['default_branch']
-    
-    default_branch_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/git/ref/heads/{default_branch}"
-    default_branch_data = requests.get(default_branch_url, headers=headers).json()
-    sha = default_branch_data['object']['sha']
+# Step 3: Check if heydevops exists; if not, create it
+def create_branch_if_not_exists():
+    branches = get_branches()
+    if NEW_BRANCH in branches:
+        print(f"Branch '{NEW_BRANCH}' already exists.")
+        return
 
-    # Create new branch reference
-    create_ref_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/git/refs"
+    print(f"Branch '{NEW_BRANCH}' does not exist. Creating...")
+
+    # Get base branch SHA
+    url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/git/ref/heads/{BASE_BRANCH}"
+    response = requests.get(url, headers=HEADERS)
+    response.raise_for_status()
+    base_sha = response.json()["object"]["sha"]
+
+    # Create new branch
+    create_url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/git/refs"
     payload = {
-        "ref": f"refs/heads/{BRANCH_NAME}",
-        "sha": sha
+        "ref": f"refs/heads/{NEW_BRANCH}",
+        "sha": base_sha
     }
-    create_response = requests.post(create_ref_url, json=payload, headers=headers)
+    create_response = requests.post(create_url, headers=HEADERS, json=payload)
     create_response.raise_for_status()
-    print(f"Branch '{BRANCH_NAME}' created.")
-else:
-    print(f"Branch '{BRANCH_NAME}' already exists.")
+    print(f"Branch '{NEW_BRANCH}' created successfully.")
 
-# Step 4: Clone the repo
-if os.path.exists(CLONE_DIR):
-    os.system(f"rm -rf {CLONE_DIR}")  # Clean up if already exists
-repo = Repo.clone_from(
-    f"https://{GITHUB_TOKEN}:x-oauth-basic@github.com/{REPO_OWNER}/{REPO_NAME}.git",
-    CLONE_DIR
-)
-print("Repo cloned.")
+# Step 4: Clone and checkout to new branch
+def clone_and_checkout():
+    if os.path.exists(LOCAL_REPO_PATH):
+        print("Cleaning up old repo...")
+        import shutil
+        shutil.rmtree(LOCAL_REPO_PATH)
 
-# Step 5: Checkout new branch and push
-new_branch = repo.create_head(BRANCH_NAME)
-new_branch.checkout()
-repo.git.push("--set-upstream", "origin", BRANCH_NAME)
-print(f"Branch '{BRANCH_NAME}' pushed to GitHub.")
+    clone_url = f"https://{GITHUB_USER}:{GITHUB_TOKEN}@github.com/{REPO_OWNER}/{REPO_NAME}.git"
+    print(f"Cloning repository into {LOCAL_REPO_PATH}...")
+    repo = Repo.clone_from(clone_url, LOCAL_REPO_PATH)
+    
+    print(f"Checking out to {NEW_BRANCH}...")
+    repo.git.checkout(NEW_BRANCH)
+    
+    # Optional: Make changes to the code here
 
-# Step 6: Validate branch presence
-validate_response = requests.get(branches_url, headers=headers)
-validate_response.raise_for_status()
-updated_branches = [branch['name'] for branch in validate_response.json()]
-if BRANCH_NAME in updated_branches:
-    print(f"Validation successful: '{BRANCH_NAME}' branch is present.")
-else:
-    print(f"Validation failed: '{BRANCH_NAME}' not found.")
+    print("Pushing branch...")
+    repo.git.push('--set-upstream', 'origin', NEW_BRANCH)
+
+# Step 5: Validate branch presence again
+def validate_branch():
+    branches = get_branches()
+    if NEW_BRANCH in branches:
+        print(f"✅ Branch '{NEW_BRANCH}' is confirmed present in GitHub.")
+    else:
+        print(f"❌ Branch '{NEW_BRANCH}' was not found.")
+
+# --- Run Workflow ---
+if __name__ == "__main__":
+    create_branch_if_not_exists()
+    clone_and_checkout()
+    validate_branch()
+
+📝 Replace the following before running:
+your_github_token
+your_github_username
+your_repo_name
+your_repo_owner (org or username)
 
 
+✅ What this script does:
+Calls the GitHub REST API to list branches.
+Checks for the heydevops branch.
+Creates it if missing, using the latest commit from main.
+Clones the repo, checks out to heydevops.
+Pushes the branch.
+Validates the branch exists remotely.
 
-🧠 Line-by-Line Explanation
-Step 1: Setup Variables
-python
-Copy
-Edit
-GITHUB_TOKEN = "your_personal_access_token"
-REPO_OWNER = "your-username"
-REPO_NAME = "your-repo"
-BRANCH_NAME = "heydevops"
-CLONE_DIR = "./temp_repo"
-These store the config for your repo and access token.
-
-Step 2: Fetch All Branches
-python
-Copy
-Edit
-branches_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/branches"
-response = requests.get(branches_url, headers=headers)
-This hits the GitHub API to get a list of branches.
-
-Step 3: Create New Branch if Not Exists
-python
-Copy
-Edit
-if BRANCH_NAME not in branches:
-    ...
-If the heydevops branch doesn’t exist, get the SHA of the default branch and use it to create a new branch.
-
-Step 4: Clone the Repo
-python
-Copy
-Edit
-repo = Repo.clone_from(...)
-Uses GitPython to clone the repo locally with access token authentication.
-
-Step 5: Checkout and Push New Branch
-python
-Copy
-Edit
-new_branch = repo.create_head(BRANCH_NAME)
-new_branch.checkout()
-repo.git.push(...)
-Creates and checks out the new branch, then pushes it to GitHub.
-
-Step 6: Validate New Branch
-python
-Copy
-Edit
-if BRANCH_NAME in updated_branches:
-Re-checks the branch list from GitHub to verify it was created successfully.
 
 
 
@@ -5854,9 +5843,12 @@ def calculate();
 calculate()
 
 To execute:
--python3 import os.py
+- cd Downloads
+- python3 import os.py
 -
 
+
+Link for below json code - api.open-notify.org/astros.json
 
 
 {
@@ -5914,8 +5906,11 @@ To execute:
   "message": "success"
 }
 
+Code:
+ 
 import json
 import requests
+
 person_ISS=[]
 person_Tiangong=[]
 def space_data(url):
@@ -5962,84 +5957,88 @@ Toyota.cartyres1()
 -----------------------------------------------------------------------------------------------
 
 
+✅ Steps:
 
-To extract GitHub branches and manipulate the data using Python, you'll need to interact with GitHub's API. Here's a basic example using Python's requests library to fetch the branches of a GitHub repository, then manipulate or process that data.
+Call GitHub API to fetch the list of branches from a repository.
 
-In this example, we'll:
+Process/manipulate the data (filter, count, display).
 
-Use the GitHub API to get the list of branches from a repository.
-Manipulate the data (like filtering branches, counting them, etc.).
-Display the results.
-Requirements:
-requests: To make HTTP requests to the GitHub API.
-Install it via pip if you haven't already:
-bash
+Display results in a readable format.
 
+✅ Requirements
+
+You need the requests library to make HTTP calls.
+
+Install using pip:
 pip install requests
-Python Code to Extract GitHub Branches and Manipulate Data:
-python
 
+🐍 Python Code: Extract and Manipulate GitHub Branches
 import requests
-import json
 
-# GitHub API endpoint to get branches
+# GitHub API endpoint for branches
 GITHUB_API_URL = "https://api.github.com/repos/{owner}/{repo}/branches"
-GITHUB_TOKEN = "your_github_token"  # Replace with your GitHub Personal Access Token (PAT)
+GITHUB_TOKEN = "your_github_token"  # 🔐 Replace with your GitHub Personal Access Token
 
-# Function to get branches from the GitHub repository
+# 🔹 Function: Fetch branches from GitHub
 def get_github_branches(owner, repo):
     url = GITHUB_API_URL.format(owner=owner, repo=repo)
-    headers = {'Authorization': f'token {GITHUB_TOKEN}'}
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
 
-    # Make the GET request to fetch branches
     response = requests.get(url, headers=headers)
-    
+
     if response.status_code == 200:
-        branches = response.json()  # Parse the JSON response
-        return branches
+        return response.json()  # List of branch data
     else:
-        print(f"Failed to retrieve branches: {response.status_code}")
+        print(f"❌ Failed to fetch branches. Status code: {response.status_code}")
         return []
 
-# Function to filter branches (example: filter branches starting with 'dev')
-def filter_branches_by_prefix(branches, prefix):
-    filtered_branches = [branch['name'] for branch in branches if branch['name'].startswith(prefix)]
-    return filtered_branches
+# 🔹 Function: Print all branch names
+def print_branch_names(branches):
+    print("\n📌 Branches in the repository:")
+    for branch in branches:
+        print(f" - {branch['name']}")
 
-# Function to count branches
+# 🔹 Function: Count total branches
 def count_branches(branches):
     return len(branches)
 
-# Function to print branch names
-def print_branch_names(branches):
-    print("Branches:")
-    for branch in branches:
-        print(branch['name'])
+# 🔹 Function: Filter branches by prefix (e.g., 'dev')
+def filter_branches_by_prefix(branches, prefix):
+    return [branch['name'] for branch in branches if branch['name'].startswith(prefix)]
 
+# 🔹 Main execution
 def main():
-    owner = "your_github_username_or_organization"  # Replace with the GitHub repository owner (username or org)
-    repo = "your_repo_name"  # Replace with the GitHub repository name
-    
-    # Step 1: Get branches from the GitHub repository
-    branches = get_github_branches(owner, repo)
-    
-    if branches:
-        # Step 2: Print all branch names
-        print_branch_names(branches)
-        
-        # Step 3: Count total branches
-        total_branches = count_branches(branches)
-        print(f"\nTotal branches: {total_branches}")
-        
-        # Step 4: Filter branches that start with 'dev' (as an example)
-        dev_branches = filter_branches_by_prefix(branches, "dev")
-        print(f"\nBranches that start with 'dev': {dev_branches}")
-    else:
-        print("No branches to display.")
+    owner = "your_github_username_or_org"  # 👤 Replace with the repo owner
+    repo = "your_repo_name"                # 📁 Replace with the repo name
 
+    # Step 1: Fetch all branches
+    branches = get_github_branches(owner, repo)
+
+    if branches:
+        # Step 2: Print branch names
+        print_branch_names(branches)
+
+        # Step 3: Count total branches
+        total = count_branches(branches)
+        print(f"\n📊 Total branches: {total}")
+
+        # Step 4: Filter branches starting with 'dev'
+        dev_branches = filter_branches_by_prefix(branches, "dev")
+        print(f"\n🔍 Branches starting with 'dev': {dev_branches}")
+    else:
+        print("⚠️ No branches found or failed to fetch.")
+
+# 🔸 Entry point
 if __name__ == "__main__":
     main()
+
+
+
 Explanation:
+=============
 Fetching branches:
 
 The get_github_branches() function sends a GET request to the GitHub API endpoint for fetching the branches of a repository.
@@ -6094,7 +6093,13 @@ You can further customize the manipulation logic depending on your use case, suc
 -----------------------------------------------------------------------------------------------
 
 
-import mysql.connector
+✅ Requirements
+
+Install the mysql-connector-python package:
+
+pip install mysql-connector-python
+ import mysql.connector
+
 # Establish the MySQL database connection
 def connect_to_mysql(host, user, password, database):
     try:
@@ -6104,169 +6109,69 @@ def connect_to_mysql(host, user, password, database):
             password=password,
             database=database
         )
-        print("Connection established successfully.")
+        print("✅ Connection established successfully.")
         return connection
     except mysql.connector.Error as err:
-        print(f"Error: {err}")
+        print(f"❌ Error: {err}")
         return None
 
 # Function to fetch data from a table
 def fetch_data_from_table(connection, query):
-    cursor = connection.cursor(dictionary=True)  # Using dictionary cursor for easier access to columns by name
+    cursor = connection.cursor(dictionary=True)  # Use dictionary cursor for easy access
     try:
         cursor.execute(query)
-        result = cursor.fetchall()  # Fetch all rows
+        result = cursor.fetchall()  # Fetch all rows from the executed query
         return result
     except mysql.connector.Error as err:
-        print(f"Error: {err}")
+        print(f"❌ Error executing query: {err}")
         return None
     finally:
         cursor.close()
 
 # Function to sort the data (by a specific column)
 def sort_data(data, sort_by_column):
-    # Sort the data based on the column name (e.g., 'age')
+    # Sort the data based on a column (e.g., 'age' or 'name')
     return sorted(data, key=lambda x: x[sort_by_column])
 
 # Main function to run the process
 def main():
     # MySQL connection parameters
-    host = 'localhost'  # Change this to your MySQL host
-    user = 'root'  # Change this to your MySQL username
-    password = 'yourpassword'  # Change this to your MySQL password
-    database = 'yourdatabase'  # Change this to your MySQL database name
+    host = 'localhost'                # Change this to your MySQL host
+    user = 'root'                     # Change this to your MySQL username
+    password = 'yourpassword'         # Change this to your MySQL password
+    database = 'yourdatabase'         # Change this to your database name
 
-    # Connect to MySQL database
+    # Connect to MySQL
     connection = connect_to_mysql(host, user, password, database)
 
     if connection:
-        # Example query to get data from a table (change 'your_table' to your actual table name)
+        # SQL query to run (replace 'your_table' with your actual table)
         query = "SELECT * FROM your_table"
 
-        # Fetch the data
+        # Fetch data from the table
         data = fetch_data_from_table(connection, query)
 
         if data:
-            print("Original Data:")
+            print("\n📦 Original Data:")
             for row in data:
                 print(row)
 
-            # Sort the data by a specific column, e.g., 'age' or 'name'
-            sorted_data = sort_data(data, 'your_column_to_sort_by')  # Replace with actual column name
+            # Sort the data by a specific column (replace 'your_column_to_sort_by' accordingly)
+            sorted_data = sort_data(data, 'your_column_to_sort_by')
 
-            print("\nSorted Data:")
+            print("\n🔃 Sorted Data:")
             for row in sorted_data:
                 print(row)
-        
+        else:
+            print("⚠️ No data returned or query failed.")
+
         # Close the connection
         connection.close()
+        print("🔌 Connection closed.")
 
 # Run the main function
 if __name__ == "__main__":
     main()
-
-
-(or)
-To interact with a MySQL database in Python, you typically use a library like mysql-connector-python or PyMySQL. Below is a simple Python script that connects to a MySQL database, fetches data, and extracts the results.
-
-Requirements:
-MySQL Connector: You can install the MySQL connector for Python via pip:
-
-bash
-
-pip install mysql-connector-python
-Database Setup: Ensure you have a MySQL server running, and you know the following information:
-
-Host (e.g., localhost or IP address of the server)
-Database name
-Username
-Password
-Python Code Example:
-python
-
-import mysql.connector
-from mysql.connector import Error
-
-# Function to connect to the MySQL database and extract data
-def fetch_data_from_mysql(host, database, user, password):
-    try:
-        # Establish connection to the MySQL server
-        connection = mysql.connector.connect(
-            host=host,
-            database=database,
-            user=user,
-            password=password
-        )
-
-        if connection.is_connected():
-            print("Successfully connected to the database")
-            
-            # Create a cursor object using the connection
-            cursor = connection.cursor(dictionary=True)
-            
-            # SQL query to fetch data from a table (modify the table name as needed)
-            query = "SELECT * FROM your_table_name"  # Replace 'your_table_name' with your actual table name
-            cursor.execute(query)
-            
-            # Fetch all rows from the executed query
-            rows = cursor.fetchall()
-            
-            # Extract and print the data
-            for row in rows:
-                print(row)  # Each row is a dictionary with column names as keys
-            
-    except Error as e:
-        print(f"Error: {e}")
-    finally:
-        # Close the cursor and connection
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
-            print("MySQL connection closed")
-
-# Replace with your MySQL server details
-host = "localhost"          # or IP address
-database = "your_database"  # Replace with your database name
-user = "your_username"      # Replace with your MySQL username
-password = "your_password"  # Replace with your MySQL password
-
-# Fetch data from MySQL database
-fetch_data_from_mysql(host, database, user, password)
-Explanation:
-Establish Connection:
-
-We connect to the MySQL database using mysql.connector.connect(). You need to provide the host, database name, username, and password.
-Cursor Creation:
-
-We create a cursor object using connection.cursor(). This cursor is used to execute SQL queries.
-Executing Query:
-
-The query "SELECT * FROM your_table_name" retrieves all rows from the specified table. Modify the table name and SQL query as per your requirement.
-Fetching Data:
-
-The cursor.fetchall() method fetches all rows of the query result. The result is a list of dictionaries, where each dictionary represents a row with column names as keys.
-Closing the Connection:
-
-After executing the queries, it's a good practice to close the cursor and connection using cursor.close() and connection.close().
-Sample Output:
-Assuming your table has columns id, name, and age, the output might look like:
-
-python
-
-Successfully connected to the database
-{'id': 1, 'name': 'Alice', 'age': 30}
-{'id': 2, 'name': 'Bob', 'age': 25}
-{'id': 3, 'name': 'Charlie', 'age': 35}
-MySQL connection closed
-Error Handling:
-The try-except block ensures that any connection issues or query errors are caught and reported. For instance, if the database credentials are wrong or the table doesn't exist, an error message will be shown.
-
-Customization:
-SQL Queries: You can modify the query variable to fetch specific columns or apply filters (e.g., SELECT id, name FROM your_table_name WHERE age > 30).
-Insert/Update/Delete: You can also perform other operations (INSERT, UPDATE, DELETE) using cursor.execute() by changing the SQL query type.
-Let me know if you need help with anything else!
-
-
 
 
 3. Write the python code to fetch the data from kubernetes and put the data in csv file and extract the data from  csv file
@@ -6362,6 +6267,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
 Explanation:
 Fetching Kubernetes Data (fetch_pods_data):
 
@@ -8760,6 +8669,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
