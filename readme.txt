@@ -6355,7 +6355,7 @@ Automation
 promethuse,mysql,influx,posgress)   |
 inbuilt Time series databse-----Promethesu-(Scrapping the data from K8  in time interval ),( Prometheys Query language)
    or                              |             
-  influx                           | (By deploying agents i interegrate prometheus and K8)
+ external database influx          | (By deploying agents i interegrate prometheus and K8)
                                    |
                                    k8
 
@@ -6607,6 +6607,8 @@ Make sure your pods are labeled with app=<name> for this to work.
 Use the container_cpu_cfs_throttled_seconds_total metric to monitor throttling if needed.
 
 If you’re using kube_pod_container_resource_requests_cpu_cores, that tells you the requested CPU, not actual usage.
+
+
 
 5.Prometheus configurations with targets as kubernetes
 -------------------------------------------------------------
@@ -7485,7 +7487,52 @@ Copy
 9.67.100.1
 9.67.116.98
 
+or 
 
+
+You can use a simple shell script with grep, awk, or sed to extract the IP addresses excluding certain interfaces like LOOPBACK, and possibly others if needed.
+
+Given your desired output, it seems you're looking to:
+
+Extract only IP addresses from the log lines that contain interface and address.
+
+Exclude the 127.0.0.1 (loopback IP).
+
+Possibly exclude other interfaces like LINK12 and CTCD2 if not needed (though in your example only 127.0.0.1 is missing).
+
+✅ Shell Script
+#!/bin/bash
+
+# File containing the log
+LOG_FILE="logfile.txt"
+
+# Extract IP addresses from relevant lines
+grep "interface" "$LOG_FILE" | \
+grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | \
+grep -v "^127\.0\.0\.1$"
+
+📝 Explanation
+
+grep "interface": Filters lines that contain IP addresses (based on your log structure).
+
+grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}': Extracts only the IP address using regex.
+
+grep -v "^127\.0\.0\.1$": Excludes the loopback IP from the results.
+
+💡 Save and Run
+
+Save the script to a file, e.g., extract_ips.sh
+
+Make it executable:
+
+chmod +x extract_ips.sh
+
+
+Ensure your log file is named logfile.txt or change the script accordingly.
+
+Run it:
+
+./extract_ips.sh
 ===================================================================================================
                                         Teraform
 
@@ -8669,6 +8716,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
