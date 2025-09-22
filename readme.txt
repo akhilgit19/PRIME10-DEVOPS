@@ -7915,7 +7915,7 @@ AWS
 - S3
 - SNS- SIMPPLE NOITIFICATION SERVICE
 - SQS- SIMPLE QUEUE SERVICE
-- VPC ENDPOINT
+- VPC , ENDPOINT
 - EMR- ELASTIC MAP REDUCE 
 - EKS - ELASTIC KUBERNET SERVICE
 - IAM - 
@@ -7935,7 +7935,7 @@ AWS Cloud Network Architecture
                           VPC                    CIDR, SUBNET      
                           |
 
-         NACL- Network access control list- it can allow or deny the IP's
+         NACL- Network access control list- it can allow or deny the IP's, kind of security groups for subnets
 
                           |
                        SUBNET'S
@@ -8716,6 +8716,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
