@@ -5618,9 +5618,9 @@ eksctl delete cluster --name=eksdemo --region=us-east-1
 
 
                                 Python
-=============================================================================================================
-
-   |         |    |              |   |         |              |           |               |                      |         |    |              |   |         |              |           |               | 
+=================================================================================================================
+   
+   |         |    |              |   |         |              |           |               |                   | 
    |         |    |              |   |         |              |           |               |
 Shellscript  |    |        buildtool |  Toconnectwithanycloud |  modules/libraries   datamanipulation      replaceshellscript                                   dataengineeringtoconnectDB's 
                   |                  |
@@ -5644,14 +5644,14 @@ variable = datatype
 2.c=1.1(float variable)
 3.d=1 (integer)
 
-4.list1 = ["jeans", "shirt"     ] == list data type and mutabale
+4.list1 = ["jeans", "shirt"] == list data type and mutabale
 
 list[0] - jeans
-list[1] -shirt
+list[1] - shirt
 
 
 5. dictionary ={"emmaculate": "clean,"clostrofobia" }- no duplicates, mutable/changeble
-
+ 
 6. tuple  - non mutable
 
 
@@ -8716,6 +8716,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
