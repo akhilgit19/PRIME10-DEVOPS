@@ -5638,7 +5638,438 @@ parameters      Env
 Python Variables:
 --------------------
 
-variable = datatype
+1) List 
+A list is an ordered collection of data with elements separated  by a commit_shaa
+and enclosed within square brackets
+
+
+def f():
+    s = "Devops Course"
+    print(s)
+
+s = "Python Data"
+print(s)
+f()
+
+list_data = [9,2.9,[-3.5],["jenkins","jira"]]
+
+print(list_data)
+
+
+Python Data
+Devops Course
+[9, 2.9, [-3.5], ['jenkins', 'jira']]
+
+
+
+2) Tuple
+A tuple is an ordered collection of data with elements separated by a comma and enclosed within parentheeses
+
+Tupes are immutable and can not be modified after creation 
+
+
+tuple1 =(("cicd","jenkins),("security","fortify"))
+print(tuple1)
+
+(('cicd', 'jenkins'), ('security', 'fortify'))
+
+
+3) Range
+Returns a sequence of numbers as specified by the user, If not specified by  the user, then it starts from 0 by default and
+increments by 1.
+
+sequence1 = range(4,14,2)
+for i in sequence1:
+print(i);
+
+4
+6
+8
+10
+12
+
+4) data: dictionary
+ A dictionary is an ordered collection of data containing a key: value pair.
+The key:value pars are enclosed within curly brackets
+No duplicated allowed
+
+dictionary = {"emmaculate": "clean", "clostrofobia": "fear of enclosed spaces"}
+
+print(dictionary)
+print(dictionary["emmaculate"])
+{'emmaculate': 'clean', 'clostrofobia': 'fear of enclosed spaces'}
+clean
+
+
+5) Set
+ Set is an unordered collection of elements in which no  element is repeated and they store multiple values in a single variable
+
+info = {"test",19, False ,5.9,19} 
+print(info)
+
+Pythong Numbers/Operators:
+--------------------------------
+1) In pythong numbers are of the following data types
+ Int-> int1 23445698
+ Float-> flt1= -8.35245
+ Completx-> cmplx1=2+4j
+
+2) Data conversion-> python allows data conversion
+
+num1 =25
+num2 = float(num1)
+output 25.0
+
+3) Pythong Booleans
+ print("integer:",bool(23))
+
+
+4) Pythong Strings
+A String is essentially a sequence or array of  textual data.
+
+Name             Operator          Example
+
+equal                ==               a==b
+not equal            !=              a!=b
+less than             <                a>b
+Greate than           >                a<b
+less than or equal to <=               a<=b
+
+Identify operators
+-------------------------
+Name        Example              Evaluates As
+is          a is b               Returns True if a and b are same
+is not      a is not b           Returns True if a and b are not same
+
+Bitwise operators:
+------------------------
+
+Name          Example 
+Bitwise AND    a & b
+Bitwise OR     a | b
+Bitwise NOT   ~a
+
+
+Operations with String
+--------------------------
+- Lenght of a String: Length of a String using len() function.
+- String as an Array: String is essentially a sequence of characters alos called an array.
+- Loop through a String: String are arrays and arrays are iterable
+- String Methods: For example str= "jenkins"
+- str.upper()
+- str.lower()
+- str.strip()
+- str.replace("Jen","Doc")
+- str.split("k")
+- str.capitalize()
+- str.find("ins")
+
+List  Indexes
+--------------
+item/element is a list has its own unique index.
+
+ToolsData= ["Maven","Azure","Jenkins", "Sonar"]
+CloudData=["AWS", "AZURE","GCP"]
+Indexing: [0][1][2][3]
+
+
+Add list items: ToolsData.append()
+Insert list items: ToolsData.inser(1,"Docker")
+Exteng list items: ToolsData.extend(CloudData) [Add tow lists, set, dict]
+POP list items: ToolsData.pop() # reomves the last item of the list]
+REMOVE list items: TooslData.remove("Maven")
+Delete list items: del ToolsData[3]
+clear list items: clear();
+
+ex: ToolsData= ["Maven","Azure","Jenkins", "Sonar"]
+  if "Maven" in ToolsData:
+     print("Maven ispresent.")
+  else:
+     print("Maven is abesent.")
+ ToolsData.append("Fortify")
+
+
+List comprehensions are used for creating new list from other iterables like list, tuples,
+dictionaries, set and even in arrats and stringx
+
+List =[expression(item) for item in iterable if conidition]
+
+Example
+ToolsData = ["Maven", "Ansible", "Jenkins", "Sonar"]
+names = [item for item in ToolsData if "o" in item]
+print(names)
+
+List Mehods:
+---------------
+- sort(): THis method sorts the list in ascending order
+- reverse(): this method reverses the ordr of the list
+- index() this method returns the index of the first occurrence
+- count() Returns the count of the number of items with the given value
+- copy(): Returns copy of the list
+
+Conditions:
+
+if statement
+if-else statement
+elif statement
+
+
+Python for Loop:
+---------------------
+for loop -
+iteration over string
+--------------------
+name ="SINGAME"
+for i in name:
+    print(i)
+S
+I
+N
+G
+A
+M
+E
+
+# Iterationg over a tuple
+--------------------
+tools=("Maven","Jenkins","Sonar","jira")
+for x in tools:
+  print(x)
+# Maven
+# Jenkins
+# Sonar
+# jira
+
+While Loop:
+--------------------
+cont=5
+while (count>0):
+print(count)
+count=count-1
+
+Nested loops
+-------------
+i = 1
+while i < 3:                # while loop will run while i is less than 3
+    # for loop will run from 1 to 3
+    for k in range(1, 4):
+        print(i, "*", k, "=", (i * k))
+    i = i + 1
+    print()
+# 1 * 1 = 1
+# 1 * 2 = 2
+# 1 * 3 = 3
+
+# 2 * 1 = 2
+# 2 * 2 = 4
+# 2 * 3 = 6
+
+
+for i in range(1, 4):
+    k = 1
+    while k <= 3:
+        print(i, "*", k, "=", (i * k))
+        k = k + 1
+    print()
+# 1 * 1 = 1
+# 1 * 2 = 2
+# 1 * 3 = 3
+
+# 2 * 1 = 2
+# 2 * 2 = 4
+# 2 * 3 = 6
+
+# 3 * 1 = 3
+# 3 * 2 = 6
+# 3 * 3 = 9
+
+Python Functions:
+--------------------------
+Block of code that performs a specific taks.
+
+There are two types of functions.
+built in functions -> min(), max(), len(), sum(), type(), range(), dict(),
+list(),tuple(),set(), print(),etc.
+
+user-defined functions- functions to perform specific tasks as 
+ per our needs.
+
+
+Example:
+def toolname(security, analysis):
+    print("Tools:", security, analysis)
+
+toolname("fortify", "Sonar")
+
+
+Functions Arguments
+----------------------------
+CASE1- Defualt arguments
+----------------------------
+def name(fname, mtame="jenkins", boardname="Jira"):
+    print("Hello", fname, mtame, boardname)
+
+name("sonar")
+
+Keyword Arguments:CASE2
+---------------------
+def name(firsttool, secondtool, thirdtool):
+    print("Hello", firsttool, secondtool, thirdtool)
+
+name(thirdtool="Ansible", firsttool="Terraform", secondtool="Jmeter")
+
+
+Required Arguments: CASE3
+----------------------
+def name( firsttool, secondtool, thirdtool):
+  print("Hello", firsttool,secondtool,thirdtool)
+
+name("Ansible", "Terraform", "Jmeter")
+
+
+
+Variable-lenght Arguments- Case4
+---------------------------------------------
+def name(*name):
+print("Hello", name[0], name[1],name[2]
+name("Ansible","Terraform","Jmeter")
+
+
+
+Python Recursion:
+------------------------
+Functions calling a functions
+
+Pythong Modules
+- These are the pythong files which helps us to wirte the python code in easy way
+
+Pythong packages
+- pythong packages are essentially folder that contain many python moduls
+
+
+
+# Define a recursive factorial function
+def factorial(num):
+    if num == 0 or num == 1:
+        return 1
+    else:
+        return num * factorial(num - 1)
+
+# Use the function
+num = 7
+print("Number:", num)
+print("Factorial:", factorial(num))
+
+
+Python OOPS
+-------------------
+Class is a blueprint or a template for creating object
+
+self method:
+The self parameter is a reference to the current instance of the calss and is used to access varitables that  belongs to the class
+it must be provided as the extra parameter inside the method definition
+
+# Define the class
+class Tools:
+    name = "Jenkins"
+    version = 20
+
+    def toolsdes(self):
+        print(self.version, self.name + "\tTOOLS")
+
+
+# Create an instance of the class
+T1 = Tools()
+T1.toolsdes()
+print(T1.name)
+print(T1.version)
+
+
+
+A simple class with init method
+class Data:
+
+   def __init__(self,name): 
+      self.name = name
+   def say_hi(self):
+       print("hello", my name is",self.name)
+
+p= Data('PowerBI')
+p.say_hi()
+
+
+
+Python Inheritence
+
+
+class A(object):
+   def __init__(Self,something):
+       print("A init called")
+       self.something  = something
+class B(A):
+    def __init__(self,something):
+        A.__init__(self,something)
+        print("B init called)
+        self.something = something
+
+obje = B("Something")
+
+
+Converting JSON sting to python/oythong to jSON:
+------------------------------------------------------
+
+JSON stands for javascript objet notation it is a built in package provided in puythong that is used to store and exhcange data
+
+TRY CATCH
+
+try:
+  num = int(input("Enter an integer: "))
+except ValueError:
+  print("Number entered is not an integer.")
+else:
+  print("Integer Accepted.")
+finally:
+  print("This block is always executed.")
+
+
+
+import json
+tools = '["Maven", "Jira","kubernetes","Docker"]'
+
+lst1= json.loads(tools)
+print(lst1)
+
+
+import json
+lst1 = '["Maven", "Jira","kubernetes","Docker"]'
+
+jsonObj= json.dumps(lst1)
+print(jsonObj)
+
+
+Python File Handling:
+--------------------------------
+file=open("sometext.txt")
+print(file.read())
+
+1- create a file. 
+
+file = open("Text.txt", "x")
+file.close()
+
+
+2. write onto a file:
+file = open("Text.txt", "w")
+file.write("New DevOps.")
+file.close()
+
+
+3; Read a file:
+file = open("Text.txt", "r")
+print(file.read())
+file.close()
+
+
 
 1.a="test"(String variable)
 2.c=1.1(float variable)
@@ -5650,8 +6081,10 @@ list[0] - jeans
 list[1] - shirt
 
 
-5. dictionary ={"emmaculate": "clean,"clostrofobia" }- no duplicates, mutable/changeble
- 
+5. dictionary = {"emmaculate": "clean", "clostrofobia": "fear of enclosed spaces"}
+
+print(dictionary)
+
 6. tuple  - non mutable
 
 
@@ -5681,6 +6114,8 @@ import json
 list1= ["oil", "milk", "tea"]
 
 (Intendenation)--->def manipulate()
+
+
 
 
 
@@ -6037,57 +6472,6 @@ if __name__ == "__main__":
 
 
 
-Explanation:
-=============
-Fetching branches:
-
-The get_github_branches() function sends a GET request to the GitHub API endpoint for fetching the branches of a repository.
-It expects the owner (username or organization name) and the repo (repository name) as parameters.
-The response is parsed as JSON, and the function returns the list of branches.
-Filtering branches:
-
-In filter_branches_by_prefix(), branches are filtered based on their names, using the startswith() method. In this case, we're filtering branches whose names start with 'dev'.
-Counting branches:
-
-The count_branches() function simply returns the length of the list of branches.
-Displaying the results:
-
-The print_branch_names() function iterates through the list of branches and prints their names.
-In the main() function, we use the other functions to extract, manipulate, and display the branch data.
-Sample Output:
-bash
-
-Branches:
-main
-dev-branch
-feature/xyz
-dev-xyz
-release/v1
-
-Total branches: 5
-
-Branches that start with 'dev': ['dev-branch', 'dev-xyz']
-Important Notes:
-GitHub Personal Access Token (PAT): For accessing private repositories or if you hit rate limits with the public API, you will need to generate a GitHub Personal Access Token (PAT) with the appropriate permissions. To generate a token:
-
-Go to GitHub > Settings > Developer Settings > Personal Access Tokens.
-Select the necessary permissions (e.g., repo for full control over private repositories).
-Copy the token and use it in your code as shown above.
-Rate Limiting: GitHub API has rate limits. With authentication (using a PAT), you get a higher limit. You can check the current rate limit with:
-
-python
-
-response = requests.get("https://api.github.com/rate_limit", headers={'Authorization': f'token {GITHUB_TOKEN}'})
-print(response.json())
-Error Handling: You can improve error handling by checking for different types of API errors (e.g., invalid token, 404 for non-existing repositories, etc.).
-
-Customization:
-You can further customize the manipulation logic depending on your use case, such as sorting branches, grouping by patterns, or even updating branches. You can also integrate this with other actions like creating or deleting branches via the GitHub API.
-
-
-
-
-
 
 2. write a python code for hitting the mysqldatabase  and get the data and extract the data.
 -----------------------------------------------------------------------------------------------
@@ -6267,52 +6651,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-Explanation:
-Fetching Kubernetes Data (fetch_pods_data):
-
-The function fetch_pods_data uses the Kubernetes Python client (kubernetes.client) to fetch pod data.
-The v1.list_pod_for_all_namespaces(watch=False) method fetches all pods from all namespaces. You can adjust this if you only need data from a specific namespace.
-We store relevant information (e.g., Pod Name, Namespace, Status, Node, etc.) in a list of dictionaries (pods_data).
-Writing Data to CSV (write_to_csv):
-
-We use Python's csv.DictWriter to write the fetched data into a CSV file.
-The keys for the CSV file are the column names, which are taken from the keys of the first dictionary in the data list.
-Reading Data from CSV (read_from_csv):
-
-The read_from_csv function uses pandas to read the CSV file and display the data in tabular format.
-Main Execution:
-
-The main() function fetches the Kubernetes data, writes it to a CSV file, and then reads and displays the contents of that CSV file.
-Output:
-The CSV file (kubernetes_pods_data.csv) will look something like this:
-
-sql
-
-Name,Namespace,Status,Node,Creation Time,Labels
-pod-1,default,Running,node1,2021-11-01T00:00:00Z,"{'app': 'web'}"
-pod-2,default,Pending,node2,2021-11-01T00:05:00Z,"{'app': 'database'}"
-After running the script, you will also see the output printed from the CSV file using pandas:
-
-sql
-
-          Name Namespace   Status   Node         Creation Time            Labels
-0     pod-1  default    Running  node1   2021-11-01T00:00:00Z     {'app': 'web'}
-1     pod-2  default    Pending  node2   2021-11-01T00:05:00Z  {'app': 'database'}
-Notes:
-Kubernetes Configuration:
-
-If you're running the script outside the Kubernetes cluster, the config.load_kube_config() will load the configuration from your local ~/.kube/config file.
-If you're running inside a Kubernetes pod, use config.load_incluster_config() instead.
-Customizing the Data:
-
-The data fetched from Kubernetes can be customized. For example, you can fetch different resources (e.g., deployments, services) or more detailed pod information by modifying the API calls accordingly.
-Error Handling:
-
-We use try-except blocks to handle potential errors such as API connection issues, missing configuration files, or non-existing CSV files.
 
 
 
@@ -8716,6 +9054,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
