@@ -5639,49 +5639,74 @@ Python Variables:
 --------------------
 
 1) List 
-A list is an ordered collection of data with elements separated  by a commit_shaa
-and enclosed within square brackets
-
-
-def f():
-    s = "Devops Course"
-    print(s)
-
-s = "Python Data"
-print(s)
-f()
+==========
+A list is an ordered collection of data with elements separated  by a commit_shaa and enclosed within square brackets
 
 list_data = [9,2.9,[-3.5],["jenkins","jira"]]
 
 print(list_data)
 
-
-Python Data
-Devops Course
+output: 
+---------------------
 [9, 2.9, [-3.5], ['jenkins', 'jira']]
+
+functions:
+==========
+1. 
+def f():
+    return "Hey Devops"
+
+s = f()+"Awesome course"
+
+print(s)
+
+output: 
+---------
+Hey DevopsAwesome course
+
+
+2. 
+def f1():
+    s1 ="devops course"
+    print(s1)
+
+s1 ="Python" 
+f1()
+print(s1)
+
+Output:
+----------
+devops course
+Python
 
 
 
 2) Tuple
+==========
 A tuple is an ordered collection of data with elements separated by a comma and enclosed within parentheeses
 
 Tupes are immutable and can not be modified after creation 
 
-
-tuple1 =(("cicd","jenkins),("security","fortify"))
+tuple1 =(("cicd","jenkins"),("security","fortify"))
 print(tuple1)
 
+
+Output:
+----------
 (('cicd', 'jenkins'), ('security', 'fortify'))
 
 
 3) Range
+==========
 Returns a sequence of numbers as specified by the user, If not specified by  the user, then it starts from 0 by default and
 increments by 1.
 
-sequence1 = range(4,14,2)
+sequence1 = range(4, 14, 2)
 for i in sequence1:
-print(i);
+    print(i)
 
+output:
+---------
 4
 6
 8
@@ -5689,6 +5714,7 @@ print(i);
 12
 
 4) data: dictionary
+=======================
  A dictionary is an ordered collection of data containing a key: value pair.
 The key:value pars are enclosed within curly brackets
 No duplicated allowed
@@ -5697,15 +5723,24 @@ dictionary = {"emmaculate": "clean", "clostrofobia": "fear of enclosed spaces"}
 
 print(dictionary)
 print(dictionary["emmaculate"])
+
+Output:
+----------
 {'emmaculate': 'clean', 'clostrofobia': 'fear of enclosed spaces'}
 clean
+akhilpagadapoola@Akhils-MacBook-Air Org_Automation % 
 
 
 5) Set
+===========
  Set is an unordered collection of elements in which no  element is repeated and they store multiple values in a single variable
 
 info = {"test",19, False ,5.9,19} 
 print(info)
+
+Output:
+-------
+{False, 19, 'test', 5.9}
 
 Pythong Numbers/Operators:
 --------------------------------
@@ -9054,6 +9089,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
