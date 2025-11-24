@@ -2196,8 +2196,8 @@ https://github.com/praveen1994dec/Java_app_3.0
 
 For Code navagation structure always follows in this https://github.com/praveen1994dec/Java_app_3.0
 -----------------------------------------------------
-  Any project structure is same till com -Java_app_3.0/src/main/java/com/minikube/sample/
-Java_app_3.0/src/main/java/com/minikube/sample/rest/controller/HomeResource.java
+  Any project structure is same till com -
+  Java_app_3.0/src/main/java/com/minikube/sample/rest/controller/HomeResource.java
 
 
 POM-ProjectOjbectModel- 
@@ -2680,25 +2680,6 @@ pipeline {
         }
     }
 }
-Explanation:
-Checkout: First, we checkout the code from your version control (Git).
-Run Security Tools in Parallel:
-The parallel block allows the execution of different security tools concurrently to speed up the pipeline.
-Each security tool (static code analysis, dependency scanning, container security, and SAST) is run in a separate stage.
-For example:
-Static Code Analysis might be SonarQube or any other static analysis tool.
-Dependency Scanning might use OWASP Dependency-Check or similar.
-Container Security Scan could use tools like Trivy, Anchore, or Clair.
-SAST (Static Application Security Testing) could use tools like Checkmarx or Fortify.
-Quality Gate: You can use this stage to check the results of your security tools (e.g., SonarQube Quality Gate or similar).
-Post Actions: After the pipeline runs, you can handle success, failure, or cleanup.
-You can adjust the security tools and scanning configurations as per your needs.
-
-Key Notes:
-Ensure you have the appropriate security tools installed on your Jenkins agents or containers.
-Set proper environment variables or secrets for the tools if required.
-Parallel execution speeds up the scanning process, but be mindful of your system's capacity to run multiple tools simultaneously.
-
 
 2.How to write the jenkinsfile for the environement variables
 ----------------------------------------------------------------
@@ -2901,12 +2882,6 @@ pipeline {
         }
     }
 }
-Using Shell for Variable Definition: You can define variables within shell commands, and export them for use later in the pipeline. Use the env object to access environment variables inside the pipeline.
-Best Practices:
-Sensitive Data: For secrets (API keys, passwords, etc.), always use the Jenkins Credentials Plugin. This keeps sensitive data secure and avoids hard-coding it in the Jenkinsfile.
-Global vs Local: Define environment variables globally if they need to be accessed across multiple stages. If the variable is only needed for a specific stage, define it in that stage to keep your pipeline organized and avoid conflicts.
-Avoid Hard-Coding: Try not to hard-code sensitive or configuration data directly in the Jenkinsfile. Use Jenkins credentials or parameterize the values.
-
 
 3.How to write the jenkins file not  to execute a particular stage
 --------------------------------------------------------------------------
@@ -3134,12 +3109,6 @@ pipeline {
         }
     }
 }
-Key Points:
-when Block: This is a powerful way to conditionally skip a stage based on parameters or environment variables.
-input Step: Use it to ask the user manually whether they want to skip a stage.
-catchError: Useful for skipping stages based on errors or failures without failing the pipeline.
-script Block with return: Use return to exit early from a stage, effectively skipping it.
-
 
 
 Jenins Document Theory:
@@ -9089,6 +9058,7 @@ NMCLI- NetworkManger command line interface
 
 
 SELINUX
+
 
 
 
