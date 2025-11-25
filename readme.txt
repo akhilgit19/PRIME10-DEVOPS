@@ -9098,6 +9098,141 @@ https://github.com/akhilgit19/Terraform_InfraOn_Azure
 
 
 
+main.tf
+---------------
+
+
+# Configure Azure Provider
+terraform {
+  required_providers {
+     azurerm = {
+      source = "hashicorp/azurerm"
+      version = ">= 3.59.0"
+    } 
+  }
+  backend "azurerm" {
+resource_group_name   = "terraform-ResourceGroup"
+storage_account_name  = "heydevopsterraformtstate"
+container_name        = "tstate"
+key                   = "wCWpF8qUhx1h+Ykj/nbn3uGqvEKzZjpPsrbxp3kxdYtXOJSNxzakrVLte32KlGCuprwAPamUvZ8x+AStHvMf1A=="
+}
+  required_version = ">= 0.14.9"
+}
+
+provider "azurerm" {
+  features {}
+
+  skip_provider_registration = "true"
+}
+
+variable "prefix" {
+  default = "terraform"
+}
+
+resource "azurerm_resource_group" "rg" {
+  name     = "${var.prefix}-ResourceGroup1"
+  location = "Central India"
+}
+
+
+
+Storage_account.sh
+----------------------
+
+#!/bin/bash
+RESOURCE_GROUP_NAME=terraform-ResourceGroup
+STORAGE_ACCOUNT_NAME=heydevopsterraformtstate
+CONTAINER_NAME=tstate
+
+az group create --location centralindia --resource-group $RESOURCE_GROUP_NAME
+az storage account create --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP_NAME --location centralindia --sku Standard_LRS 
+
+ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
+
+az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --account-key $ACCOUNT_KEY
+
+echo storage_account_name: $STORAGE_ACCOUNT_NAME
+
+echo container_name: $CONTAINER_NAME
+
+echo access_key: $ACCOUNT_KEY
+
+
+variables.tf
+------
+variable "prefix" {
+  default = "terraform"
+}
+
+
+VPC.tf
+------
+
+resource "azurerm_virtual_network" "vnet" {
+  name                = "${var.prefix}-VNet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_subnet" "internal" {
+  name                 = "${var.prefix}-internal"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.2.0/24"]
+}
+
+resource "azurerm_network_interface" "nic" {
+  name                = "${var.prefix}-NIC"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "tfconfiguration1"
+    subnet_id                     = azurerm_subnet.internal.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_virtual_machine" "vm" {
+  name                  = "${var.prefix}-vm"
+  location              = azurerm_resource_group.rg.location
+  resource_group_name   = azurerm_resource_group.rg.name
+  network_interface_ids = [azurerm_network_interface.nic.id]
+  vm_size               = "Standard_DS1_v2"
+
+  storage_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "16.04-LTS"
+    version   = "latest"
+  }
+  storage_os_disk {
+    name              = "myosdisk1"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+  }
+  os_profile {
+    computer_name  = "hostname"
+    admin_username = "tfadmin"
+    admin_password = "Password1234!"
+  }
+  os_profile_linux_config {
+    disable_password_authentication = false
+  }
+  tags = {
+    environment = "staging"
+  }
+}
+
+
+
+
+
+
+
+
 
 
 
