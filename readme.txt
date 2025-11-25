@@ -9063,6 +9063,39 @@ SELINUX
 
 
 
+Azure
+----------
+
+
+
+AWS          VS         AZURE
+
+VPC                    virtual networks(vnets
+subnets                 subnets
+loadbalancers           application gateways
+ec2                     virtual machines
+s3 buckets              storage accounts
+eks                     aks
+aws secret manager       azure vault
+EMR                      HD insight cluster
+
+
+
+Resource Manager:
+--------------------
+-For any application Azure provides a RM, combine all the services created
+ for an app together
+- delete my RM
+
+
+eks                                                aks
+
+master- 2 worker nodes                           node pooling-
+                   
+
+https://github.com/AWS-AZURE-Bootcamp5
+https://github.com/akhilgit19/Terraform_InfraOn_Azure
+
 
 
 
