@@ -8243,25 +8243,25 @@ END OF FILE
 AWS
 - VPC- Virutal Private cloud
 - Internet Gateway
+- Routetables
 - Availabitlity Zones
 - subnets
 - NACL'S-Network access control list- it can allow or deny the IP's
 - SG - security group
 - EC2
-- ASG- auto scaling group
+- ASG- Auto scaling group
 - LB - load balancer 
 - ACM- AMAZON CERITFICATE MANAGER 
 - CFT/CDN- CLOUD FRONT OR CONT DELIVERY NETWORK
-- LAMBDA
-- RDS
-- S3
-- SNS- SIMPPLE NOITIFICATION SERVICE
+- LAMBDA functions
+- RDS - Database services 
+- S3-  Simple Storage Service Buckets
+- SNS- SIMPLE NOITIFICATION SERVICE
 - SQS- SIMPLE QUEUE SERVICE
-- VPC , ENDPOINT
+- VPC ENDPOINTS, VPC PEERING, VPN GATEWAYS
 - EMR- ELASTIC MAP REDUCE 
 - EKS - ELASTIC KUBERNET SERVICE
-- IAM - 
-- VPN GATEWAYS
+- IAM - RBAC
 - CLOUD WATCH MONITORING
 
 AWS Cloud Network Architecture
@@ -8271,20 +8271,23 @@ AWS Cloud Network Architecture
                           | 
                       ROUTE TABLES
                           |
-                   target    destination
+public subnet routable          private subnet routable--------------------- --------------------- --------------------- 
+Destination     Target          Destination     Target                                                                  |
+10.0.0.0/20      local          10.0.0.0/20      local
+0.0.0.0/0        IGW            0.0.0.0/0        NAT
+|
+|                          |
+|                          VPC                    CIDR( Class List Inter domain range) -10.0.0.0/16                     |
+|                          |
+| 
+|         NACL- Network access control list- it can allow or deny the IP's, kind of security groups for subnets         |
+|
+|                         |                                                                                             |
+|                       SUBNET'S   -----------------          10.0.0.0/24                                               |
+|                      ---------
+------------------     Public SUBNET                                                                                    |
 
-                          |
-                          VPC                    CIDR, SUBNET      
-                          |
-
-         NACL- Network access control list- it can allow or deny the IP's, kind of security groups for subnets
-
-                          |
-                       SUBNET'S
-                       ---------
-                       Public SUBNET 
-
-AZ1           NAT GATEWAY- Network address translatro
+az1               NAT GATEWAY- Network address translatro---------------------- --------------------- --------------------- 
 
                       Private  SUBNET
 
@@ -8294,12 +8297,43 @@ AZ1           NAT GATEWAY- Network address translatro
 AZ2              NAT GATEWAY- Network address translatro
  
                      Private  SUBNET
+              
+====================================
+local-> subnet
+destination-> VPC,NAT gateway, Virtual PrivateE atgateway, vpc endpoint
+====================================
+
+private subnet routable
+--------------------------
+Destination     Target
+10.0.0.0/20      local
+0.0.0.0/0        NAT
+
+public subnet routable
+--------------------------
+Destination     Target
+10.0.0.0/20      local
+0.0.0.0/0        IGW
 
 
-                  
 
-local->subnetdestination->VPC,NAT gateway-> Virtual PrivateE atgateway, vpc endpoint
 
+Explanation:
+===============
+
+The destination for route is 0.0.0.0/0  which represent all IPV4 addresses.
+
+The target is is the internetgateway that's attached to your VPC
+
+Destination--> iP adrress/CIDR range
+Target--> Where you want to send the traffice for the specified destination
+       (eg. if the destination is my local subnet, mention target as "local")
+The Internet gateway is one of the targets(eg. routing traffic to the internet).
+Other options for the target would be:
+NAT Gateway
+Virtual Private Gateway
+VPC endpoint
+VPC peering connection etc Depeding on your architecture
 
 
 Cloud Frontier architecture
@@ -9225,6 +9259,7 @@ resource "azurerm_virtual_machine" "vm" {
     environment = "staging"
   }
 }
+
 
 
 
