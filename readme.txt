@@ -8380,7 +8380,7 @@ Application LB                                        Network lob
   to your load balancer
   make it a layer 7 network
 
-- Context wpath 2 query base qouting            - ssl termination at POD not at LB
+- Context wpath 2 query base routing            - ssl termination at POD not at LB
   eg www/walmart/groceries/meat
 
 - SSL Termination( Secure scoket layer)         - certificates can be added
@@ -8417,7 +8417,7 @@ S3  BUCKETS
 
 CloudWatch
 --------------
-Montoring your entire infra
+Montoring your entire infra and application deployements
 
 -Graphana
 -prometheus
@@ -8439,7 +8439,8 @@ Tb of data
 
 big data platforms
 ------------------------
-EMR - Elastic map reduce
+EMR - Elastic map reduce same like of kubernets it has master and slaves and your database is converted into tables
+
 
 
 
@@ -9259,6 +9260,7 @@ resource "azurerm_virtual_machine" "vm" {
     environment = "staging"
   }
 }
+
 
 
 
