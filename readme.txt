@@ -9916,23 +9916,158 @@ resource "azurerm_virtual_machine" "vm" {
 
 
 
+Docker and kubernetes 
+-----------------------------
+
+Sprint Boot app-- docker-----deploymentObject-- service object
+
+MYSQL--  pull mysqlimage-- docker hub -- deploy
+Step1- In STS clone below code:
+
+Sprint bood application
+https://github.com/DEVOPS-WITH-WEB-DEV/springboot-k8s
+
+
+
+Step2: Playlist for our BootCamp2 with HandsON
+
+https://www.youtube.com/playlist?list=PLj-3PZIPbUVThOSi1QRqNQoTIE04KI4zN
+
+• Launch an EC2 instance
+• Amazon Linux 2 AMI
+• t2.medium instance type
+• Connect to the instance via SSH
+
+• Update system packages
+yum update -y
+
+• Install Docker
+amazon-linux-extras install docker -y
+or
+yum install docker -y
+docker -v
+systemctl start docker
+systemctl enable docker
+
+• Install conntrack and git
+yum install conntrack -y
+yum install git -y
+
+• Install Minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+• Start Minikube
+minikube start --force --driver=docker
+minikube version
+
+• Install kubectl
+curl -LO "https://dl.k8s.io/release/$(curl
+ -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
+"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+kubectl version --client
+
+• Clone Spring Boot repository
+cd /opt
+git clone https://github.com/DEVOPS-WITH-WEB-DEV/springboot-k8s
+
+cd springboot-k8s
+
+• Deploy MySQL on Kubernetes
+kubectl apply -f db-deployment.yaml
+kubectl get pods
+
+• Connect to MySQL pod
+kubectl exec -it <mysql-pod-name> -- /bin/bash
+mysql -u root -p
+(password: root)
+show databases;
+
+• Install Maven
+yum install maven -y
+
+• Build Spring Boot app and Docker image
+mvn clean package
+docker build -t praveensingam1994/springboot-crud-k8s:1.0 .
+
+• Push image to Docker Hub
+docker login
+docker push praveensingam1994/springboot-crud-k8s:1.0
+
+• Deploy Spring Boot application
+kubectl apply -f app-deployment.yaml
+
+• Check Kubernetes service
+kubectl get svc
+
+• Get Minikube IP
+minikube ip
+
+• Port-forward service
+kubectl port-forward --address 0.0.0.0 svc/springboot-crud-svc 8080:8080 &
+
+• Test POST request
+URL: http://<EC2-IP>:8080/orders
+JSON body:
+{
+"name": "shoes",
+"qty": 5,
+"price": 6999
+}
+
+• Test GET request
+URL: http://<EC2-IP>:8080/orders/1
 
 
 
 
+app deployment file:
 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-crud-deployment
+spec:
+  selector:
+    matchLabels:
+      app: springboot-k8s-mysql
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: springboot-k8s-mysql
+    spec:
+      containers:
+        - name: springboot-crud-k8s
+          image: praveensingam1994/springboot-crud-k8s:1.0
+          ports:
+            - containerPort: 8080
+          env:   # Setting Enviornmental Variables
+            - name: DB_HOST   # Setting Database host address from configMap
+              value: mysql
+            - name: DB_NAME  # Setting Database name from configMap
+              value: singamlabs
+            - name: DB_USERNAME  # Setting Database username from Secret
+              value: root
+            - name: DB_PASSWORD # Setting Database password from Secret
+              value: root
 
+---
 
-
-
-
-
-
-
-
-
-
-
+apiVersion: v1 # Kubernetes API version
+kind: Service # Kubernetes resource kind we are creating
+metadata: # Metadata of the resource kind we are creating
+  name: springboot-crud-svc
+spec:
+  selector:
+    app: springboot-k8s-mysql
+  ports:
+    - protocol: "TCP"
+      port: 8080 # The port that the service is running on in the cluster
+      targetPort: 8080 # The port exposed by the service
+  type: NodePort # type of the service.
 
 
 
