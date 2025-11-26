@@ -9733,6 +9733,39 @@ https://github.com/AWS-AZURE-Bootcamp5
 https://github.com/akhilgit19/Terraform_InfraOn_Azure
 
 
+Step1:
+Install terraform in your local
+
+1 MAC
+brew update && brew install azure-cli
+2)Windows/linux
+https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
+
+Step2:
+3) Login into the azure portal from local terminal
+
+az login --use-device-code
+
+Step3- 
+clone the repository:
+
+https://github.com/akhilgit19/Terraform_InfraOn_Azure
+
+
+Step4:
+Run the Shell Script to create the Storage account and container
+1- chmod +x Storage_account.sh
+2- copy the storage account ouput from shell script to main.tf file backend part
+
+
+Step5:
+Run the below terraform commands
+
+Terraform init
+Terraform plan- out "plan.out"
+Terraform apply
+Terraform destroy
+
 
 main.tf
 ---------------
@@ -9861,6 +9894,7 @@ resource "azurerm_virtual_machine" "vm" {
     environment = "staging"
   }
 }
+
 
 
 
