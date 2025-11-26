@@ -8442,6 +8442,607 @@ big data platforms
 EMR - Elastic map reduce same like of kubernets it has master and slaves and your database is converted into tables
 
 
+AWS Project: Python+Dyjango deployment on Elastic Container services with Load Balancer, vpc, subnet, publici, private subnets resource creation using terraform
+=============
+
+Step 1 - Clone the repository and set the aws configure in local terminal
+
+git clone https://github.com/praveen1994dec/terraform_withcontainers
+aws configure
+- This clones the project.
+-  aws configure sets up your AWS credentials and default region.
+
+Local Machine
++--------------------+
+| Terraform Code     |
+| Docker App         |
++--------------------+
+       |
+       v
+AWS CLI
+
+
+
+Step2 - Create a repo in aws ECR with name- djano-app
+
+- Go to AWS ECR → Create repository → django-app
+- Copy the repository URL.
+
+AWS ECR
++---------------------+
+| django-app Repo     |
+| URL: <repo_url>     |
++---------------------+
+
+Step3 - Once the repo is created  copy the repo url and add it in the variables.tf file in place of variable 
+  docker_image_url_django
+
+
+- Replace docker_image_url_django with your new ECR repo URL.
+
+variable "docker_image_url_django" {
+  default = "<your_ecr_repo_url>"
+}
+
+
+Step4 - Change the policy file paths in iam.tf and variables.tf file
+
+Update the paths in iam.tf and variables.tf to point to your local machine.
+
+Example:
+
+assume_role_policy = file("/local/path/ecs-role.json")
+policy = file("/local/path/ecs-instance-role-policy.json")
+
+
+
+Step5- Login into ECR by hitting the  below command in terminal local
+
+
+aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin <your_ecr_repo_url>
+
+
+Step6 and 7 : Go to app folder Build Docker Image
+
+cd app/
+docker build --platform=linux/amd64 -t <ecr_repo_url>:latest .
+
+App Folder -> Docker Build
+django-app -> Docker Image
+
+
+Step8- push the image to ecr
+
+docker push <ecr_repo_url>:latest
+Now your Docker image is stored in AWS ECR.
+
+step9- goto terraform folder and hit this below command to create the key pair
+
+ssh-keygen -f california-region-key-pair
+
+
+Step10- add the above file key file path in variable.tf
+
+Update ssh_pubkey_file in variables.tf with this path.
+
+Step11- Hit the below commands to deploy terraform 
+
+cd terraform/
+terraform init
+terraform plan -out terraform.out
+terraform apply "terraform.out"
+
+Terraform -> AWS
++---------------------+
+| VPC, Subnets        |
+| Security Groups     |
+| ALB, Target Group   |
+| ECS Cluster         |
+| ECS Service         |
+| Auto Scaling Group  |
++---------------------+
+
+Terraform creates all AWS resources:
+
+VPC (network)
+
+Subnets (public/private)
+
+Route Tables (internet & NAT routes)
+
+ALB & Target Group (load balancer)
+
+Security Groups (firewall rules)
+
+ECS Cluster & Service
+
+Auto Scaling Group (EC2 instances for ECS)
+
+CloudWatch Logs (logging)
+
+
+
+Step12 and 13 - Install Python BOTO3 Install Python Boto3 and Set AWS Variables
+pip install boto3 click
+
+step13- Export the aws access/secret key an region
+
+export AWS_ACCESS_KEY_ID=""
+export AWS_SECRET_ACCESS_KEY=""
+export AWS_DEFAULT_REGION="us-west-1"
+
+
+Step14- Go to deploy folder
+
+cd deploy/
+python3 update-ecs.py --cluster=production-cluster --service=production-service
+Updates ECS service to use the latest Docker image.
+
+Step15- validate the ECS service and there should be 0 task pending in the dashboard
+
+Validate Deployment
+- Check ECS → Service → Tasks: 0 pending tasks
+
+- Check CloudWatch → VPC / Logs to ensure the app is running.
+
+
+Go to cloudwatch VPC and check the data and logs stream
+
+Internet
+   |
+   v
+[ ALB ]  <- SecurityGroup allows 80/443
+   |
+   v
+[ECS Cluster]
+   |   \
+   v    v
+EC2 Instances -> Docker Containers (Django App)
+   |
+CloudWatch Logs
+
+
+Terraform Resource Flow (High-level)
+==================================
+Networking
+--------------
+aws_vpc
+
+aws_subnet (public/private)
+
+aws_route_table + aws_route_table_association
+
+aws_internet_gateway
+
+aws_nat_gateway
+
+Security
+---------
+aws_security_group (ALB & ECS)
+
+Compute
+----------
+aws_ecs_cluster
+
+aws_launch_template
+
+aws_autoscaling_group
+
+Load Balancer
+---------------
+aws_lb
+
+aws_alb_target_group
+
+aws_alb_listener
+
+IAM & Roles
+------------
+aws_iam_role (ECS host & service)
+
+aws_iam_instance_profile
+
+Logging
+------------
+aws_cloudwatch_log_group
+
+aws_cloudwatch_log_stream
+
+Docker
+------------
+Image pushed to ECR
+
+ECS pulls image to run containers
+
+Output
+------------
+alb_hostname → access Django app in browser
+
+Terraform code:
+================
+############ PROVIDER ############
+
+provider "aws" {
+  region = var.region
+}
+
+############ VPC & NETWORKING ############
+
+resource "aws_vpc" "production-vpc" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+}
+
+# Public Subnets
+resource "aws_subnet" "public-subnet-1" {
+  cidr_block        = var.public_subnet_1_cidr
+  vpc_id            = aws_vpc.production-vpc.id
+  availability_zone = var.availability_zones[0]
+}
+
+resource "aws_subnet" "public-subnet-2" {
+  cidr_block        = var.public_subnet_2_cidr
+  vpc_id            = aws_vpc.production-vpc.id
+  availability_zone = var.availability_zones[1]
+}
+
+# Private Subnets
+resource "aws_subnet" "private-subnet-1" {
+  cidr_block        = var.private_subnet_1_cidr
+  vpc_id            = aws_vpc.production-vpc.id
+  availability_zone = var.availability_zones[0]
+}
+
+resource "aws_subnet" "private-subnet-2" {
+  cidr_block        = var.private_subnet_2_cidr
+  vpc_id            = aws_vpc.production-vpc.id
+  availability_zone = var.availability_zones[1]
+}
+
+# Route Tables
+resource "aws_route_table" "public-route-table" {
+  vpc_id = aws_vpc.production-vpc.id
+}
+
+resource "aws_route_table" "private-route-table" {
+  vpc_id = aws_vpc.production-vpc.id
+}
+
+# Associate Route Tables
+resource "aws_route_table_association" "public-route-1-association" {
+  route_table_id = aws_route_table.public-route-table.id
+  subnet_id      = aws_subnet.public-subnet-1.id
+}
+
+resource "aws_route_table_association" "public-route-2-association" {
+  route_table_id = aws_route_table.public-route-table.id
+  subnet_id      = aws_subnet.public-subnet-2.id
+}
+
+resource "aws_route_table_association" "private-route-1-association" {
+  route_table_id = aws_route_table.private-route-table.id
+  subnet_id      = aws_subnet.private-subnet-1.id
+}
+
+resource "aws_route_table_association" "private-route-2-association" {
+  route_table_id = aws_route_table.private-route-table.id
+  subnet_id      = aws_subnet.private-subnet-2.id
+}
+
+# Internet Gateway
+resource "aws_internet_gateway" "production-igw" {
+  vpc_id = aws_vpc.production-vpc.id
+}
+
+# Internet Route
+resource "aws_route" "public-internet-igw-route" {
+  route_table_id         = aws_route_table.public-route-table.id
+  gateway_id             = aws_internet_gateway.production-igw.id
+  destination_cidr_block = "0.0.0.0/0"
+}
+
+# NAT Gateway + EIP
+resource "aws_eip" "elastic-ip-for-nat-gw" {
+  associate_with_private_ip = "10.0.0.5"
+  depends_on = [aws_internet_gateway.production-igw]
+}
+
+resource "aws_nat_gateway" "nat-gw" {
+  allocation_id = aws_eip.elastic-ip-for-nat-gw.id
+  subnet_id     = aws_subnet.public-subnet-1.id
+  depends_on    = [aws_eip.elastic-ip-for-nat-gw]
+}
+
+resource "aws_route" "nat-gw-route" {
+  route_table_id         = aws_route_table.private-route-table.id
+  nat_gateway_id         = aws_nat_gateway.nat-gw.id
+  destination_cidr_block = "0.0.0.0/0"
+}
+
+############ SECURITY GROUPS ############
+
+# ALB Security Group
+resource "aws_security_group" "load-balancer" {
+  name        = "load_balancer_security_group"
+  vpc_id      = aws_vpc.production-vpc.id
+
+  ingress {
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# ECS Security Group
+resource "aws_security_group" "ecs" {
+  name        = "ecs_security_group"
+  vpc_id      = aws_vpc.production-vpc.id
+
+  ingress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.load-balancer.id]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+############ LOAD BALANCER ############
+
+resource "aws_lb" "production" {
+  name               = "${var.ecs_cluster_name}-alb"
+  load_balancer_type = "application"
+  internal           = false
+  security_groups    = [aws_security_group.load-balancer.id]
+  subnets            = [
+    aws_subnet.public-subnet-1.id,
+    aws_subnet.public-subnet-2.id
+  ]
+}
+
+resource "aws_alb_target_group" "default-target-group" {
+  name     = "${var.ecs_cluster_name}-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.production-vpc.id
+
+  health_check {
+    path                = var.health_check_path
+    interval            = 5
+    timeout             = 2
+    healthy_threshold   = 5
+    unhealthy_threshold = 2
+    matcher             = "200"
+    port                = "traffic-port"
+  }
+}
+
+resource "aws_alb_listener" "ecs-alb-http-listener" {
+  load_balancer_arn = aws_lb.production.id
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.default-target-group.arn
+  }
+}
+
+############ IAM ROLES ############
+
+resource "aws_iam_role" "ecs-host-role" {
+  name               = "ecs_host_role_prod"
+  assume_role_policy = file("policies/ecs-role.json")
+}
+
+resource "aws_iam_role_policy" "ecs-instance-role-policy" {
+  name   = "ecs_instance_role_policy"
+  policy = file("policies/ecs-instance-role-policy.json")
+  role   = aws_iam_role.ecs-host-role.id
+}
+
+resource "aws_iam_role" "ecs-service-role" {
+  name               = "ecs_service_role_prod"
+  assume_role_policy = file("policies/ecs-role.json")
+}
+
+resource "aws_iam_role_policy" "ecs-service-role-policy" {
+  name   = "ecs_service_role_policy"
+  policy = file("policies/ecs-service-role-policy.json")
+  role   = aws_iam_role.ecs-service-role.id
+}
+
+resource "aws_iam_instance_profile" "ecs" {
+  name = "ecs_instance_profile_prod"
+  role = aws_iam_role.ecs-host-role.name
+}
+
+############ LOGGING ############
+
+resource "aws_cloudwatch_log_group" "django-log-group" {
+  name              = "/ecs/django-app"
+  retention_in_days = var.log_retention_in_days
+}
+
+resource "aws_cloudwatch_log_stream" "django-log-stream" {
+  name           = "django-app-log-stream"
+  log_group_name = aws_cloudwatch_log_group.django-log-group.name
+}
+
+############ KEY PAIR ############
+
+resource "aws_key_pair" "production" {
+  key_name   = "${var.ecs_cluster_name}_key_pair"
+  public_key = file(var.ssh_pubkey_file)
+}
+
+############ ECS CLUSTER ############
+
+resource "aws_ecs_cluster" "production" {
+  name = "${var.ecs_cluster_name}-cluster"
+}
+
+############ LAUNCH TEMPLATE + ASG ############
+
+resource "aws_launch_template" "ecs" {
+  name_prefix   = "${var.ecs_cluster_name}-lt-"
+  image_id      = lookup(var.amis, var.region)
+  instance_type = var.instance_type
+  key_name      = aws_key_pair.production.key_name
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ecs.name
+  }
+
+  network_interfaces {
+    security_groups             = [aws_security_group.ecs.id]
+    associate_public_ip_address = true
+  }
+
+  user_data = base64encode(<<EOF
+#!/bin/bash
+echo "ECS_CLUSTER='${var.ecs_cluster_name}-cluster'" > /etc/ecs/ecs.config
+EOF
+  )
+}
+
+# FINAL Auto Scaling Group
+resource "aws_autoscaling_group" "ecs" {
+  name                 = "${var.ecs_cluster_name}-asg"
+  min_size             = var.autoscale_min
+  max_size             = var.autoscale_max
+  desired_capacity     = var.autoscale_desired
+  vpc_zone_identifier  = [
+    aws_subnet.public-subnet-1.id,
+    aws_subnet.public-subnet-2.id
+  ]
+  health_check_type    = "EC2"
+
+  launch_template {
+    id      = aws_launch_template.ecs.id
+    version = "$Latest"
+  }
+}
+
+############ TASK DEFINITION ############
+
+data "template_file" "app" {
+  template = file("templates/django_app.json.tpl")
+
+  vars = {
+    docker_image_url_django = var.docker_image_url_django
+    region                  = var.region
+  }
+}
+
+resource "aws_ecs_task_definition" "app" {
+  family                = "django-app"
+  container_definitions = data.template_file.app.rendered
+}
+
+############ ECS SERVICE ############
+
+resource "aws_ecs_service" "production" {
+  name            = "${var.ecs_cluster_name}-service"
+  cluster         = aws_ecs_cluster.production.id
+  task_definition = aws_ecs_task_definition.app.arn
+  iam_role        = aws_iam_role.ecs-service-role.arn
+  desired_count   = var.app_count
+
+  load_balancer {
+    target_group_arn = aws_alb_target_group.default-target-group.arn
+    container_name   = "django-app"
+    container_port   = 8000
+  }
+
+  depends_on = [
+    aws_alb_listener.ecs-alb-http-listener,
+    aws_iam_role_policy.ecs-service-role-policy
+  ]
+}
+
+############ OUTPUTS ############
+
+output "alb_hostname" {
+  value = aws_lb.production.dns_name
+}
+
+############ VARIABLES ############
+
+variable "region" { default = "us-west-1" }
+variable "subnet_ids" { type = list(string) }
+
+variable "public_subnet_1_cidr" { default = "10.0.1.0/24" }
+variable "public_subnet_2_cidr" { default = "10.0.2.0/24" }
+variable "private_subnet_1_cidr" { default = "10.0.3.0/24" }
+variable "private_subnet_2_cidr" { default = "10.0.4.0/24" }
+
+variable "availability_zones" {
+  type    = list(string)
+  default = ["us-west-1a", "us-west-1b"]
+}
+
+variable "autoscale_min"     { default = 1 }
+variable "autoscale_max"     { default = 2 }
+variable "autoscale_desired" { default = 2 }
+
+variable "health_check_path" { default = "/ping/" }
+
+variable "log_retention_in_days" { default = 30 }
+
+variable "ssh_pubkey_file" {
+  default = "app/california-region-key-pair.pub"
+}
+
+variable "ecs_cluster_name" { default = "production" }
+
+variable "amis" {
+  default = { us-west-1 = "ami-0bd3976c0dbacc605" }
+}
+
+variable "instance_type" { default = "t2.micro" }
+
+variable "docker_image_url_django" {
+  default = "710417924509.dkr.ecr.us-west-1.amazonaws.com/django-app"
+}
+
+variable "app_count" { default = 2 }
+
+variable "max_size" {}
+variable "min_size" {}
+variable "desired_capacity" {}
+
+
+
 
 
                                                  ANSIBLE
@@ -9260,6 +9861,7 @@ resource "azurerm_virtual_machine" "vm" {
     environment = "staging"
   }
 }
+
 
 
 
