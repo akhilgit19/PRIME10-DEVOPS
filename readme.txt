@@ -3818,7 +3818,8 @@ Master ---------------| (jarfile)
 4.storage - 25gb
 5.launch instance
 6.sudo su
-7. 
+7. https://github.com/praveen1994dec/tools_installation_scripts
+
 sudo apt update -y ( is for system)
 
 sudo apt upgrade -y  ( is for software)
@@ -3837,7 +3838,7 @@ sudo apt-get install jenkins -y
 
 1:32
 
-9. security -->security groups----> edit inbound rules--> type- all traffice && source anywhere IPV4
+9. security -->security groups----> edit inbound rules--> type- all traffice ,  source anywhere IPV4
 9.1 Take iP address:8080 in the browser 
 10. to get password- cat /var/lib/jenkins/secrets/initialAdminPassword
 
@@ -3870,6 +3871,7 @@ optional:
      Artifactory
      Jfrog
 
+- you can checkin cd /var/lib/jenkins/ to see the installed plugins
 
 - Install docker
 ##Install in Amazon Ubuntu
@@ -5965,7 +5967,7 @@ Indexing: [0][1][2][3]
 
 
 Add list items: ToolsData.append()
-Insert list items: ToolsData.inser(1,"Docker")
+Insert list items: ToolsData.insert(1,"Docker")
 Exteng list items: ToolsData.extend(CloudData) [Add tow lists, set, dict]
 POP list items: ToolsData.pop() # reomves the last item of the list]
 REMOVE list items: TooslData.remove("Maven")
@@ -10255,6 +10257,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
