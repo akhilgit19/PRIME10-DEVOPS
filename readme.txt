@@ -2272,7 +2272,7 @@ ex:
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-                 <plugin>
+            <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
               <version>3.8.1</version>
@@ -2354,6 +2354,139 @@ Save the pom.xml file.
 Rebuild the project.
 The version number should increase.
 
+
+Final XML code after adding plugin:
+---------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.1.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.minikube.sample</groupId> <!-- Application structure -->
+    <artifactId>kubernetes-configmap-reload</artifactId> <!-- Binary file name -->
+    <version>0.0.1-SNAPSHOT</version> <!-- produces kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar -->
+    <packaging>jar</packaging>
+
+    <name>minikube-sample</name>
+    <description>Demo project for Spring Cloud Kubernetes</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <!-- Added SCM section -->
+    <scm>
+        <connection>scm:svn:http://127.0.0.1/dummy</connection>
+        <developerConnection>scm:svn:https://127.0.0.1/dummy</developerConnection>
+        <tag>HEAD</tag>
+        <url>http://127.0.0.1/dummy</url>
+    </scm>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
+            <version>1.1.0.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.20</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- EXISTING Spring Boot Plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- EXISTING Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <!-- NEW Build Number Maven Plugin -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>buildnumber</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <format>{0,number}</format>
+                    <items>
+                        <item>buildNumber</item>
+                    </items>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <revisionOnScmFailure>unknownbuild</revisionOnScmFailure>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+        <!-- Final JAR output name: artifactId-version.buildNumber -->
+        <finalName>${project.artifactId}-${project.version}.${buildNumber}</finalName>
+
+    </build>
+
+</project>
+
+
                (OR)
 
 You can do it with without pom modification with the help of maven plugins and scripting.
@@ -2377,6 +2510,54 @@ awk -F'.' '{print $1"."$2+1"."$3}'
 
 # increment the last digit
 awk -F'.' '{print $1"."$2"."$3+1}'
+
+Improved version:
+=======================
+#!/bin/bash
+
+# Fetch current version from pom.xml
+current_version=$(mvn -q -U -Dexpression=project.version -DforceStdout \
+                   help:evaluate | grep -v "\[")
+
+echo "Current version: $current_version"
+
+# Remove -SNAPSHOT suffix if present
+clean_version=$(echo "$current_version" | sed 's/-SNAPSHOT//')
+
+# Split version into array
+IFS='.' read -ra parts <<< "$clean_version"
+
+major=${parts[0]:-0}
+minor=${parts[1]:-0}
+patch=${parts[2]:-0}
+
+##############################################
+# Choose which digit to increment
+# Uncomment the one you need
+##############################################
+
+# Increment MAJOR: X+1.Y.Z
+# major=$((major + 1))
+
+# Increment MINOR: X.Y+1.Z
+minor=$((minor + 1))
+
+# Increment PATCH: X.Y.Z+1
+# patch=$((patch + 1))
+
+##############################################
+
+# Rebuild version
+new_version="${major}.${minor}.${patch}"
+
+echo "New version: $new_version"
+
+# Apply version change to pom.xml
+mvn -U versions:set -DnewVersion="$new_version" -DgenerateBackupPoms=false
+
+echo "Version updated successfully!"
+
+
 
 Maven Commands: 
 ================
@@ -2798,8 +2979,12 @@ pipeline {
         }
     }
 }
+
 Script-Level Variables: This allows you to define variables at a more granular level within a stage or script block.
+
+
 4. Environment Variables via Jenkinsfile Parameters
+
 Jenkins also supports parameters that allow users to pass values to a pipeline when it is triggered. These parameters can act as environment variables.
 
 groovy
@@ -3316,9 +3501,11 @@ Webhook Setup
 
 JSL( Jenkins shared Libary)
 -------------------------------
+https://github.com/praveen1994dec/Java_app_3.0/blob/main/Jenkinsfile
+
 ***
-Java_app_3.0/Jenkinsfile Latest---- Child library
-@Library('my-shared-library') _------- Parent library
+Java_app_3.0/Jenkinsfile Latest---- Child library https://github.com/praveen1994dec/Java_app_3.0/blob/main/Jenkinsfile
+@Library('my-shared-library') _------- Parent library https://github.com/praveen1994dec/jenkins_shared_lib
 ****
 
 Path -Java_app_3.0/Jenkinsfile(Parent)---vars---different use cases using groovy code
@@ -10068,6 +10255,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
