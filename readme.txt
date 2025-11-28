@@ -8580,302 +8580,353 @@ terraform destroy
 SECTION 3 — COMPLETE TERRAFORM CODE (CLEAN VERSION)
 FILE: modules/rds/main.tf
 
+# -----------------------------------------
+# RDS Subnet Group
+# -----------------------------------------
 resource "aws_db_subnet_group" "db_subnet_group" {
-name = "db_subnet_group"
-subnet_ids = var.subnets
+  name       = "db_subnet_group"
+  subnet_ids = var.subnets
 
-tags = {
-Name = "db_subnet_group"
-}
+  tags = {
+    Name = "db_subnet_group"
+  }
 }
 
+# -----------------------------------------
+# RDS Security Group
+# -----------------------------------------
 resource "aws_security_group" "rds_sg" {
-name = "rds_sg"
-description = "Allow App tier to access RDS"
-vpc_id = var.vpc_id
+  name        = "rds_sg"
+  description = "Allow App tier to access RDS"
+  vpc_id      = var.vpc_id
 
-ingress {
-description = "MySQL Access"
-from_port = 3306
-to_port = 3306
-protocol = "tcp"
-source_security_group_id = var.from_sgs[0]
+  ingress {
+    description              = "MySQL Access"
+    from_port                = 3306
+    to_port                  = 3306
+    protocol                 = "tcp"
+    source_security_group_id = var.from_sgs[0]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
-egress {
-from_port = 0
-to_port = 0
-protocol = "-1"
-cidr_blocks = ["0.0.0.0/0"]
-}
-}
-
+# -----------------------------------------
+# RDS Instance
+# -----------------------------------------
 resource "aws_db_instance" "rds" {
-db_subnet_group_name = aws_db_subnet_group.db_subnet_group.id
-allocated_storage = var.allocated_storage
-engine = var.engine
-engine_version = var.engine_version
-instance_class = var.instance_class
-multi_az = var.multi_az
-db_name = var.db_name
-username = var.db_username
-password = var.db_password
-skip_final_snapshot = true
-vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.id
+  allocated_storage      = var.allocated_storage
+  engine                 = var.engine
+  engine_version         = var.engine_version
+  instance_class         = var.instance_class
+  multi_az               = var.multi_az
+  db_name                = var.db_name
+  username               = var.db_username
+  password               = var.db_password
+  skip_final_snapshot    = true
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
 }
 
 FILE: modules/rds/variables.tf
 
-variable "db_username" { type = string }
-variable "db_password" { type = string }
-variable "db_name" { type = string }
-variable "engine" { type = string }
-variable "engine_version" { type = string }
-variable "instance_class" { type = string }
+variable "db_username"      { type = string }
+variable "db_password"      { type = string }
+variable "db_name"          { type = string }
+variable "engine"           { type = string }
+variable "engine_version"   { type = string }
+variable "instance_class"   { type = string }
 variable "allocated_storage"{ type = number }
-variable "multi_az" { type = bool }
-variable "vpc_id" { type = string }
-variable "subnets" { type = list(string) }
-variable "from_sgs" { type = list(string) }
+variable "multi_az"         { type = bool }
+variable "vpc_id"           { type = string }
+variable "subnets"          { type = list(string) }
+variable "from_sgs"         { type = list(string) }
 
 FILE: modules/rds/output.tf
 
 output "rds_address" {
-value = aws_db_instance.rds.address
+  value = aws_db_instance.rds.address
 }
+
 
 FILE: autoscaling_groups.tf
 
+# -----------------------------------------
+# Presentation Tier ASG
+# -----------------------------------------
 resource "aws_autoscaling_group" "presentation_tier" {
-name = "asg-presentation"
-min_size = 2
-max_size = 4
-desired_capacity = 2
-health_check_type = "EC2"
-vpc_zone_identifier = aws_subnet.public_subnets.*.id
+  name                 = "asg-presentation"
+  min_size             = 2
+  max_size             = 4
+  desired_capacity     = 2
+  health_check_type    = "EC2"
+  vpc_zone_identifier  = aws_subnet.public_subnets.*.id
 
-launch_template {
-id = aws_launch_template.presentation_tier.id
-version = "$Latest"
+  launch_template {
+    id      = aws_launch_template.presentation_tier.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "presentation_app"
+    propagate_at_launch = true
+  }
 }
 
-tag {
-key = "Name"
-value = "presentation_app"
-propagate_at_launch = true
-}
-}
-
+# -----------------------------------------
+# Application Tier ASG
+# -----------------------------------------
 resource "aws_autoscaling_group" "application_tier" {
-name = "asg-application"
-min_size = 2
-max_size = 4
-desired_capacity = 2
-health_check_type = "EC2"
-vpc_zone_identifier = aws_subnet.private_subnets.*.id
+  name                 = "asg-application"
+  min_size             = 2
+  max_size             = 4
+  desired_capacity     = 2
+  health_check_type    = "EC2"
+  vpc_zone_identifier  = aws_subnet.private_subnets.*.id
 
-launch_template {
-id = aws_launch_template.application_tier.id
-version = "$Latest"
+  launch_template {
+    id      = aws_launch_template.application_tier.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "application_app"
+    propagate_at_launch = true
+  }
 }
 
-tag {
-key = "Name"
-value = "application_app"
-propagate_at_launch = true
-}
-}
-
+# -----------------------------------------
+# ASG Attachments to Target Groups
+# -----------------------------------------
 resource "aws_autoscaling_attachment" "presentation_tier" {
-autoscaling_group_name = aws_autoscaling_group.presentation_tier.id
-lb_target_group_arn = aws_lb_target_group.front_end.arn
+  autoscaling_group_name = aws_autoscaling_group.presentation_tier.id
+  lb_target_group_arn    = aws_lb_target_group.front_end.arn
 }
 
 resource "aws_autoscaling_attachment" "application_tier" {
-autoscaling_group_name = aws_autoscaling_group.application_tier.id
-lb_target_group_arn = aws_lb_target_group.application_tier.arn
+  autoscaling_group_name = aws_autoscaling_group.application_tier.id
+  lb_target_group_arn    = aws_lb_target_group.application_tier.arn
 }
 
 FILE: ec2.tf
 
+# AMI Data Lookup
 data "aws_ami" "amazon_linux_2" {
-most_recent = true
-owners = ["amazon"]
+  most_recent = true
+  owners      = ["amazon"]
 
-filter {
-name = "name"
-values = ["amzn2-ami-hvm*"]
-}
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm*"]
+  }
 }
 
 data "aws_caller_identity" "current" {}
 
+# ------------------------------------------------
+# IAM Role + Instance Profile
+# ------------------------------------------------
 resource "aws_iam_role" "ec2_role" {
-name = "allow_ec2_access_ecr"
-
-assume_role_policy = jsonencode({
-Version = "2012-10-17",
-Statement = [{
-Action = "sts:AssumeRole",
-Effect = "Allow",
-Principal = { Service = "ec2.amazonaws.com" }
-}]
-})
+  name = "allow_ec2_access_ecr"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
 }
 
 resource "aws_iam_role_policy" "ec2_ecr_policy" {
-name = "allow_ec2_access_ecr"
-role = aws_iam_role.ec2_role.id
+  name = "allow_ec2_access_ecr"
+  role = aws_iam_role.ec2_role.id
 
-policy = jsonencode({
-Version = "2012-10-17",
-Statement = [{
-Action = ["ecr:GetAuthorizationToken","ecr:BatchGetImage","ecr:GetDownloadUrlForLayer"]
-Effect = "Allow"
-Resource = "*"
-}]
-})
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action   = ["ecr:GetAuthorizationToken","ecr:BatchGetImage","ecr:GetDownloadUrlForLayer"]
+      Effect   = "Allow"
+      Resource = "*"
+    }]
+  })
 }
 
 resource "aws_iam_instance_profile" "ec2_ecr_connection" {
-name = "ec2_ecr_connection"
-role = aws_iam_role.ec2_role.name
+  name = "ec2_ecr_connection"
+  role = aws_iam_role.ec2_role.name
 }
 
+# ------------------------------------------------
+# Launch Template - Presentation Tier
+# ------------------------------------------------
 resource "aws_launch_template" "presentation_tier" {
-name = "presentation_tier"
+  name = "presentation_tier"
 
-block_device_mappings {
-device_name = "/dev/xvda"
-ebs {
-volume_size = 8
-}
-}
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs { volume_size = 8 }
+  }
 
-iam_instance_profile {
-name = aws_iam_instance_profile.ec2_ecr_connection.name
-}
+  iam_instance_profile { name = aws_iam_instance_profile.ec2_ecr_connection.name }
+  instance_type        = "t2.nano"
+  image_id             = data.aws_ami.amazon_linux_2.id
 
-instance_type = "t2.nano"
-image_id = data.aws_ami.amazon_linux_2.id
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.presentation_tier.id]
+  }
 
-network_interfaces {
-associate_public_ip_address = true
-security_groups = [aws_security_group.presentation_tier.id]
-}
-
-user_data = base64encode(templatefile(
-"./../user-data/user-data-presentation-tier.sh",
-{
-application_load_balancer = aws_lb.application_tier.dns_name
-ecr_url = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
-ecr_repo_name = var.ecr_presentation_tier
-region = var.region
-}
-))
+  user_data = base64encode(templatefile(
+    "./../user-data/user-data-presentation-tier.sh",
+    {
+      application_load_balancer = aws_lb.application_tier.dns_name
+      ecr_url                   = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
+      ecr_repo_name             = var.ecr_presentation_tier
+      region                    = var.region
+    }
+  ))
 }
 
+# ------------------------------------------------
+# Launch Template - Application Tier
+# ------------------------------------------------
 resource "aws_launch_template" "application_tier" {
-name = "application_tier"
+  name = "application_tier"
 
-block_device_mappings {
-device_name = "/dev/xvda"
-ebs {
-volume_size = 8
-}
-}
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs { volume_size = 8 }
+  }
 
-iam_instance_profile {
-name = aws_iam_instance_profile.ec2_ecr_connection.name
-}
+  iam_instance_profile { name = aws_iam_instance_profile.ec2_ecr_connection.name }
+  instance_type        = "t2.nano"
+  image_id             = data.aws_ami.amazon_linux_2.id
 
-instance_type = "t2.nano"
-image_id = data.aws_ami.amazon_linux_2.id
+  network_interfaces {
+    associate_public_ip_address = false
+    security_groups             = [aws_security_group.application_tier.id]
+  }
 
-network_interfaces {
-associate_public_ip_address = false
-security_groups = [aws_security_group.application_tier.id]
-}
-
-user_data = base64encode(templatefile(
-"./../user-data/user-data-application-tier.sh",
-{
-rds_hostname = module.rds.rds_address
-rds_username = var.rds_db_admin
-rds_password = var.rds_db_password
-rds_port = 3306
-rds_db_name = var.db_name
-ecr_url = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
-ecr_repo_name = var.ecr_application_tier
-region = var.region
-}
-))
+  user_data = base64encode(templatefile(
+    "./../user-data/user-data-application-tier.sh",
+    {
+      rds_hostname  = module.rds.rds_address
+      rds_username  = var.rds_db_admin
+      rds_password  = var.rds_db_password
+      rds_port      = 3306
+      rds_db_name   = var.db_name
+      ecr_url       = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
+      ecr_repo_name = var.ecr_application_tier
+      region        = var.region
+    }
+  ))
 }
 
 FILE: nat_eip.tf
 
 resource "aws_eip" "nat_ip" {
-count = length(aws_subnet.public_subnets)
-depends_on = [aws_internet_gateway.gw]
+  count = length(aws_subnet.public_subnets)
+  depends_on = [aws_internet_gateway.gw]
 
-tags = {
-Name = "nat_ip_${count.index + 1}"
+  tags = {
+    Name = "nat_ip_${count.index + 1}"
+  }
 }
-}
+
 
 FILE: awslb.tf
 
+# -----------------------------------------
+# Frontend Load Balancer (Public)
+# -----------------------------------------
 resource "aws_lb" "front_end" {
-name = "front-end-lb"
-load_balancer_type = "application"
-internal = false
-security_groups = [aws_security_group.alb_presentation_tier.id]
-subnets = aws_subnet.public_subnets.*.id
+  name               = "front-end-lb"
+  load_balancer_type = "application"
+  internal           = false
+  security_groups    = [aws_security_group.alb_presentation_tier.id]
+  subnets            = aws_subnet.public_subnets.*.id
 }
 
 resource "aws_lb_target_group" "front_end" {
-name = "front-end-lb-tg"
-port = 3000
-protocol = "HTTP"
-vpc_id = aws_vpc.main.id
+  name     = "front-end-lb-tg"
+  port     = 3000
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
 }
 
 resource "aws_lb_listener" "front_end" {
-load_balancer_arn = aws_lb.front_end.arn
-port = 80
-protocol = "HTTP"
+  load_balancer_arn = aws_lb.front_end.arn
+  port              = 80
+  protocol          = "HTTP"
 
-default_action {
-type = "forward"
-target_group_arn = aws_lb_target_group.front_end.arn
-}
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.front_end.arn
+  }
 }
 
+# -----------------------------------------
+# Application Tier Load Balancer (Internal)
+# -----------------------------------------
 resource "aws_lb" "application_tier" {
-name = "application-tier-lb"
-load_balancer_type = "application"
-internal = true
-security_groups = [aws_security_group.alb_application_tier.id]
-subnets = aws_subnet.private_subnets.*.id
+  name               = "application-tier-lb"
+  load_balancer_type = "application"
+  internal           = true
+  security_groups    = [aws_security_group.alb_application_tier.id]
+  subnets            = aws_subnet.private_subnets.*.id
 }
 
 resource "aws_lb_target_group" "application_tier" {
-name = "application-tier-lb-tg"
-port = 3000
-protocol = "HTTP"
-vpc_id = aws_vpc.main.id
+  name     = "application-tier-lb-tg"
+  port     = 3000
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
 }
 
 resource "aws_lb_listener" "application_tier" {
-load_balancer_arn = aws_lb.application_tier.arn
-port = 80
-protocol = "HTTP"
+  load_balancer_arn = aws_lb.application_tier.arn
+  port              = 80
+  protocol          = "HTTP"
 
-default_action {
-type = "forward"
-target_group_arn = aws_lb_target_group.application_tier.arn
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.application_tier.arn
+  }
 }
-}
+
+
+User data
+user-data-application-tier.sh
+
+#!/bin/bash
+sudo yum update -y
+sudo yum install docker -y
+sudo service docker start
+sudo systemctl enable docker
+sudo usermod -a -G docker ec2-user
+aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecr_url}
+docker run -p 3000:3000 --restart always -e RDS_HOSTNAME=${rds_hostname} -e RDS_USERNAME=${rds_username} -e RDS_PASSWORD=${rds_password} -e RDS_PORT=${rds_port} -e RDS_DB_NAME=${rds_db_name} -d ${ecr_url}/${ecr_repo_name}:latest
+
+
+user-data-presentation-tier.sh
+
+
+#!/bin/bash
+sudo yum update -y
+sudo yum install docker -y
+sudo service docker start
+sudo systemctl enable docker
+sudo usermod -a -G docker ec2-user
+aws ecr get-login-password --region ${region}  | docker login --username AWS --password-stdin ${ecr_url}
+docker run --restart always -e APPLICATION_LOAD_BALANCER=${application_load_balancer} -p 3000:3000 -d ${ecr_url}/${ecr_repo_name}:latest
 
 
 ==============================================================
@@ -10708,6 +10759,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
