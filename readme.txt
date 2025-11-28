@@ -8211,220 +8211,671 @@ terraform apply
 
 Project:
 --------
-######################################################
-# AWS Infrastructure Deployment using Terraform (With Explanations)
-######################################################
 
-=====================
-✅ STEP 1: PREREQUISITES
-=====================
-You need to install the following tools before running Terraform:
+Terraform Project1:
 
-1. Terraform → https://www.terraform.io/downloads
-2. Python → https://www.python.org/downloads/
-3. AWS CLI → https://docs.aws.amazon.com/cli/v1/userguide/install-macos.html
+Prerequisiste:
+- Serach the AMI ID in the AWS us-west-2 and add it in the variables tf.
 
-=======================
-✅ STEP 2: AWS CLI CONFIGURATION
-=======================
-Set up your AWS credentials on your system.
+Step1: clone the repository in the local folder
+https://github.com/praveen1994dec/Terraform_wc
 
-Command:
-> aws configure
+Step2- Install terraform in local
+https://developer.hashicorp.com/terraform
 
-Prompts:
-- AWS Access Key ID: [Get it from AWS console]
-- AWS Secret Access Key: [Get it from AWS console]
-- Default region: us-west-2
-- Default output format: json
+Step3- Install Python if not already done
+https://www.python.org/downloads/
 
-=======================
-✅ STEP 3: CREATE SSH KEY PAIR
-=======================
-Generate a key pair locally. This is used to SSH into EC2 instances.
+Step4- Install aws cli
 
-Command:
-> ssh-keygen -f oregon-region-key-pair
+https://docs.aws.amazon.com/cli/v1/userguide/install-macos.html
 
-Generated files:
-- `oregon-region-key-pair` (private key)
-- `oregon-region-key-pair.pub` (public key)
+Step5- Create access key for terrafromr
+https://aws.amazon.com/console/
 
-IMPORTANT: Use the full path of `.pub` file in `variables.tf`.
+Step6- Use aws configure to configure the access keys and secret keys[ aws configure command]
 
-=====================
-✅ STEP 4: TERRAFORM FILES
-=====================
+Step7- Create a s3 bucket and add the name in config.tf file in code
 
-▶ variables.tf — This file declares input variables used in other files.
+Step8- Define variables.tf and config.tf files
 
-variable "AWS_REGION" {
-  default = "us-west-2" // Default AWS region
-}
+Step9- Create key pair and hit the below command in terminatal
+  ssh-keygen -f oregon-region-key-pair
 
-variable "AMI" {
-  type = map(string)
-  default = {
-    us-west-2 = "ami-0d593311db5abb72b" // AMI ID for Oregon
-    us-east-1 = "ami-0c2a1acae6667e438" // AMI ID for N. Virginia
-  }
-}
+Step10- Replace the 
+
+PUBLICK_KEY_PATH in variables.tf with the path of above generated file
+
+Step11- terraform init
+Step12- terraform plan -out "file.plan"
+
+Step13- terraform apply
+Step14 - terraform destroy
+
+Step15- Hit the ec2 public ip in browser and you will be able to see the APACHE webpage
+
+========================================================
+TERRAFORM + AWS COMPLETE WORKFLOW (NOTEPAD FORMAT)
+STEP 1 — INSTALL REQUIRED TOOLS
+
+Install Terraform:
+https://www.terraform.io/downloads
+
+Install Python (optional):
+https://www.python.org/downloads/
+
+Install AWS CLI:
+https://docs.aws.amazon.com/cli/v1/userguide/install-macos.html
+
+Configure AWS CLI:
+Run:
+aws configure
+
+Enter:
+
+AWS Access Key
+
+AWS Secret Key
+
+AWS Region
+
+Output format
+
+STEP 2 — CREATE SSH KEY PAIR
+
+Terraform will use this SSH key to connect to EC2.
+
+Run:
+ssh-keygen -f oregon-region-key-pair
+
+This generates:
+oregon-region-key-pair (private key)
+oregon-region-key-pair.pub (public key)
+
+STEP 3 — ADD PUBLIC KEY PATH IN variables.tf
 
 variable "PUBLIC_KEY_PATH" {
-  default = "/your/full/path/to/oregon-region-key-pair.pub" // Path to your SSH public key
+default = "/full/path/to/oregon-region-key-pair.pub"
 }
 
-▶ config.tf — Sets the AWS provider and region.
+STEP 4 — ADD AMI ID TO variables.tf
+
+Find an Amazon Linux 2 AMI in AWS Console.
+
+Example:
+variable "AMI" {
+type = map(string)
+
+default = {
+    us-west-2 = "ami-0d593311db5abb72b"
+    us-east-1 = "ami-0c2a1acae6667e438"
+}
+
+
+}
+
+Terraform uses AMI by region.
+
+STEP 5 — DEFINE AWS PROVIDER IN config.tf
 
 provider "aws" {
-  region = "${var.AWS_REGION}"
+region = var.AWS_REGION
 }
 
-▶ userdata.sh — Startup script to install Apache when EC2 launches.
+STEP 6 — CREATE NETWORK RESOURCES
+(1) VPC (vpc.tf)
+
+resource "aws_vpc" "dev-vpc" {
+cidr_block = "10.0.0.0/16"
+enable_dns_support = true
+enable_dns_hostnames = true
+}
+
+(2) Subnet
+
+resource "aws_subnet" "dev-subnet-public-1" {
+vpc_id = aws_vpc.dev-vpc.id
+cidr_block = "10.0.1.0/24"
+map_public_ip_on_launch = true
+availability_zone = "us-west-2a"
+}
+
+(3) Internet Gateway (network.tf)
+
+resource "aws_internet_gateway" "dev-igw" {
+vpc_id = aws_vpc.dev-vpc.id
+}
+
+(4) Route Table
+
+resource "aws_route_table" "dev-public-crt" {
+vpc_id = aws_vpc.dev-vpc.id
+
+route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.dev-igw.id
+}
+
+
+}
+
+(5) Route Table Association
+
+resource "aws_route_table_association" "dev-crta-public-subnet-1" {
+subnet_id = aws_subnet.dev-subnet-public-1.id
+route_table_id = aws_route_table.dev-public-crt.id
+}
+
+STEP 7 — CREATE SECURITY GROUP (network.tf)
+
+resource "aws_security_group" "ssh-allowed" {
+vpc_id = aws_vpc.dev-vpc.id
+
+ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+}
+
+ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+}
+
+egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+}
+
+
+}
+
+STEP 8 — CREATE KEY PAIR IN TERRAFORM (asg.tf)
+
+resource "aws_key_pair" "oregon-region-key-pair" {
+key_name = "oregon-region-key-pair"
+public_key = file(var.PUBLIC_KEY_PATH)
+}
+
+STEP 9 — CREATE USERDATA SCRIPT (userdata.sh)
 
 #!/bin/bash
 sudo yum install httpd -y
-sudo chkconfig httpd on
 sudo systemctl start httpd
+sudo chkconfig httpd on
 
-▶ VPC and Network Setup:
-
-resource "aws_vpc" "dev-vpc" {
-  cidr_block = "10.0.0.0/16"
-  enable_dns_support = "true"          // Needed for internal name resolution
-  enable_dns_hostnames = "true"        // Internal hostnames for EC2
-  instance_tenancy = "default"
-  tags = { Name = "dev-vpc" }
-}
-
-resource "aws_subnet" "dev-subnet-public-1" {
-  vpc_id = "${aws_vpc.dev-vpc.id}"
-  cidr_block = "10.0.1.0/24"
-  map_public_ip_on_launch = "true"     // Automatically assigns public IP
-  availability_zone = "us-west-2a"
-  tags = { Name = "dev-subnet-public-1" }
-}
-
-▶ Internet Access Resources:
-
-resource "aws_internet_gateway" "dev-igw" {
-  vpc_id = "${aws_vpc.dev-vpc.id}"
-  tags = { Name = "dev-igw" }
-}
-
-resource "aws_route_table" "dev-public-crt" {
-  vpc_id = "${aws_vpc.dev-vpc.id}"
-  route {
-    cidr_block = "0.0.0.0/0"           // All outbound traffic
-    gateway_id = "${aws_internet_gateway.dev-igw.id}"
-  }
-  tags = { Name = "dev-public-crt" }
-}
-
-resource "aws_route_table_association" "dev-crta-public-subnet-1" {
-  subnet_id = "${aws_subnet.dev-subnet-public-1.id}"
-  route_table_id = "${aws_route_table.dev-public-crt.id}"
-}
-
-▶ Security Group:
-
-resource "aws_security_group" "ssh-allowed" {
-  vpc_id = "${aws_vpc.dev-vpc.id}"
-
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = -1
-    cidr_blocks = ["0.0.0.0/0"]        // Allow all outbound
-  }
-
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]        // Allow SSH from anywhere (not safe for prod)
-  }
-
-  ingress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]        // Allow HTTP
-  }
-
-  tags = { Name = "ssh-allowed" }
-}
-
-▶ Key Pair Upload:
-
-resource "aws_key_pair" "oregon-region-key-pair" {
-  key_name = "oregon-region-key-pair"
-  public_key = "${file(var.PUBLIC_KEY_PATH)}"
-}
-
-▶ Launch Template:
+STEP 10 — CREATE LAUNCH TEMPLATE (asg.tf)
 
 resource "aws_launch_template" "dev-launch-config" {
-  name = "PROD-launch-config"
-  vpc_security_group_ids = ["${aws_security_group.ssh-allowed.id}"]
-  user_data = filebase64("${"userdata.sh"}")
-  instance_type = "t2.micro"
-  image_id = "${lookup(var.AMI, var.AWS_REGION)}"
-  key_name = "${aws_key_pair.oregon-region-key-pair.id}"
+name = "PROD-launch-config"
+
+instance_type = "t2.micro"
+image_id = lookup(var.AMI, var.AWS_REGION)
+key_name = aws_key_pair.oregon-region-key-pair.id
+
+vpc_security_group_ids = [aws_security_group.ssh-allowed.id]
+user_data = filebase64("userdata.sh")
 }
 
-▶ Auto Scaling Group:
+STEP 11 — CREATE AUTO SCALING GROUP (asg.tf)
 
 resource "aws_autoscaling_group" "dev-autoscaling-group-3" {
-  name = "dev-asg-3"
-  min_size = "1"
-  max_size = "1"
-  
-  launch_template {
-    id = aws_launch_template.dev-launch-config.id
-    version = "$Latest"
-  }
+name = "dev-asg-3"
+min_size = 1
+max_size = 1
 
-  vpc_zone_identifier = ["${aws_subnet.dev-subnet-public-1.id}"]
-  depends_on = [aws_subnet.dev-subnet-public-1]
-
-  tag {
-    key = "Name"
-    value = "dev-test"
-    propagate_at_launch = true
-  }
+launch_template {
+id = aws_launch_template.dev-launch-config.id
+version = "$Latest"
 }
 
-===========================
-✅ STEP 5: RUNNING TERRAFORM
-===========================
+vpc_zone_identifier = [aws_subnet.dev-subnet-public-1.id]
 
-1. Initialize Terraform:
-   > terraform init
+tag {
+key = "Name"
+value = "dev-test"
+propagate_at_launch = true
+}
+}
 
-2. Preview changes:
-   > terraform plan -out="file.plan"
+STEP 12 — INITIALIZE TERRAFORM
 
-3. Apply changes:
-   > terraform apply "file.plan"
+terraform init
 
-4. Destroy infrastructure:
-   > terraform destroy
+STEP 13 — PREVIEW CHANGES
 
-===========================
-✅ RESULT
-===========================
+terraform plan -out "file.plan"
 
-✅ EC2 instance is launched via Auto Scaling Group  
-✅ Apache HTTP server is automatically installed and started  
-✅ You can SSH using:
-> ssh -i oregon-region-key-pair ec2-user@<public-ip>
+STEP 14 — APPLY DEPLOYMENT
 
-✅ You can open the server IP in your browser to see the Apache welcome page.
+terraform apply "file.plan"
 
-===========================
-END OF FILE
-===========================
+STEP 15 — DESTROY ENVIRONMENT (OPTIONAL)
+
+terraform destroy
+
+========================================================
+
+
+Project 2
+
+3 tier app deployment Hands on with terraform modules
+-------------------------------------------------------
+- Clone the code
+https://github.com/heydevopsorg/terrform_threetierarch
+
+- Create the AWS Account
+- Install docker and terraform 
+- Execute the linux command to giva permission
+
+chmod +x setup-ecrs.sh
+
+- Run this on terminal to create the ECR repo and to 
+
+create images in local and send those to ECR -
+./setup-ecrs.sh
+
+- Go to terraform folder-
+
+terraform init
+terraform plan
+terraform apply
+
+- Testing the application via LB
+- Hit the Fron end load balancer-fronte-end-lb.****.us-east-1.elb.amazonaws.com
+
+- Request to the presentation layer, which forwards the request to the appliation layer(via the internal load balacer) that finally creates a table called users,
+ and add 2 users in the table
+
+front-end-lb-*****.us-east-1.elb.amazonaws.con/init
+
+- To view the users table you can call
+
+ front-end-lb-*****.us-east-a.elb.amazonaws.com/users
+
+
+- Delete the Architecture
+ terraform delete
+
+
+============================================================
+3-TIER APPLICATION DEPLOYMENT (FULL DOCUMENT + DIAGRAM)
+NOTEPAD-FRIENDLY VERSION
+============================================================
+============================================================
+SECTION 1 — SIMPLE ASCII ARCHITECTURE DIAGRAM
+            +-----------------------------+
+            |     Public Subnets          |
+            |   (Presentation Tier EC2)   |
+            +-----------------------------+
+                       |
+                       |  HTTP :80
+                       v
+            +-----------------------------+
+            |   Frontend ALB (Public)     |
+            +-----------------------------+
+                       |
+                       |  Forward :3000
+                       v
+            +-----------------------------+
+            |     Private Subnets         |
+            |  (Application Tier EC2)     |
+            +-----------------------------+
+                       |
+                       |  HTTP :3000
+                       v
+            +-----------------------------+
+            | Internal ALB (Application)  |
+            +-----------------------------+
+                       |
+                       | MySQL :3306
+                       v
+            +-----------------------------+
+            |    RDS MySQL Database       |
+            +-----------------------------+
+
+============================================================
+SECTION 2 — SETUP STEPS
+
+Clone the repository:
+git clone https://github.com/heydevopsorg/terrform_threetierarch
+
+Install:
+
+Terraform
+
+Docker
+
+AWS CLI
+
+Configure AWS credentials:
+aws configure
+
+Make script executable:
+chmod +x setup-ecrs.sh
+
+Build images and push to ECR:
+./setup-ecrs.sh
+
+Go to terraform folder:
+cd terraform
+terraform init
+terraform plan
+terraform apply
+
+Test application:
+http://front-end-lb-xxxx.us-east-1.elb.amazonaws.com/init
+
+http://front-end-lb-xxxx.us-east-1.elb.amazonaws.com/users
+
+Destroy:
+terraform destroy
+
+============================================================
+SECTION 3 — COMPLETE TERRAFORM CODE (CLEAN VERSION)
+FILE: modules/rds/main.tf
+
+resource "aws_db_subnet_group" "db_subnet_group" {
+name = "db_subnet_group"
+subnet_ids = var.subnets
+
+tags = {
+Name = "db_subnet_group"
+}
+}
+
+resource "aws_security_group" "rds_sg" {
+name = "rds_sg"
+description = "Allow App tier to access RDS"
+vpc_id = var.vpc_id
+
+ingress {
+description = "MySQL Access"
+from_port = 3306
+to_port = 3306
+protocol = "tcp"
+source_security_group_id = var.from_sgs[0]
+}
+
+egress {
+from_port = 0
+to_port = 0
+protocol = "-1"
+cidr_blocks = ["0.0.0.0/0"]
+}
+}
+
+resource "aws_db_instance" "rds" {
+db_subnet_group_name = aws_db_subnet_group.db_subnet_group.id
+allocated_storage = var.allocated_storage
+engine = var.engine
+engine_version = var.engine_version
+instance_class = var.instance_class
+multi_az = var.multi_az
+db_name = var.db_name
+username = var.db_username
+password = var.db_password
+skip_final_snapshot = true
+vpc_security_group_ids = [aws_security_group.rds_sg.id]
+}
+
+FILE: modules/rds/variables.tf
+
+variable "db_username" { type = string }
+variable "db_password" { type = string }
+variable "db_name" { type = string }
+variable "engine" { type = string }
+variable "engine_version" { type = string }
+variable "instance_class" { type = string }
+variable "allocated_storage"{ type = number }
+variable "multi_az" { type = bool }
+variable "vpc_id" { type = string }
+variable "subnets" { type = list(string) }
+variable "from_sgs" { type = list(string) }
+
+FILE: modules/rds/output.tf
+
+output "rds_address" {
+value = aws_db_instance.rds.address
+}
+
+FILE: autoscaling_groups.tf
+
+resource "aws_autoscaling_group" "presentation_tier" {
+name = "asg-presentation"
+min_size = 2
+max_size = 4
+desired_capacity = 2
+health_check_type = "EC2"
+vpc_zone_identifier = aws_subnet.public_subnets.*.id
+
+launch_template {
+id = aws_launch_template.presentation_tier.id
+version = "$Latest"
+}
+
+tag {
+key = "Name"
+value = "presentation_app"
+propagate_at_launch = true
+}
+}
+
+resource "aws_autoscaling_group" "application_tier" {
+name = "asg-application"
+min_size = 2
+max_size = 4
+desired_capacity = 2
+health_check_type = "EC2"
+vpc_zone_identifier = aws_subnet.private_subnets.*.id
+
+launch_template {
+id = aws_launch_template.application_tier.id
+version = "$Latest"
+}
+
+tag {
+key = "Name"
+value = "application_app"
+propagate_at_launch = true
+}
+}
+
+resource "aws_autoscaling_attachment" "presentation_tier" {
+autoscaling_group_name = aws_autoscaling_group.presentation_tier.id
+lb_target_group_arn = aws_lb_target_group.front_end.arn
+}
+
+resource "aws_autoscaling_attachment" "application_tier" {
+autoscaling_group_name = aws_autoscaling_group.application_tier.id
+lb_target_group_arn = aws_lb_target_group.application_tier.arn
+}
+
+FILE: ec2.tf
+
+data "aws_ami" "amazon_linux_2" {
+most_recent = true
+owners = ["amazon"]
+
+filter {
+name = "name"
+values = ["amzn2-ami-hvm*"]
+}
+}
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_iam_role" "ec2_role" {
+name = "allow_ec2_access_ecr"
+
+assume_role_policy = jsonencode({
+Version = "2012-10-17",
+Statement = [{
+Action = "sts:AssumeRole",
+Effect = "Allow",
+Principal = { Service = "ec2.amazonaws.com" }
+}]
+})
+}
+
+resource "aws_iam_role_policy" "ec2_ecr_policy" {
+name = "allow_ec2_access_ecr"
+role = aws_iam_role.ec2_role.id
+
+policy = jsonencode({
+Version = "2012-10-17",
+Statement = [{
+Action = ["ecr:GetAuthorizationToken","ecr:BatchGetImage","ecr:GetDownloadUrlForLayer"]
+Effect = "Allow"
+Resource = "*"
+}]
+})
+}
+
+resource "aws_iam_instance_profile" "ec2_ecr_connection" {
+name = "ec2_ecr_connection"
+role = aws_iam_role.ec2_role.name
+}
+
+resource "aws_launch_template" "presentation_tier" {
+name = "presentation_tier"
+
+block_device_mappings {
+device_name = "/dev/xvda"
+ebs {
+volume_size = 8
+}
+}
+
+iam_instance_profile {
+name = aws_iam_instance_profile.ec2_ecr_connection.name
+}
+
+instance_type = "t2.nano"
+image_id = data.aws_ami.amazon_linux_2.id
+
+network_interfaces {
+associate_public_ip_address = true
+security_groups = [aws_security_group.presentation_tier.id]
+}
+
+user_data = base64encode(templatefile(
+"./../user-data/user-data-presentation-tier.sh",
+{
+application_load_balancer = aws_lb.application_tier.dns_name
+ecr_url = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
+ecr_repo_name = var.ecr_presentation_tier
+region = var.region
+}
+))
+}
+
+resource "aws_launch_template" "application_tier" {
+name = "application_tier"
+
+block_device_mappings {
+device_name = "/dev/xvda"
+ebs {
+volume_size = 8
+}
+}
+
+iam_instance_profile {
+name = aws_iam_instance_profile.ec2_ecr_connection.name
+}
+
+instance_type = "t2.nano"
+image_id = data.aws_ami.amazon_linux_2.id
+
+network_interfaces {
+associate_public_ip_address = false
+security_groups = [aws_security_group.application_tier.id]
+}
+
+user_data = base64encode(templatefile(
+"./../user-data/user-data-application-tier.sh",
+{
+rds_hostname = module.rds.rds_address
+rds_username = var.rds_db_admin
+rds_password = var.rds_db_password
+rds_port = 3306
+rds_db_name = var.db_name
+ecr_url = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
+ecr_repo_name = var.ecr_application_tier
+region = var.region
+}
+))
+}
+
+FILE: nat_eip.tf
+
+resource "aws_eip" "nat_ip" {
+count = length(aws_subnet.public_subnets)
+depends_on = [aws_internet_gateway.gw]
+
+tags = {
+Name = "nat_ip_${count.index + 1}"
+}
+}
+
+FILE: awslb.tf
+
+resource "aws_lb" "front_end" {
+name = "front-end-lb"
+load_balancer_type = "application"
+internal = false
+security_groups = [aws_security_group.alb_presentation_tier.id]
+subnets = aws_subnet.public_subnets.*.id
+}
+
+resource "aws_lb_target_group" "front_end" {
+name = "front-end-lb-tg"
+port = 3000
+protocol = "HTTP"
+vpc_id = aws_vpc.main.id
+}
+
+resource "aws_lb_listener" "front_end" {
+load_balancer_arn = aws_lb.front_end.arn
+port = 80
+protocol = "HTTP"
+
+default_action {
+type = "forward"
+target_group_arn = aws_lb_target_group.front_end.arn
+}
+}
+
+resource "aws_lb" "application_tier" {
+name = "application-tier-lb"
+load_balancer_type = "application"
+internal = true
+security_groups = [aws_security_group.alb_application_tier.id]
+subnets = aws_subnet.private_subnets.*.id
+}
+
+resource "aws_lb_target_group" "application_tier" {
+name = "application-tier-lb-tg"
+port = 3000
+protocol = "HTTP"
+vpc_id = aws_vpc.main.id
+}
+
+resource "aws_lb_listener" "application_tier" {
+load_balancer_arn = aws_lb.application_tier.arn
+port = 80
+protocol = "HTTP"
+
+default_action {
+type = "forward"
+target_group_arn = aws_lb_target_group.application_tier.arn
+}
+}
 
 
 ==============================================================
@@ -10257,6 +10708,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
