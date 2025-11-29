@@ -3894,8 +3894,21 @@ sudo apt install docker-ce -y
 
 sudo chmod 777 /var/run/docker.sock
 
+- JFROG Setup in EC2 Instance:--- Assignment 1
+======================================================
+
+##Install in Amazon Ubuntu
+sudo usermod -aG docker $USER
+docker pull docker.bintray.io/jfrog/artifactory-oss:latest
+sudo mkdir -p /jfrog/artifactory
+sudo chown -R 1030 /jfrog/
+docker run --name artifactory -d -p 8081:8081 -p 8082:8082 -v /jfrog/artifactory:/var/opt/jfrog/artifactory docker.bintray.io/jfrog/artifactory-oss:latest
+
+http://<EC2IP or domain>:8081/arifactory
 
 
+
+back to project:
 
 -  Install sonarqube
  docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
@@ -10759,6 +10772,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
