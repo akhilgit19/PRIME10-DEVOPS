@@ -4300,6 +4300,173 @@ https://github.com/praveen1994dec/jenkins_shared_lib/blob/main/vars/gitCheckout.
 ✅ Expected Output:
 Jenkins uploads the JAR to your Artifactory repository automatically after the Maven build.
 
+
+ Assignment 3
+
+Change the below code and add the Jfrog Repo Stage in between the pipeline script
+=================================================================================================
+File to add the below script after maven build
+https://github.com/praveen1994dec/Java_app_3.0/blob/main/Jenkinsfile
+This Assignment3 should only be done after completing the Assignment1 under Session5 of Jrog setup in same server of Jenkins
+ NOTE: Change the artifactoryUrl / apiKeyOrUsername / apiKeyOrPassword of jfrog as per your jfrog repo details
+stage('Build and Add Artifact to the repo : JFrog') { steps {
+script {
+// Artifactory configuration
+def artifactoryUrl = 'http://44.202.242.34:8081/artifactory'
+def repoName = 'example-repo-local'
+def targetPath = 'kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar' def localArtifactPath =
+'/var/lib/jenkins/.m2/repository/com/minikube/sample/kubernetes-configmap-reload/0.0.1-SN APSHOT/kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar'
+def apiKeyOrUsername = 'admin'
+def apiKeyOrPassword = 'Password@123'
+// Extract the filename from the localArtifactPath def fileName = localArtifactPath.split('/').last()
+// Construct the full URL to upload the artifact
+def uploadUrl = "${artifactoryUrl}/${repoName}/${targetPath}/${fileName}"
+// Upload the artifact using curl def uploadCommand = """
+curl -X PUT -u ${apiKeyOrUsername}:${apiKeyOrPassword} -T ${localArtifactPath} ${uploadUrl}
+"""
+def uploadResult = sh(script: uploadCommand, returnStatus: true)
+if (uploadResult == 0) {
+echo "Artifact successfully uploaded to Artifactory."
+} else {
+error "Failed to upload artifact to Artifactory. Exit code: ${uploadResult}"
+} }
+} }
+Expected Output : The jar kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar should be pushed to example-repo-local [ Repo of jfrog ]
+
+
+
+Jekins Scenario based:
+=============================
+
+JENKINSFILE SCENARIOS WITH AUTMATIONS
+1) Continuous Deployment with Rollback Strategy:
+● Scenario: Automatically deploy applications to production with the ability to rollback on failure.
+● Benefit: Ensures minimal downtime and quick recovery from deployment failures, maintaining application availability and user trust.
+Jenkinsfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile1.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Script Link - scenario_based_learnings/Shell Scripts/1-deploy.sh at main · praveen1994dec/scenario_based_learnings (github.com)
+         https://heydevops.in/
+HeyDevops
+ 
+ 2) Infrastructure as Code (IaC) with Terraform:
+● Scenario: Use Terraform to provision and manage infrastructure.
+● Benefit: Enables consistent, repeatable, and automated infrastructure provisioning,
+reducing human error and speeding up the setup process.
+Jenkinfile Link - scenario_based_learnings/Jenkinsfiles/jenkinsfile2.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+Script Link - scenario_based_learnings/Terraform/1-Terraform.tf at main · praveen1994dec/scenario_based_learnings (github.com)
+        https://heydevops.in/
+HeyDevops
+ 
+ 3)Automated Database Migrations:
+● Scenario: Apply database migrations as part of the deployment process.
+● Benefit: Ensures database schema changes are applied in sync with application
+deployments, preventing mismatches and runtime errors.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile3.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+Script Link - scenario_based_learnings/Shell Scripts/2-migrate-db.sh at main · praveen1994dec/scenario_based_learnings (github.com)
+        https://heydevops.in/
+HeyDevops
+ 
+ 4)Monitor and Alert on Application Health:
+● Scenario: Monitor application health and alert if any issues are detected.
+● Benefit: Provides early detection of issues, enabling quick response and resolution,
+thus maintaining application performance and reliability.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile4.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+Script Link - scenario_based_learnings/Shell Scripts/3-monitoring.sh at main · praveen1994dec/scenario_based_learnings (github.com)
+        https://HheyDyedvoepvsops.in/
+ 
+ 5)Automated Security Scanning:
+● Scenario: Perform security scanning of the application and Docker images.
+● Benefit: Detects vulnerabilities early in the development process, enhancing
+application security and compliance with industry standards.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile5.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+6)Backup and Restore Strategy:
+● Scenario: Implement a backup and restore strategy for databases and application data.
+● Benefit: Protects against data loss and corruption, ensuring business continuity and data integrity.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile6.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+         https://heydevops.in/
+HeyDevops
+ 
+ 7)Log Aggregation and Analysis:
+● Scenario: Collect and analyze logs from the application.
+● Benefit: Centralizes log data for easier troubleshooting, performance monitoring, and
+anomaly detection, leading to quicker issue resolution.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile7.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+Script Link -scenario_based_learnings/Shell Scripts/4-analyze-logs.sh at main · praveen1994dec/scenario_based_learnings (github.com)
+        https://heydevops.in/
+HeyDevops
+ 
+ 8)Configuration Management with Ansible:
+● Scenario: Use Ansible to manage server configurations and deployments.
+● Benefit: Automates and standardizes server configuration management, reducing
+configuration drift and ensuring consistency across environments. Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile8.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+Playbook Link - scenario_based_learnings/Ansible Playbook/1-ansible-playbook.yaml at main · praveen1994dec/scenario_based_learnings (github.com)
+        https://heydevops.in/
+HeyDevops
+ 
+ 9)Autoscaling Configuration:
+● Scenario: Configure autoscaling for dynamic resource management.
+● Benefit: Ensures optimal resource usage by automatically scaling resources up or
+down based on demand, reducing costs and improving performance. Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile9.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+     10)Security Compliance Check:
+● Scenario: Integrate security compliance checks in the pipeline.
+● Benefit: Ensures the application adheres to security standards and compliance
+requirements, reducing vulnerabilities and legal risks.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile10.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+    https://heydevops.in/
+HeyDevops
+ 
+ Script Link -scenario_based_learnings/Shell Scripts/5-security-checks.sh at main · praveen1994dec/scenario_based_learnings (github.com)
+11)Vulnerability Scanning in CI/CD Pipeline:
+● Scenario: Integrate Trivy into the CI/CD pipeline to scan Docker images for vulnerabilities.
+● Benefit: Identifies security vulnerabilities early in the development process, ensuring that only
+secure images are deployed to production.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile11.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+        https://heydevops.in/
+HeyDevops
+ 
+ 12)Static Code Analysis in CI/CD Pipeline:
+● Scenario: Integrate SonarQube for static code analysis as part of the CI/CD pipeline.
+● Benefit: Ensures code quality and security by detecting bugs, code smells, and
+vulnerabilities before deployment.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile12.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+13)Storing Build Artifacts:
+● Scenario: Use Artifactory to store build artifacts from the CI/CD pipeline.
+● Benefit: Provides a central repository for managing and sharing build artifacts,
+ensuring consistency and traceability.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile13.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+         https://heydevops.in/
+HeyDevops
+ 
+ 14 ) Passing Parameters:
+● Scenario: Accept user inputs at build time to customize the build process.
+● Benefits: Allows customization of pipeline behavior based on different parameters
+such as environment (dev, test, prod), branch (master, develop), or specific settings (enable tests).
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile14.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+15 ) Multi-Stage Pipeline:
+● Scenario: Organize the build process into multiple stages.
+● Benefits:Facilitates the sequential execution of distinct stages (e.g., build, test,
+deploy) within a single pipeline.
+Jenkinfile link - scenario_based_learnings/Jenkinsfiles/jenkinsfile15.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+         https://heydevops.in/
+HeyDevops
+ 
+16 ) Parallel Jobs:
+● Scenario: Run different stages or steps in parallel to speed up the pipeline.
+● Benefits:Accelerates pipeline execution by running multiple tasks concurrently,
+reducing overall build/test time.and also Maximizes the utilization of available resources (agents/containers) by parallelizing independent tasks
+Jenkinfile link - .scenario_based_learnings/Jenkinsfiles/jenkinsfile16.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+   
                                         Docker
 ==============================================================================================================
 
@@ -4520,7 +4687,143 @@ now in the security grou change ito alltrafic ip4 and check with the IP address
 
 
 
+Docker Project3:
+=====================
 
+DEPLOY THE JAR IN THE CONTAINER WITH THE HELP OF DOCKERFILE AND HIT THE ENDPOINT
+====================================================================================
+
+PREREQUISITES - Create the EC2 instance with T2.MICRO and UBUNTU
+Maven - https://github.com/praveen1994dec/tools_installation_scripts/blob/main/Maven.sh=
+Docker - https://github.com/praveen1994dec/tools_installation_scripts/blob/main/docker.sh
+Step 1 - Go to https://github.com/praveen1994dec/Java_app_3.0.git
+Step 2 - Clone the code in EC2 in OPT folder
+cd /opt/
+git clone https://github.com/praveen1994dec/Java_app_3.0.git
+
+Step 2.1 - Go to the folder Java_app_3.0 and execute the below command maven clean install -DskipTests
+[ Check inside the Target folder for the jar ]
+Step 3 - Go over the Dockerfile cd Java_app_3.0/Dockerfile
+
+FROM openjdk:8-jdk-alpine
+WORKDIR /app
+COPY ./target/*.jar /app.jar
+CMD ["java", "-jar", "/app.jar"]
+
+Step 4 - Build the Docker Image
+docker image build -t praveensingam1994/heydevops:latest .
+praveensingam1994 - Represents the docker repo username Heydevops - Image name
+Latest - tag
+. - current folder
+Step 5 - Create the container
+docker run -d -p 8080:8080 praveensingam1994/heydevops:latest
+Step 6 - Check all the running and non running list of containers docker ps -a
+Step 7 - Check the logs of container docker logs <Container ID>
+
+
+Step 8 - Go inside the container and check for JAR file docker exec -it <Container ID> /bin/sh
+Step 9 - Open the Security Groups to All traffic in EC2 instance and hit the below URL
+http://<EC2 PUBLIC IP>:8080/home/data
+Step 10 - Terminate the instance
+
+
+docker Commands
+Installation
+• sudo apt update
+• sudo apt install docker.io
+• sudo service docker start
+• sudo systemctl enable docker
+• sudo systemctl status docker
+Docker Hub
+• docker pull img_name: download an image from Docker Hub
+Running Containers
+• docker run image-name/image-id: create a container from an image
+• docker run img_name: create a container
+• docker run --detach/-d img_name: pull, start, and create a container
+• docker run -d --name cont_name container_id: create a container with a name
+Listing Containers and Images
+• docker ps: show running containers
+• docker ps -a/--all: show all containers (running and stopped)
+• docker container ls: show all containers (running and stopped)
+• docker images: show a list of images
+Deleting Containers and Images
+• docker rmi img_name: delete an image
+• docker rmi $(docker images -a) / docker image prune / docker rmi $(docker image ls):
+remove all images
+• docker stop container_id: stop a container
+• docker rm container_id: delete a stopped container
+• docker rm $(docker ps -a / docker container ls -a) / docker container prune: delete all
+stopped containers
+Working with Containers
+• docker exec -it container_id /bin/bash: start working in a container
+• docker inspect container_id: show all information about a container
+• docker run -d --name name nginx: create a container with a name
+• docker history img_id: show all layers of an image
+Port Mapping
+• docker run -d -p80(ec2-port):80(container-port) img_id: map a port for an existing image
+• docker run -d --name name -p80(ec2-port):(container-port) nginx: create a container with
+port mapping
+Creating Images
+• docker commit container_id name: create an image from a container
+• docker save > img_name.tar: create a tar file of an image
+• docker export container_id > file_name.tar: create a tar file of a container
+Volumes
+• docker run -d --name name -p80(ec2-port):(container-port) -v path of directory:project
+directory path in container img_name: create a container with a volume
+• docker volume create vol_name: create a named volume
+Environment Variables
+• docker run -d --name merabaladb1 -e MYSQL_ROOT_PASSWORD='Pass@123' MySQL:
+create a MySQL container with environment variables
+• docker run -d --name sqlvol -v /home/ubuntu/sqlvol:/var/lib/mysql -e
+MYSQL_ROOT_PASSWORD='pass@123' -e MYSQL_DATABASE="facebook" MySQL: create a
+MySQL container with a database name and mount with a bind volume
+Linking Containers
+• docker run -d --name wordpress -p80:80 -e WORDPRESS_DB_HOST=mydb -e
+WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=pass123 -e
+WORDPRESS_DB_NAME=db1 --link mydb:mysql wordpress: link a MySQL container to a
+WordPress container
+Dockerfile
+Components of Dockerfile
+• FROM: use for base images or to pull an image (can be used multiple times)
+• RUN: for installing software or running Linux commands (can be used multiple times)
+• EXPOSE: to open a port number
+• COPY: to copy files and directories from the host to the image
+• ENV: to set environment variables
+• CMD: specifies the command to run when a container is run from the image (can only be
+used once)
+• ENTRYPOINT: specifies the command to run when a container is run from the image, but
+allows additional arguments to be passed in (can only be used once)
+• ADD: copies files from the host to the image, downloads zip or tar files from a given link, and
+extracts them automatically
+• ARG: defines a variable that is passed to the container while building the image
+• VOLUME: creates a volume, sets a volume
+• WORKDIR: sets the working directory
+• MAINTAINER: sets the name and email of the author/user
+• LABEL: adds metadata (data about data)
+• USER: sets the user (root, ec2-user, docker, etc.)
+• HEALTHCHECK: specifies the path for a health check or checks the health of a mentioned URL
+• SHELL: specifies the shell to be used to run commands
+• STOPSIGNAL: specifies the signal to be sent to the container to stop it gracefully
+• ONBUILD: specifies the instruction to be used when the
+Docker Build
+• docker build -f file_name .: run a file (if file name is different)
+• docker build -t tag_name -f file_name . --> run file with tag
+• docker system df --> for check container space
+Docker Network
+• docker network ls: show a list of networks
+• docker network create name: create a network
+• docker network inspect name: show all information about a network
+• docker network rm name: delete a network
+• docker run -d --name cont_name --network network_name image_id: create a container in
+a network
+• docker network connect network_name cont_name: add a container to a network
+• docker network disconnect network_name cont_name: remove a container from a network
+Docker Compose
+• docker-compose up -d: run a compose file (if the file name is docker-compose.yml)
+• docker-compose -f file_name up -d: run a compose file with a different name
+• docker-compose down: delete containers
+Docker System
+• docker system df: check container space
 
 # Stage 1:  Base Image
 FROM python:3.11-slim AS builder
@@ -10772,6 +11075,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
