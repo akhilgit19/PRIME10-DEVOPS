@@ -5423,7 +5423,7 @@ gcr.io/k8s-minikube/kicbase         v0.0.47   795ea6a69ce6   3 months ago    1.3
  praveensingam1994
  praveensingam1994
 praveensingam1994
- SERVICE2
+  SERVICE2
   SERVICE3
  praveensingam1994
 
@@ -11075,6 +11075,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
