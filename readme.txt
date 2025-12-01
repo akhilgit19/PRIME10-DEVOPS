@@ -5038,7 +5038,7 @@ yaml
    | Master                                                    Slave/Node
  ------------------------                                    -------------------------
  |               
-1|->     API SERVER------>>---------->>---------->>------------->>cublet(agent)--8 [Primary component in workernode which talks with API
+1|->     API SERVER------>>---------->>---------->>------------->>kublet(agent)--8 [Primary component in workernode which talks with API
            ^  7                                                 >> PODS  -- POD  9  [Second compoent in entire
            |                                                            -- DEPLOYMENT
            |                                                            -- SERVICE
@@ -11075,6 +11075,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
