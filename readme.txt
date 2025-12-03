@@ -5678,7 +5678,52 @@ pods                   po                   v1                true              
 
 
 
+Cronjob: Basic Implementation
+================================================
 
+There is an existing Namesapce "hacker-company"
+
+There is a source file of an application to build at  "/home/ubuntu/1171986-kubernetes-cronjob-basic-implmentation/src/main.c"
+
+Complete the file stub "/home/ubuntu/1171986-kubernetes-cronjob-basic-implmentation/definition.yml" with one or more steps that do the foloowing
+
+
+- create a new cron job named "build within the namespace "hacker-company",which:
+  . executes every minute
+  . disallows concurrent execution
+  . creates a new container using "gcc" image at "latest" tag
+  . mounts a host directory "/home/ubuntu/1171986-kubernetes-cronjob-basic-implmentation/src" as a volume in "/mnt/src"
+  . executes the command "gcc -o vuild main.c" in the directory "/mnt/src"
+
+As the result of the build Cron job execution a binary file "/home/ubuntu/kubernetes-cronjob-basic-implmentation/src/build" should be
+built and executable
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata: 
+  name: vuild
+spec:
+  schedule: "*****"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: build
+              image: gcc: latest
+              volumemounts:
+                - mountpath: /mnt/src
+                  name: data-volume
+             - command: ["gcc -o build main.c]
+          volumes: 
+            - name: data-volume
+              hostpath:
+                path: /home/ubuntu/1171986-kubernetes-cronjob-basic-implmentation/src
+                type: Directory
+
+  
 
 
 Custom_Resource_DefinitioN
@@ -5749,6 +5794,26 @@ name:                                                                           
     fluinder -1                                                                    EC2-tun-1
 (apis/wardle.example.come/v1aplha1/namespaces/foo/flunder)                    (apis/inlets.inlets.dev/v1alpha1/tunnels)
 
+
+
+Create the custom resource definition
+------------------------------------------__-
+
+USE CASE FOR CRD: The it operations team wants to build an application CI/CD
+platform  and expose it as a kubernetes cusotm resource. This custom resource
+requires user input to build and deploy an application  on top of kubernets.
+
+The first section of the tutuorial below displays the minimum input for setup:
+
+ - appid is the application unique name,presented as a string identifier.
+ - code language is any predefined language supported in the graework , such as C#, Python or Go.
+ - OS options are restricted to Windows or Linux
+ - Instance Size should be T-shirt size -- predefined CPU and memory sized, eg small could mean 100m
+
+   CPU and 512 mebibyte memory for the pods that are spun up. Allowed values are samll, medium and large.
+ - EnviromentyType is metadata that classifies the type of enviroment for the app. Allowed values are dev, test and prod 
+ - Replicas is the minimum  number of app replicas to maintain which should be set to 1.
+ - checkout the USeCase1 implementation here- 
 
 --https://github.com/praveen1994dec/Custom_Resource_Definition.git
 
@@ -11075,6 +11140,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
