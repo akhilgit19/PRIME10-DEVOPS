@@ -5897,6 +5897,220 @@ spec:
  replicas: 3
 
 
+
+
+
+k8 scenarios:
+=================
+1- If i want to scale my pod based on load then we use below:
+
+https://github.com/praveen1994dec/Kubernetes_Manifest_files/blob/main/Horizontal_Pod_AutoScaler.yml
+
+#kubectl apply -f Horizontal_Pod_AutoScaler.yml
+#kubectl autoscale deployment php-apache --cpu-percent=1 --min=2 --max=10
+#kubectl get hpa
+#kubectl get hpa php-apache --watch
+#kubectl get deployment php-apache
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-apache
+spec:
+  selector:
+    matchLabels:
+      run: php-apache
+  template:
+    metadata:
+      labels:
+        run: php-apache
+    spec:
+      containers:
+      - name: php-apache
+        image: registry.k8s.io/hpa-example
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-apache
+  labels:
+    run: php-apache
+spec:
+  ports:
+  - port: 80
+  selector:
+    run: php-apache
+
+
+2. Step 2 - Create the Service and POD
+https://github.com/praveen1994dec/Kubernetes_Manifest_files/blob/main/Nginx.yml
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app:
+      nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+
+vim nginx.yml
+kubeclt apply -f Nginx.yml
+kubectl get pods
+kubectl get svc
+
+3.
+https://github.com/praveen1994dec/Kubernetes_Manifest_files/blob/main/Fluentd_DaemonSet.yml
+# Special kind of deployment that adds a pod in every node.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  namespace: demo
+  labels:
+    app: fluentd
+spec:
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      labels:
+        app: fluentd
+    spec:
+      containers:
+        - name: fluentd
+          image: fluent/fluentd:v0.14.10
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+
+Kubectl create ns demo
+kubectl create -f ds.yml
+kubectl get daemonset -n demo
+
+
+4.
+https://github.com/praveen1994dec/Kubernetes_Manifest_files/blob/main/Secret.yml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-secret
+data:
+  username: bXktYXBw
+  password: Mzk1MjgkdmRnN0pi
+
+
+kubectl apply -f Secret.yml
+kubectl get secret test-secret
+
+
+https://github.com/praveen1994dec/Kubernetes_Manifest_files/blob/main/Secret_Mapped_Pod.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: nginx
+      volumeMounts:
+        # name must match the volume name below
+        - name: secret-volume
+          mountPath: /etc/secret-volume
+          readOnly: true
+  # The secret data is exposed to Containers in the Pod through a Volume.
+  volumes:
+    - name: secret-volume
+      secret:
+        secretName: test-secret
+
+
+kubectl apply -f Secret_Mapped_Pod.yml Go into the container
+kubectl exec -i -t secret-test-pod -- /bin/bash ls /etc/secret-volume
+echo "$( cat /etc/secret-volume/username )"
+echo "$( cat /etc/secret-volume/password )"
+
+
+5. Storage class:
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: exampleclaim # The PVC name will be used in a Pod configurations when mounting this volume
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: slow
+  selector:
+    matchLabels:
+      release: "stable"
+    matchExpressions:
+      - {key: environment, operator: In, values: [dev]}
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+    - name: myfrontend
+      image: nginx
+      volumeMounts:
+      - mountPath: "/var/www/html"
+        name: mypd # The name of the volume declared under volumes 
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: exampleclaim  # Name of our PVC
+
 Project4: AWS EKS PROJECT SETUP CLOUD
 =================================================
 EKS Cloud project see the documentation
@@ -11140,6 +11354,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
