@@ -7736,7 +7736,7 @@ If you’re using kube_pod_container_resource_requests_cpu_cores, that tells you
 
 
 
-5.Prometheus configurations with targets as kubernetes
+5.Prometheus Configuration for Kubernetes Targets
 -------------------------------------------------------------
 ✅ Prometheus Configuration for Kubernetes Targets
 📄 prometheus.yml (Core Config File)
@@ -11354,6 +11354,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
