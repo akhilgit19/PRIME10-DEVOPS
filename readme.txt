@@ -8541,14 +8541,111 @@ version=1.2.3.4 -- Version increment
 
 automation -1Script project of sending file to jfrog repo:
 --------------------------------------------------
+#!/bin/bash
 
- automation-2
+CICD=true
+WORKSPACE="/opt"
+JOB_BASE_NAME="Test_demo"
+BUILD_NUMBER=10
+
+if [ "$CICD" = true ]; then
+    echo "CI/CD pipeline check"
+
+    file="${WORKSPACE}/basic_report.html"
+    REPORTNAME="${JOB_BASE_NAME}_${BUILD_NUMBER}.Test_demo_10"
+
+    echo "CICD Check starting"
+
+    if [ -f "$file" ]; then
+        echo "testReport file found, sending to artifactory"
+        curl -H "X-JFrog-Art-Api: Token" -T "$file" "https://oneartifactorycloud/artifactory/CICD/Reports/${REPORTNAME}.html"
+    else
+        echo "testReport file NOT found, cannot send to artifactory"
+    fi
+fi
+
+
+
+
+ automation-2- For loop with Jira  Rest API
+================================================
+- Step1 - created jiraid.tx
+- step2- Add your ticket id
+- step3- create jira.sh and add below code
+
+#!/bin/bash
+
+version="1.2.3.4"
+
+for line in $(cat jiraid.txt); do
+    curl -X PUT \
+        -u "your_atlassian_jira_username:your_atlassian_jira_token" \
+        -H "Content-Type: application/json" \
+        --data '{"update":{"labels":[{"add":"DEMO_NEW"}]}}' \
+        "https://singam.atlassian.net/rest/api/3/issue/${line}"
+done
+
+
+- step4- replace the USERNAME and TOKEN from your Atlassaian account
+- Step5- chmod + x jira.sh
+- Step6- Then hit the ./jira.sh script
+
+
+Automation 4 Archive the Data with Find/Mtime/Tar/Name command
+
+step1- create two folder
+ mkdir -p /opt/logs
+ mkdir -p /opt/logs/Log_Backup
+step2- create a log file test.log in folder /opt/logs/
+Step3- Copy the beside code in automation4.sh
+
+#!/bin/bash
+
+# Change to logs directory
+cd /opt/logs/ || exit
+
+# Copy all files that contain "logs" in the name to Log_Backup directory
+find . -type f -name '*logs*' -exec cp '{}' /opt/logs/Log_Backup/ \;
+
+# Move into backup directory
+cd /opt/logs/Log_Backup/ || exit
+
+# Generate a file list of all *.log* files
+find /opt/logs/Log_Backup -type f -name '*log*' > include-file
+
+# Create a tar archive with hostname and date
+tar -cvf "$(hostname)_$(date +%Y-%m-%d).tar.gz" -T include-file
+
+# Exit script
+exit
+
+
+
+Step5- chmod +x automation4.sh
+Step6- ./automation4.sh
+
 -----------------
+
+Automation 5- Playing with Dates and while loop
+
+#!/bin/bash
+
+# Number of days
+ONE="14d"
+TWO="7d"
+
+# Calculate dates
+Fourteendaysold=$(date -v -"${ONE}" +"%Y-%m-%d")
+Sevendaysold=$(date -v -"${TWO}" +"%Y-%m-%d")
+
+# Output the results
+echo "Fourteen days old date: $Fourteendaysold"
+echo "Seven days old date: $Sevendaysold"
+
+echo "$Fourteendaysold and $Sevendaysold are obtained"
 
 
 https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-labels/#api-group-labels
-
-
 
 
 
@@ -8634,6 +8731,73 @@ send_email "$email_subject" "$email_recipient" "$email_body"
 echo "Email sent to $email_recipient with the results."
 
 
+
+Special Variables in Shell
+
+1) $# stores the number of command-line arguments that were passed to the shell program
+
+2) $? stores the exit value of the last command that was executed
+
+3) $0 stores the first word of the entered command( the name of the shell programe).
+
+4) $* stores all the arguments that were entered on the command line *=($1  $2)
+5) "$@" stores all the arguments that were entered on the comand line, individually quoted ("$1" "$2").
+
+vim hello.sh
+sh hello.sh linkedin place good
+echo $# - 3
+echo $? exit value of last command
+echo $0 stores the first input [linkedin]
+
+echo $0 service in TEST serer which has $3 $2
+CASE1
+echo "With*:"
+for arg in "$*"; do echo "<$arg>";done
+
+CASE2
+echo "With@:"
+for arg in "$@"; do echo "<$arg>";done
+
+with *:
+<linkenin place good>
+
+with @:
+<linkeind>
+<place>
+<good>
+
+below in neat format:
+
+#!/bin/bash
+
+# Example run:
+# sh hello.sh linkedin place good
+
+echo "Number of arguments (\$#): $#"
+echo "Exit value of last command (\$?): $?"
+echo "Script name (\$0): $0"
+echo "First argument (\$1): $1"
+echo "Second argument (\$2): $2"
+echo "Third argument (\$3): $3"
+
+echo
+echo "$0 service in TEST server which has $3 and $2"
+echo
+
+echo "CASE 1: Using \"\$*\""
+echo "With *:"
+for arg in "$*"; do
+    echo "<$arg>"
+done
+
+echo
+echo "CASE 2: Using \"\$@\""
+echo "With @:"
+for arg in "$@"; do
+    echo "<$arg>"
+done
+
+
 For loop with array in the shelll script:
 ------------------------------------------------
 ## declare an array variable
@@ -8680,39 +8844,53 @@ Desired Output
 9.67.116.98
 
 
-You can use a simple shell script to extract the IP addresses from the log file. Here’s a script that will read the log file, search for lines containing IP addresses, and then print only those IPs:
-
-bash
-Copy
 #!/bin/bash
 
-# Define the log file path
-log_file="logfile.txt"  # Update this with the actual path to your log file
+# =============================================
+# Script: extract_ips.sh
+# Purpose: Extract IP addresses from a log file
+# =============================================
 
-# Extract IP addresses using grep and awk
+# Define the log file path
+log_file="logfile.txt"   # <-- Change this to your actual log file path
+
+# Extract IP addresses, excluding 127.0.0.1
 grep -oP '\d+\.\d+\.\d+\.\d+' "$log_file" | grep -v '127.0.0.1'
-Explanation:
-grep -oP '\d+\.\d+\.\d+\.\d+':
--o: Tells grep to only output the matched part (in this case, the IP address).
--P: Enables Perl-style regex for more advanced pattern matching.
-\d+\.\d+\.\d+\.\d+: This regular expression matches an IP address pattern (e.g., 9.37.65.139).
-grep -v '127.0.0.1': This filters out the 127.0.0.1 address, as it’s the loopback address, which you may not want to include.
-How to run the script:
-Save the script to a file, e.g., extract_ips.sh.
-Make it executable by running:
-bash
-Copy
+
+
+Explanation of the commands
+
+grep -oP '\d+\.\d+\.\d+\.\d+' "$log_file"
+
+-o: Print only the matching part (the IP addresses).
+
+-P: Use Perl-style regex.
+
+\d+\.\d+\.\d+\.\d+: Matches patterns like 129.1.1.1.
+
+grep -v '127.0.0.1'
+
+Excludes the loopback address 127.0.0.1.
+
+How to run
+
+Save as extract_ips.sh.
+
+Make it executable:
+
 chmod +x extract_ips.sh
+
+
 Run the script:
-bash
-Copy
+
 ./extract_ips.sh
-Sample Output:
-Copy
+
+Sample Output
 129.1.1.1
 9.37.65.139
 9.67.100.1
 9.67.116.98
+
 
 or 
 
@@ -8738,28 +8916,7 @@ grep "interface" "$LOG_FILE" | \
 grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | \
 grep -v "^127\.0\.0\.1$"
 
-📝 Explanation
 
-grep "interface": Filters lines that contain IP addresses (based on your log structure).
-
-grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}': Extracts only the IP address using regex.
-
-grep -v "^127\.0\.0\.1$": Excludes the loopback IP from the results.
-
-💡 Save and Run
-
-Save the script to a file, e.g., extract_ips.sh
-
-Make it executable:
-
-chmod +x extract_ips.sh
-
-
-Ensure your log file is named logfile.txt or change the script accordingly.
-
-Run it:
-
-./extract_ips.sh
 ===================================================================================================
                                         Teraform
 
@@ -11455,6 +11612,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
