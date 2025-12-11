@@ -11222,10 +11222,66 @@ Handlers
 ==========================================================================================================
                                      RED HAT
 
+Manually set up a repository:
+==================================
+We create a .repo file within /etc/yum.repos.d using a text editor  in this example we 
+will create the repository file for MySql 5.7
+
+Step1- cd /etc/yum.repos.d/
+
+Step2-
+vim mysql57-community.repo
+[mysql-community] ======> Lable of installation of repo
+name=MySQL 5.7 Community Server======> name of the yum repository
+baseurl=http://repo.mysql.com/yum/mysql-5.7-community/el/7/$basearcg/======> URL in internel
+enabled=1 ======> true
+gpgcheck=1      
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql======> key
+
+step3:
+yum-config-manager mysql57-community [Validate the yum repository ]
+
+Step4:
+yum install mysql
+
+YUM CONFIGURATION:
+===================
+- Yum stands for yellow dog updater Manger
+- Yum insthe defualt package management utility in RHEL/Centos
+- Yum uses repositroy to get the necessary rpm files
+- A repostiry is collection of rpm files
+- Repository may contain multiple versions of the same RPM package
+- Repository may contain different builds for different architecgtures for example one for i686 and other for x86_64.
+- A repository can be configured locally or remotely.
 
 
-cd /etc/yum.repos.d/
+[root@server repo] #vi /etc/yum.repos.d/rhcelab.repo
+  
+[rhcerepo]                            |
+name=rhcerepo                         |
+baseurl=file:///rhcelab/repo          |=====File contents
+enabled=1                             |
+gpgcheck=0
 
+:wq====== save and exit from file
+
+
+
+vi /etc/yum.repos.d/rhcelab.repo  -As we know repository configuration files are stored in /etc/yum.repos.d/ directory with an extension .repo, so we executed this                                        command to create the necessary configuration file for repository.
+[rhcerepo]   - This is the label of repository usually a repository file contains configuration for multiple 
+               repositories in that case lable used as identifier of repository
+name=rhcerepo - This configuration value is uses to set the name  of repository
+baseurl=file:///rhcelab/repo - This configuration value defines the location of rpm files
+enabled=1 - This key defines the state of repository. if value is et to 1 then repository is enabled. if value is et to 0 then repository is disabled.
+
+gpgcheck=0 - This key defines whether the integrity of package should be check or not. if vlaue is et to , integrity will be checked. if value is set to 0, integrity   
+           will not be checked
+:wq - We used vi editory to create the file. in vi editor the comman wq is used to save and quit from file.
+
+
+
+
+    
 NMCLI- NetworkManger command line interface
 - Ip adrress
 - subnets
@@ -11612,6 +11668,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
