@@ -11280,8 +11280,10 @@ gpgcheck=0 - This key defines whether the integrity of package should be check o
 
 
 
-
-    
+Configuring IP Networking With NMCLI
+==========================================
+The NMCLI(NetworkManager Command Line Interface) comman-line utility is used for controlling network manager and reporting network status.
+   
 NMCLI- NetworkManger command line interface
 - Ip adrress
 - subnets
@@ -11291,16 +11293,174 @@ NMCLI- NetworkManger command line interface
 - ethernet cards and ports
 - DHCP
 
+Step1- yum install NetworkManager
+Step2- systemctl start NetworkManager
+Step3- systemctl enable NetworkManager 
+to make sure it is up 24/7
+
+Step4- nmcli connection show --active
+NAME   UUID                                   TYPE             DEVICE
+etho   51037419-2120-4bd-859c-213324d97084   ethernet           eth0 
+
+Step5- nmcli device status
+DEVICE   TYPE     STATE         CONNECTION
+etho0   ethernet  connected      eth0
+lo      loopbak   unmanaged      --
+
+step6- nmcli connection add type ethernet ifname etho
+[root@ip-172-31-22-205 yum.repos.d]# nmcli connection add type ethernet ifname eth0
+connection 'ethernet-eth0' (41617833-1202-4743-86-3e6e68597283) successfully aadded
+
+Stepp7- nmcli connection show
+
+NAME               UUID                                   TYPE             DEVICE
+etho               51037419-2120-4bd-859c-213324d97084   ethernet           eth0 
+ethernet-enp0s8    4167419-2120-4bd-859c-213324d97084    ethernet           --
+System etho0       5fb7419-2120-4bd-859c-213324d97084    ethernet           --
+
+[root@ip-172-31-22-205 yum.repos.d]#
+
+Step8- nmcli connection up ethernet-eth0
+[root@ip-172-31-22-205 yum.repos.d]# nmcli connection up ethernet-eth0
+Connection sucessfully activated(D-Bus active path:
+     
+
+Step9
+To change the Linux system IP address    
+nmcli connection modify ethernet-eth0 ipv4.address 172.31.16.0/20
+
+nmcli connection modify ethernet-eth0 ipv4.method manual
+
+Step10
+To bring the connection down and up
+
+nmcli connection down ethernet-eth0
+
+nmcli  connection up ethernet-eth0
+
+Step11:
+
+To modify IPV4 Gateway
+
+nmcli connection modify ethernet-eth0 ipv4.gateway "172.31.16.1"
+
+Step12
+
+To modify the DNS
+nmcli connection modify ethernet-eth0 ipv4.dns "172.31.16.103"
+
+[root@ip-172-31-22-25 yum.repos.d] # nmcli device show
+GENERAL.DEVICE:                eth0
+GENERAL.TYPE:                  ethernet
+GENERAL.HWADDR:                02.b3:c9:cb:32:6D
+GENERAL.MTU:                   9001
+GENERAL.STATE:                 100( Connected)
+GENERAL.CONNECTION:            ethernet-eth0
+GENERAL.CON-PATH:              /org/freedesktop/NetworkManager/ActiveConnection/2
+WIRED-PROPERTIES.CARRIER       on
+IP4.ADDRESS[1]:                172.31.22.205/20
+IP4.GATEWAY:                   172.31.16.1
+IP4.ROUTE[1]:                  dst =0.0.0.0/0   g=172.31.16.1, mt = 100
+IP4.ROUTE[2]:                  dst= 172.31.16.0/20, nh = 0.0.0.0, mt =100
+IP4.DSN[1]:                    172.31.0.2
+IPV4.DOMAIN[1]:                us-west-1.compute.internal
+IPV6.ADDRESS[1]:               fe80::fcd1:22d6:9d30:6273/64
 
 
-SELINUX
+
+Resetting a Root Password in Linux CentOS( IF FORGOT)
+===========================================================
+Step1: Boot to Recover mode
+For resetting the root password we need to reboot our computer.
+when the system restart, press the "ESC" key immediately to interrupt the boot process and select the kernel
+from the GRUB/Booot menu you want to boot into by pressing the arrow keys.
+
+Step2: Pressing 'e' from your keyboard will ipen the editing menu.
+
+Step3: In the editing menu, locate the "ro" kernet parameter and replace it with "rw", and add an additional parameter
+"init=/sysroot/bin/sh"
+
+load _video
+set gfx_payload=keep
+insmod gzio
+linux($root)/vmlinux-4.18.0-305.3.1.e18.x86_64 root=/dev/mapper/cl-root ro cr\
+crashkernel=auto resume=/dev/mapper/cl-swap rd.lvm.lv=cl/root rd.lvm.lv=cl/swap \
+rhgb quiet
+initrd ($root)/initram(s-4.18.0-305.3.`.e18.x86_64.ing $tybed_intrd
+
+
+linux($root)/vmlinux-4.18.0-305.3.1.e18.x86_64 root=/dev/mapper/cl-root rw in\
+it=/sysroot/bin/sh crashkernel=auto resume=/dev/mapper/cl-swap rd.lvm.lv=cl/ro\
+ot rd.lvm.lv=cl/swap rhgb quiet
+
+
+Step4: Press Ctrl+x to enter into the single-user mode once you are done with the previou steps
+
+Step5- Now run the "chroot /sysroot" comand to conver the root file system in read and wirte mode
+          :/# chroot /sysroot
+Step6: Set a new password for root,input the command (Changing the password for user root)
+
+        :/# passwd root
+        changing password for user root.
+        New password: -
+Step7- set a new password for root, input the command
+
+:/# passwd root
+ changing password for user root.
+New password:
+Rtype new password:
+passwd: all authentication tokens updated sucessfully
+:/#
+
+
+Step8- SELinux relabelling( to set the permission for files or folders)
+
+  :/# touch /.autorelable
+  :/# _
+
+Step9- Exit from terminal  
+
+     :/# exit
+     exit
+     :/#
+Step10- Hit reboot
+
+   :/# reboot
+   :/# _ 
+   
+
+How to create a tar backup
+1) tar -cvf backup.tar finaldraft.sh  
+   - c- Create the archive
+   - v- show the process verbosely
+   -f - name the archive
+
+2) create a tar.gz backup
+   tar -czf backup.tar.gz finaldraaft.sh
+
+    - c- Create the archive
+    - v- Show the process verbosely
+    -f - Name the archive
+    -z- Compressed gzip archive file
+
+3) Exclude files when creating a tar backup 
+      tar --exclude file.txt --exclude file.sh -cvfz backup.tar.gz
+
+4) extract content from a tar(.gz) backup
+          tar -xvfz backup.tar.gZ
+    -X extract the content
+    -v show the process verbosely
+    -f name the archive
+    -z compressed gzip archive file
 
 
 
 
 
-Azure
-----------
+
+
+                     Azure
+================= =============================
 
 
 
@@ -11668,6 +11828,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
