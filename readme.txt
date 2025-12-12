@@ -11485,8 +11485,67 @@ balanced
 
 # tuned-adm profile virutal-guest powersave
 
-SELINUX -
 
+
+Create a Group
+=======================
+ Need to create groups before creating any accoutn otherwise we have to use existing groups at your system
+
+ groupadd [-g gid [-o]] [-r] [-f] groupname
+ option   description
+ -g GID    The numerical value of the groups ID
+ -O        The option permits to add group with noon- unique GID
+ -r        THis flag instructs group add to add a system account
+ -f        This option causes to just esit with sucess status if the specified group already esists with -g, if specified GID already exists
+           other( unique) GID  is chosed
+Groupname  Acutal group name to be created.
+
+Command     Description
+useradd     Adds accounts to the system
+usermod     Modifies account attributes
+userdel     Delets accounts from the system
+groupadd    Adds groups to the system
+groupmod    Modifies group attributes
+groupdel    Removes groups form the systme
+
+
+$ groupadd developers
+
+Modify a Group
+To modify a group, use the groupmod syntax
+
+$ groupmod -n new_modified_group_name old_group_name
+
+To change the developers_2 group name to developer type-
+$ groupmod -n developer devleoper_2
+
+Here is how you will chnag ethe financial GID to 455
+$ groupmod -g 545 developer
+
+$ groupdel  developer
+
+Create an Account
+- useradd -d /home/singam/-g testers -s /bin/bash -m singam
+
+Option        Description
+-d homedir    Specifies home directory for the account
+-g groupname  specifies a group account for this account
+-m            Creats the home directory if it doesn't esist
+-s shell      specifies the default shell for this account
+-u userid     you can specify a user id for this account
+acccountname  Actual account name to be created
+
+# useradd -d /home/signam/ -g testers -s /bin/bash -m singam
+# passwd signam
+Changing password for user signam.
+New password:
+Retype password
+
+
+
+
+SELINUX -
+==========
 SELinux stands for security enhanced linux which is an access control system that is build into the linux kernl.
 it is used to enforce the resource policies that define what level of access users, programs and services have on a system
 
@@ -12246,6 +12305,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
