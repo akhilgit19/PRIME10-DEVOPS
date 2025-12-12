@@ -11616,6 +11616,265 @@ crontab -l
 00**6/root/backup.sh
 
 
+SWAP PARTITION 82
+======================
+They Swap partition serves as overflow space for your RAM. if your RAM fills up completely, any additional 
+applications will run off the swap partition rather than RAM.
+
+Prioritization and Hibernation are the end goals for using the SWAP
+
+Create a swap partition
+fdisk -l (will show the disks)
+/dev/xvda1 -- 8gb
+
+fdisk /dev/xvda1 
+
+press n[ N for new]
+partition type 
+primary -p
+first sector:
+last sector: +512 M
+
+Created a new partition 1 of type Linux and of size 8 GIB
+type t
+t-> for type of partition 
+l-> list all types of partition 
+Hex code or alias : 82 number is for SWAP
+w [quit]
+partprobe /dev/xvda1  [To let the kernel know about partition ]
+
+mkswap /dev/vda3 [ To use the swap partition]
+mounts -a [To check for errors]
+
+vi /etc/fstab [For permanent mount]
+
+/dev/vda3 swap swap
+
+swapon -s
+
+Logical Volume Management
+
+Logical Volumen Managment enables the combingin of multiple individual hard drives and/or disk partitions into a single volume
+group( VG). That volume group can then be subdivided into logical volumes(LV) or used as a signle large volume
+
+File systme
+logcial volume
+volumegroup
+physical volume
+physical hard drive
+
+
+
+Steps to Create a Logical Volume in Linux (with SELinux considerations)
+========================================================================
+Install a new hard disk dirve 1 TB PDH /+1 TB on Lonus
+Desingnate physicaal volums 
+pv create /dev/vda1
+
+D PV1
+E PV2
+C PV3
+F PV4
+
+Manage volume goroups
+vgcreate vgname /dev/vda1      VG1 
+
+Manage logical volumes: The VG can be subdivided into one or more Logical volumes(LV) 
+
+LV1
+LV2
+LV3
+
+Ivcreate -L size -n lvname vgnmae
+
+
+Logical volumes- 8e
+ fdisk /dev/vda
+ n
+ +500 M
+  T->8E
+ :WQ
+  Reboot the VM
+  pvcreate /dev/vdb
+  vgcreate -s 16 test /dev/vdb
+  lvcreate -l 30 -n new test
+  Mkdir /mnt/storage
+
+
+  Mkfs.vfat /dev/test/new
+  Vim /etc/fstab
+  /dev/test/new /mnt/storage vfat
+
+  /dev/test/new
+
+1. Identify the disk or partitions
+lsblk
+fdisk -l
+
+2. Create a physical volume (PV)
+sudo pvcreate /dev/sdb1
+
+
+3. Create a volume group (VG)
+sudo vgcreate myvg /dev/sdb1
+
+
+Check:
+
+vgs
+
+4. Create a logical volume (LV)
+
+Example: create a 10 GB LV
+
+sudo lvcreate -n mylv -L 10G myvg
+
+
+Check:
+
+lvs
+
+5. Create a filesystem
+
+Example using EXT4:
+
+sudo mkfs.ext4 /dev/myvg/mylv
+
+6. Create a mount point
+sudo mkdir /mnt/mylvdata
+
+🔐 7. Apply SELinux context (important)
+
+If mounting under /mnt or /media, no special label is needed.
+If mounting under a directory used by services (e.g., /var/www), you must label it.
+
+Option A — Apply default filesystem labeling
+sudo restorecon -Rv /mnt/mylvdata
+
+Option B — Assign a specific SELinux label (example: for Apache)
+sudo semanage fcontext -a -t httpd_sys_content_t "/mnt/mylvdata(/.*)?"
+sudo restorecon -Rv /mnt/mylvdata
+
+8. Add to /etc/fstab for persistent mount
+
+Get UUID:
+
+blkid /dev/myvg/mylv
+
+
+Add line to /etc/fstab:
+
+/dev/myvg/mylv   /mnt/mylvdata   ext4    defaults    0 0
+
+
+Mount:
+
+sudo mount -a
+
+✔️ Summary
+Step	Command
+Create PV	pvcreate /dev/sdb1
+Create VG	vgcreate myvg /dev/sdb1
+Create LV	lvcreate -n mylv -L 10G myvg
+Make FS	mkfs.ext4 /dev/myvg/mylv
+Mount	mount /dev/myvg/mylv /mnt/mylvdata
+Set SELinux context	restorecon or semanage fcontext
+
+
+
+🔐 Step 7: Apply SELinux Context (Why this is needed)
+
+SELinux controls which processes can access which files, based on SELinux labels (contexts).
+
+✔ When you mount a new logical volume, SELinux does not automatically know what that directory should be used for.
+
+So you must give it the correct SELinux label.
+
+✅ Case 1: If you mount under /mnt or /media
+
+You don’t need to set any SELinux labels, because SELinux already treats these as temporary storage.
+
+Just mount and you’re done.
+
+✅ Case 2: If the LV is for a service (Apache, MySQL, etc.)
+
+You must label it, or the service will get “Permission denied” even if Linux permissions are correct.
+
+Example:
+If this LV will store web files, Apache needs the label httpd_sys_content_t.
+
+Two ways to apply SELinux labels:
+Option A — Restore default labeling
+
+Use this only if the directory should have whatever the default SELinux label is:
+
+sudo restorecon -Rv /mnt/mylvdata
+
+
+This resets the directory's label to what SELinux policy already expects.
+
+Option B — Assign a specific label (recommended for services)
+
+Example: you want Apache to read files in /mnt/mylvdata.
+
+1. Add label rule:
+sudo semanage fcontext -a -t httpd_sys_content_t "/mnt/mylvdata(/.*)?"
+
+
+This tells SELinux:
+“Everything in this directory should be labeled for Apache.”
+
+2. Apply the label:
+sudo restorecon -Rv /mnt/mylvdata
+
+
+Now Apache can access the files without SELinux blocking it.
+
+📌 Step 8: Make the mount permanent (/etc/fstab)
+
+Currently, your logical volume mounts only when you mount it manually.
+To make it mount every time the system boots, you add it to /etc/fstab.
+
+1. Get its UUID:
+blkid /dev/myvg/mylv
+
+
+You will see something like:
+
+UUID="1234-ABCD-5678-EF90"
+
+2. Add this line to /etc/fstab:
+/dev/myvg/mylv   /mnt/mylvdata   ext4    defaults    0 0
+
+
+This tells Linux:
+
+What to mount → /dev/myvg/mylv
+
+Where to mount it → /mnt/mylvdata
+
+Filesystem type → ext4
+
+Options → defaults
+
+Last two numbers → ignore for checks
+
+✔️ In short:
+
+SELinux step:
+👉 Label the directory so the right service can use it.
+
+fstab step:
+👉 Add the LV to /etc/fstab so it auto-mounts on boot.
+
+If you want, I can also explain:
+
+🔹 How to mount LV under /var, /home, or /srv
+🔹 How to label for other services (Nginx, MySQL, Samba)
+🔹 Error fixing: “Permission denied” caused by SELinux
+
+
+
 
 
                      Azure
@@ -11987,6 +12246,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
