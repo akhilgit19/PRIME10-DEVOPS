@@ -11454,7 +11454,166 @@ How to create a tar backup
     -z compressed gzip archive file
 
 
+Tuning of Linux Systems
+============================
 
+The profiles provided with tuned are divided into two categories power-saving profiles 
+and performance-boosting profiles. 
+The performance-boosting profiles include profiles focus on the following aspects
+
+- low latency for storage and network
+- high throughput for storage and network
+- virutal machine performance
+- virtualization host performance
+
+
+. yum install tuned
+. systemctl enable -now tuned
+. yum install tuned-profiles-realtime
+. tuned-adm active( Verify that a TuneD  profile is active and applied)
+. tuned-adm verify
+. tuned-adm list
+
+
+TuneD recommends the most suitable profile for your sustme
+
+# tuned-adm recommend
+
+balanced
+
+# tuned-adm profile selected-profile
+
+# tuned-adm profile virutal-guest powersave
+
+SELINUX -
+
+SELinux stands for security enhanced linux which is an access control system that is build into the linux kernl.
+it is used to enforce the resource policies that define what level of access users, programs and services have on a system
+
+SELINUX=enforicing/permissiove/disabled- defined the top level state of SELinux on a system
+
+enforcing- The SELinux security policy is enforced
+permisive- The SELinux system prints warnins but does not enforce policy.
+disabled- SELinux is fully disabled. SELinux hooks are disengaged from the kernel and th epseudo-file system is unregistered
+
+SELINUXTYPE= targetedlstrict- specifies which policy SELinux should enforce
+targeted- Only targeted network daemons are protected
+
+strict- Full SELinux protection, for all daemons Security contexts are defined for all subjects and objects and every ations 
+   is processed by the policy enforcement server.
+
+
+Step1: status of SELinux
+# sestatus
+
+SELinux status:            disabled
+
+Step2: CVheck SELinux
+
+cat /etc/selinux/config
+
+Step3: Change SELinux Mode
+
+# This file controls the state of SELinux on the system.
+# SELINUX= can take one of these three values:
+#     enforcing - SELinux security policy is enforced.
+#     permissive - SELinux prints warnings instead of enforcing.
+#     disabled - No SELinux policy is loaded.
+SELINUX=enforcing=====================> updated the default alue
+
+# SELINUXTYPE= can take one of these two values:
+#     targeted - Targeted processes are protected.
+#     mls - Multi Level Security protection.
+SELINUXTYPE=targeted
+
+:wq ==> save the file
+
+
+# reboot -f ===> restart the system
+
+
+
+$ ls -lz
+-rw-r--r--. 1 root root unconfined_u:object_r:etc_t:s0     120 Jan 10 12:30 config.txt
+drwxr-xr-x. 2 root root unconfined_u:object_r:var_t:s0    4096 Jan 10 12:31 docs
+-rwxr-xr-x. 1 root root unconfined_u:object_r:bin_t:s0    2048 Jan 10 12:32 script.sh
+Field order in ls -lz:
+
+permissions links owner group SELinux-context size date filename
+SELinux context breakdown:
+
+
+user : role : type : level
+
+Example:
+
+
+unconfined_u:object_r:bin_t:s0
+
+
+Crontab:
+===========
+
+# ┌───────────── minute (0 - 59)
+# │ ┌─────────── hour (0 - 23)
+# │ │ ┌───────── day of month (1 - 31)
+# │ │ │ ┌─────── month (1 - 12)
+# │ │ │ │ ┌───── day of week (0 - 7, Sun=0 or 7)
+# │ │ │ │ │
+# * * * * * <command>
+
+
+Edit the crontable file. crontab -e
+
+crontab -l
+
+
+
+
+# Run system backup daily at 1:30 AM
+30 1 * * * /usr/local/bin/backup.sh
+
+# Run database maintenance every Sunday at 3 AM
+0 3 * * 0 /usr/local/bin/db_maintenance.sh
+
+# Clean temporary files every 6 hours
+0 */6 * * * /usr/local/bin/cleanup.sh
+
+# Send work report Monday–Friday at 7:15 AM
+15 7 * * 1-5 /usr/local/bin/report.sh
+
+# Sync logs once per hour
+0 * * * * /usr/local/bin/sync_logs.sh
+
+# Run a script every 5 minutes
+*/5 * * * * /usr/local/bin/check_status.sh
+
+# Run cron job every Minute 
+*****/root/backup.sh
+
+# Run cron job every 30  Minute 
+30****/root/backup.sh
+
+# Run cron job every hour
+0****/root/backup.sh
+
+# Run cron job every day at midnight
+00***/root/backup.sh
+
+# Run cron job at 2 am every day
+02***/root/backup.sh
+
+# Run cron job every 1st of the month
+001**/root/backup.sh
+
+# Run cron job every 15th of the month
+0015**/root/backup.sh
+
+# Run cron job december 1st- midnight
+00012*/root/backup.sh
+
+# Run cron job every saturday at midnight
+00**6/root/backup.sh
 
 
 
@@ -11828,6 +11987,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
