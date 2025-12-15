@@ -10658,6 +10658,8 @@ yum – Manages packages with the yum package manager
     state: latest
 
 
+https://github.com/akhilgit19/Ansible/blob/main/write_content_to_file.yml
+
 
 ---
 
@@ -10982,6 +10984,151 @@ Edit
         kind: Namespace
         name: demo-namespace
 Would you like me to extend this to deploy a full-fledged application (Deployment, Service, Ingress, etc.)? 🚀
+
+
+Below is a complete, production-style Ansible example that deploys a full Kubernetes application using:
+
+Namespace
+
+Deployment (Nginx)
+
+Service (ClusterIP)
+
+Ingress
+
+Verification
+
+Cleanup playbook
+
+pip install kubernetes openshift
+ansible-galaxy collection install kubernetes.core
+
+- name: Deploy Full Kubernetes Application
+  hosts: localhost
+  gather_facts: no
+  vars:
+    namespace: demo-namespace
+    app_name: nginx-app
+
+  tasks:
+    - name: Create Namespace
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ namespace }}"
+
+    - name: Deploy Nginx Application
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: "{{ app_name }}"
+            namespace: "{{ namespace }}"
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: nginx
+            template:
+              metadata:
+                labels:
+                  app: nginx
+              spec:
+                containers:
+                  - name: nginx
+                    image: nginx:latest
+                    ports:
+                      - containerPort: 80
+
+    - name: Create Service
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: nginx-service
+            namespace: "{{ namespace }}"
+          spec:
+            selector:
+              app: nginx
+            ports:
+              - protocol: TCP
+                port: 80
+                targetPort: 80
+            type: ClusterIP
+
+    - name: Create Ingress
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: nginx-ingress
+            namespace: "{{ namespace }}"
+            annotations:
+              nginx.ingress.kubernetes.io/rewrite-target: /
+          spec:
+            ingressClassName: nginx
+            rules:
+              - host: nginx.local
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: nginx-service
+                          port:
+                            number: 80
+
+    - name: Get Deployment Status
+      kubernetes.core.k8s_info:
+        kind: Deployment
+        namespace: "{{ namespace }}"
+        name: "{{ app_name }}"
+      register: deploy_info
+
+    - name: Show Deployment Status
+      debug:
+        msg: "Available Replicas: {{ deploy_info.resources[0].status.availableReplicas | default(0) }}"
+
+ansible-playbook deploy_app.yml
+
+kubectl get all -n demo-namespace
+kubectl get ingress -n demo-namespace
+
+
+For local testing, add to /etc/hosts:
+
+127.0.0.1 nginx.local
+
+
+Then access:
+
+curl http://nginx.local
+
+
+📄 cleanup.yml
+
+- name: Cleanup Kubernetes Resources
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Delete Namespace
+      kubernetes.core.k8s:
+        state: absent
+        kind: Namespace
+        name: demo-namespace
+
+ansible-playbook cleanup.yml
+
 
 Messages beyond this point are only visible to you
 
@@ -12305,6 +12452,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
