@@ -11366,6 +11366,759 @@ https://github.com/praveen1994dec/Ansible/blob/main/roles/create-user/tasks/main
 Handlers
 
 
+Ansible Hands On
+=====================
+
+Github----- Jenkins--- Maven-- docker image build--- docker hub( docker image push---- ansible-- Kubernetes manifest files--- Amazon EKS-- ec2, aws clOUDFOIRMATION,AWS iam'
+
+https://github.com/DEVOPS-WITH-WEB-DEV/jenkins-shared-library1
+https://github.com/DEVOPS-WITH-WEB-DEV/spring-cloud-kubernetes
+
+Prerequisites
+- AWS Login
+- Docker Hub login
+- Github hub login
+
+Step1- Create a T2.medium ubuntu EC2 instance in AWS in US-WEST-1 region
+
+Step2- Install JDK on AWS EC2 Instance
+sudo apt-get update
+sudo apt install openjdk-11-jre-headless -y
+java --version
+
+Step3- Install and setup Jenkins
+curl -fsSL
+https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee/usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyrings.asc]
+https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt update
+sudo apt install jenkins
+sudo systemctl status jenkins
+
+Step4 setup jenkins
+- Now go to AWS dashboard ->EC2-> Instances(running) and click on Jenkins-EC2
+- Copy public iPV4 addresss.
+- change the SG to open for jenkins
+ TYPE -SSH         Protocol- TCP PORRT 22 Anwhere -0.0.0/0
+ Type- All traffic protocol- ALL PORT ALL Anwhere -0.0.0/0
+-
+ALright now we know the public ip of the EC2 machine, so now we can access jenkins from the browser using the public IP address followed by port 8080.
+- copy the below key and paste it on jenkins
+
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+- unlock jenkins
+- After completing the installation of the suggested plugin you need to set the fist admin user for jenkins
+
+Step5- update visudo and assign administration privileges to jenkins user
+- open the file /etc/sudoers in vi mode sudo vi /etc/sudoers
+- add the following line at the end of the file
+
+jenkins ALL=(ALL) NOPASSWD:ALL
+
+- after adding the line save and quit the file. Now we can use jenkins as root user and for that run the following
+command
+
+sudo su - jenkins
+
+#Members of the admin group may gain root privileges
+%admin ALL=(ALL) ALL
+
+# Allow members of group sudo to execute any command
+%sudo ALL=(ALLL:ALL) ALL
+
+# See sudoers(5) for more information on "@clude" 
+@includedir /etc/sudoers.d
+-- INSERT --
+jenkins ALL=(ALL) NOPASSWD: ALL
+
+@includedir /etc/sudoers.d
+:wq!
+
+STEP6- Install docker with user jenkins
+
+sudo apt install docker.io
+docker --version
+docker ps
+sudo usermod -aG docker jenkins
+sudo reboot
+
+Step7 - Install and setup AWS and EKS CLI
+sudo apt install awscli
+curl
+"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o"awwscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install --update
+aws -version
+
+
+EKSCTL INSTALLATION
+
+curl --silent --location
+"https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz-C /tmp
+
+sudo mv /tmp/eksctl /usr/local/bin
+
+eksctl version
+
+Step8- Configure the AWS CLI so that it can authenticate and communicate with the AWS environment
+
+Command: aws configure
+
+Once you execute the above command it will ask for the following information
+
+1. AWS Access Key ID[None]: Your Access Kye
+2. AWS Secret Access Key[None]: Your Secret key
+3. Default region name[None]: REGION
+4. Default ouput format[ none]:
+
+You can click on the create New Access key and it wil let you generate- AWS Access key ID, AWS Secret Acess Key.
+
+aws configure
+
+
+Step9 - Install and setup kubectl 
+
+curl -LO
+https://storage.googleappis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectgl
+
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+
+kubectl get pods - WILL GIVE ERROR
+
+Step10- Creating an Amazon EKS cluster using eksctl
+
+it will take 15-20 min time to create the cluster
+
+Now in this step, we are going to create Amazon EKS cluster using eksctl
+
+You need the following in order to run the ksctl command
+
+1. Name of the cluster:- name first-eks-cluster
+2. Version of kubernetes: --version 1.24
+3. Region: --region us-west-1
+4. Nodegroup name/worker nodes
+   : --nodegroup-name worker-dnodes
+5. Node Type-: --nodegroup-type t2.icro
+6. Number of nodes: --nodes 2
+
+eksctl create cluster --name first-eks-cluster --version 1.24 --region us-west-1 --nodegroup-name worker-nodes --node-type t2.mciro --nodes 2
+
+Step11- Add docker and Github credentials on Jenkins
+
+- Setup Docker Hub SECRET tEXT in Jenkins
+
+You can set the docker credentials by going into - goto - Jenkins- manage jenkins- manage creendtails-- stored scoped to jenkins-- global-- add credentials[ Give your docker hub credentials
+
+Update creedentials
+
+Scope
+globbal( Jenkins, nodes, items, all child items, etc)
+
+Username
+praveensingam1994
+
+password
+
+id
+docker_cred
+
+description
+
+
+- setup github username and password into jenkins
+ Now we add one more username and password for GitHub.
+
+Goto--> Jenkins---> Manage Jenknis--> Manage Credentials--> Stored scoped to Jenkins --> global- add creedentials
+
+
+- Step11.1 Add the EKS IAM role to EC2
+
+Got to IAM -- Create ROLE
+ Add permissions
+ permission policy- Administrator accss
+
+- Step`12- Add maven in global tool configuration
+  Maven Installations
+  add maven
+  maven name
+-select isntall automatically
+ install from apache
+
+- Step13- Add jenkins shared library
+ Go to Manage jenkins-- configure system- global pipeline libraries->
+
+Give Library name- jenkins-shared-library
+default Version - main
+project Repository-
+https://github.com/DEVOPS-WITH-WEB-DEV/jenkins-shared-library1.git
+
+
+- STEP14- BUILD,DEPLOY and test CI/CD Pipeline
+
+CREATE  new Pipeline: Go to Jenkins Dashboard or jenkins home page  click on New item
+Pipeline Name: Now enter jenkins pipeline name and select pipeline
+
+Add pipeline script:
+
+click on configure --> select pipeline-->
+
+https://github.com/praveen1994dec/spring-cloud-kubernetes/blob/main/kubernetes-cofigmap-reload/jenkinsfile-> copy that jenkinsfile-> paste it in pipeline script in jenkins
+
+
+- Step15- Ansible pythong Setup
+
+sudo apt update
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --update 
+ppa:ansible/ansible
+
+sudo apt install ansible
+
+sudo apt install python3
+
+sudo apt install python3-pip
+pip3 install kubernetes
+
+Step16- Select build with paramenters[ if fails again start the pipeline]
+
+Action - create
+ImageName- kubernetes-configmap-reload
+ImageTag- v1
+AppName- kubernetes-configmap-reload
+Docker_repo - Give your Docker Hub account ID
+Docker Login
+
+Step17 pipeline will passs
+
+Step18- ADD WEBHOOK
+
+In github project--setting--webhook-- URL------ http://<ec2_ip>:8080/github-webhook/- > ONLY FOR POUSH EVENTS
+
+In Jenkins--> Go to General Tab--> Build triggers --> add github web hook trigger
+
+Step19- Delete EKS cluster[Please note from 
+Step5 to step19 all  steps have to be done as jenkins user in ubuntu system]
+
+
+eksctl delete cluster --name first-eks-cluster
+
+Notepadformat
+================
+
+
+[GitHub Repository]
+       │
+       │  (Push / Webhook Trigger)
+       ▼
+[Jenkins Job] (Workspace: ${WORKSPACE})
+       │
+       │ 1️⃣ Git Checkout
+       │   └─ gitCheckout(shared library)
+       │
+       ▼
+[Build Stage: Maven]
+       │
+       │ dir(${AppName})
+       │ mvn clean package
+       │
+       ▼
+[Docker Build & Push]
+       │
+       │ dockerBuild(shared library)
+       │ ├─ docker build -t hubUser/project:ImageTag
+       │ ├─ docker tag :latest
+       │ ├─ docker login via credentials
+       │ └─ docker push
+       │
+       ▼
+[Docker Cleanup]
+       │
+       │ dockerCleanup(shared library)
+       │ └─ remove local images
+       │
+       ▼
+[Ansible Setup]
+       │
+       │ sh ansible-playbook ${WORKSPACE}/server_setup.yml
+       │ └─ Install dependencies, Python, configure server
+       │
+       ▼
+[Kubernetes Deployment]
+       │
+       │ sh kubectl create -f ${WORKSPACE}/kubernetes-configmap.yml
+       │
+       ▼
+[Wait for Pods]
+       │
+       │ sh sleep 300
+       │
+       ▼
+[Optional Rollback]
+       │
+       │ if action == rollback:
+       │ sh kubectl delete deploy/service ${AppName}
+       │
+       ▼
+[Deployment Complete / Success]
+
+
+
+
+STEP 1 - Create EC2 Instance
+----------------------------
+- Instance Type: t2.medium
+- AMI: Ubuntu
+- Region: us-west-1
+
+STEP 2 - Install Java (JDK) on EC2
+----------------------------------
+sudo apt-get update
+sudo apt install openjdk-11-jre-headless -y
+java --version
+
+STEP 3 - Install and Setup Jenkins
+----------------------------------
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt update
+sudo apt install jenkins -y
+sudo systemctl status jenkins
+
+STEP 4 - Jenkins Initial Setup
+------------------------------
+1. Go to AWS Console -> EC2 -> Running Instances
+2. Select Jenkins EC2 instance
+3. Copy Public IPv4 Address
+4. Update Security Group to allow:
+   - SSH TCP 22 from 0.0.0.0/0
+   - All Traffic ALL from 0.0.0.0/0
+
+5. Open browser and visit:
+   http://<EC2_PUBLIC_IP>:8080
+
+6. Get Jenkins initial admin password
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+7. Paste password and unlock Jenkins
+8. Install suggested plugins
+9. Create first admin user
+
+STEP 5 - Grant Jenkins Sudo Privileges
+--------------------------------------
+sudo vi /etc/sudoers
+
+Add:
+jenkins ALL=(ALL) NOPASSWD:ALL
+
+Save and exit:
+:wq!
+
+Switch to Jenkins user:
+sudo su - jenkins
+
+STEP 6 - Install Docker
+------------------------
+sudo apt install docker.io -y
+docker --version
+docker ps
+sudo usermod -aG docker jenkins
+sudo reboot
+
+STEP 7 - Install AWS CLI and EKS CLI
+------------------------------------
+sudo apt install awscli -y
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install --update
+aws --version
+
+eksctl install:
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
+
+STEP 8 - Configure AWS CLI
+---------------------------
+aws configure
+Enter:
+AWS Access Key ID
+AWS Secret Access Key
+Default region name: us-west-1
+Default output format
+
+STEP 9 - Install kubectl
+------------------------
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/kubectl
+
+kubectl get pods    (expected error until cluster exists)
+
+STEP 10 - Create EKS Cluster
+----------------------------
+eksctl create cluster \
+--name first-eks-cluster \
+--version 1.24 \
+--region us-west-1 \
+--nodegroup-name worker-nodes \
+--node-type t2.micro \
+--nodes 2
+
+STEP 11 - Add Credentials in Jenkins
+------------------------------------
+1. Go to Manage Jenkins -> Manage Credentials
+2. Add Docker Hub credentials
+   - ID: docker_cred
+   - Username: <your docker hub user>
+   - Password: <your docker hub password>
+3. Add GitHub credentials
+
+STEP 11.1 - Add IAM Role to EC2
+-------------------------------
+1. Go to IAM -> Create Role
+2. Attach AdministratorAccess
+3. Attach role to EC2 instance
+
+STEP 12 - Configure Maven in Jenkins
+------------------------------------
+Manage Jenkins -> Global Tool Configuration
+Add Maven:
+ - Name: maven
+ - Install automatically
+ - Install from Apache
+
+STEP 13 - Add Jenkins Shared Library
+------------------------------------
+Manage Jenkins -> Configure System
+Global Pipeline Libraries:
+ - Library name: jenkins-shared-library
+ - Default version: main
+ - Project repository: https://github.com/DEVOPS-WITH-WEB-DEV/jenkins-shared-library1.git
+
+STEP 14 - Create Pipeline in Jenkins
+------------------------------------
+1. New Pipeline
+2. Paste Jenkinsfile from:
+   https://github.com/praveen1994dec/spring-cloud-kubernetes/blob/main/kubernetes-cofigmap-reload/jenkinsfile
+
+
+@Library('jenkins-shared-library@main') _
+pipeline {
+
+  agent any
+  
+  parameters {
+	choice(name: 'action', choices: 'create\nrollback', description: 'Create/rollback of the deployment')
+    string(name: 'ImageName', description: "Name of the docker build", defaultValue: "kubernetes-configmap-reload")
+	string(name: 'ImageTag', description: "Name of the docker build",defaultValue: "v1")
+	string(name: 'AppName', description: "Name of the Application",defaultValue: "kubernetes-configmap-reload")
+    string(name: 'docker_repo', description: "Name of docker repository",defaultValue: "praveensingam1994")
+  }
+      
+  tools{ 
+        maven 'maven3'
+    }
+    stages {
+        stage('Git Checkout') {
+            when {
+				expression { params.action == 'create' }
+			}
+            steps {
+                gitCheckout(
+                    branch: "main",
+                    url: "https://github.com/praveen1994dec/spring-cloud-kubernetes.git"
+                )
+            }
+        }
+        stage('Build Maven'){
+            when {
+				expression { params.action == 'create' }
+			}
+    		steps {
+        		dir("${params.AppName}") {
+        			sh 'mvn clean package'
+        		}
+    		}
+	    }
+	    stage("Docker Build and Push") {
+	        when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            dir("${params.AppName}") {
+	                dockerBuild ( "${params.ImageName}", "${params.docker_repo}" )
+	            }
+	        }
+	    }
+	 //    stage("Docker CleanUP") {
+	 //        when {
+		// 		expression { params.action == 'create' }
+		// 	}
+	 //        steps {
+	 //            dockerCleanup ( "${params.ImageName}", "${params.docker_repo}" )
+		// 	}
+		// }
+			    stage("Ansible Setup") {
+	        when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            sh 'ansible-playbook ${WORKSPACE}/kubernetes-configmap-reload/server_setup.yml'
+			}
+		}
+	    stage("Create deployment") {
+			when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            sh 'echo ${WORKSPACE}'
+	            sh 'kubectl create -f ${WORKSPACE}/kubernetes-configmap-reload/kubernetes-configmap.yml'
+	        }
+	    }
+	    stage ("wait_for_pods"){
+	    steps{
+              
+                sh 'sleep 300'
+             
+	    }
+	    }
+		stage("rollback deployment") {
+	        steps {	            	         	           
+	              sh """
+	                   kubectl delete deploy ${params.AppName}
+					    kubectl delete svc ${params.AppName}
+				  """	       
+	        }
+	    }
+    }
+}
+
+For docker file
+
+FROM openjdk:8-jdk-alpine
+COPY ./target/*.jar app.jar
+ENV JAVA_OPTS=""
+ENTRYPOINT exec java -jar app.jar --info
+
+
+
+for this sh 'ansible-playbook ${WORKSPACE}/kubernetes-configmap-reload/server_setup.yml
+https://github.com/DEVOPS-WITH-WEB-DEV/spring-cloud-kubernetes/blob/main/kubernetes-configmap-reload/server_setup.yml
+
+- hosts: localhost
+  become: yes
+  tasks:
+
+    - name: update
+      apt: update_cache=yes   
+   
+    - name: install apache2
+      apt: name=apache2 state=latest
+
+    - name: enabled mod_rewrite
+      apache2_module: name=rewrite state=present
+
+    - name: enabled proxy
+      apache2_module: name=proxy state=present
+
+    - name: enabled proxy_http
+      apache2_module: name=proxy_http state=present
+    
+    - name: enabled ssl
+      apache2_module: name=ssl state=present
+    
+    - name: enabled socache_shmcb
+      apache2_module: name=socache_shmcb state=present
+
+    - name: enabled mpm_event
+      apache2_module: name=mpm_event state=present
+
+
+      notify:
+        - restart apache2
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
+
+
+https://github.com/DEVOPS-WITH-WEB-DEV/spring-cloud-kubernetes/blob/main/kubernetes-configmap-reload/kubernetes-configmap.yml
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: kubernetes-configmap-reload
+spec:
+  type: LoadBalancer
+  selector:
+    app: kubernetes-configmap-reload
+  ports:
+    - name: http
+      protocol: TCP
+      # ELB's port
+      port: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-configmap-reload
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kubernetes-configmap-reload
+  template:
+    metadata:
+      labels:
+        app: kubernetes-configmap-reload
+    spec:
+      containers:
+        - name: kubernetes-configmap-reload
+          image: praveensingam1994/kubernetes-configmap-reload:latest
+
+
+
+Deplooyment.yml file
+====================
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-configmap-reload
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kubernetes-configmap-reload
+  template:
+    metadata:
+      labels:
+        app: kubernetes-configmap-reload
+    spec:
+      containers:
+        - name: kubernetes-configmap-reload
+          image: praveensingam1994/kubernetes-configmap-reload:latest
+
+playbook.yml
+================
+- hosts: localhost
+  vars:
+    ansible_python_interpreter: '/usr/bin/python3'
+  tasks:
+  - name: Deploy the service
+    k8s:
+      state: present
+      definition: "{{ lookup('template', 'service.yml') | from_yaml }}"
+      validate_certs: no
+      namespace: default
+  - name: Deploy the application
+    k8s:
+      state: present
+      validate_certs: no
+      namespace: default
+      definition: "{{ lookup('template', 'deployment.yml') | from_yaml }}"
+
+
+service.yml
+=============
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: kubernetes-configmap-reload
+spec:
+  type: LoadBalancer
+  selector:
+    app: kubernetes-configmap-reload
+  ports:
+    - name: http
+      protocol: TCP
+      # ELB's port
+      port: 8081
+
+
+https://github.com/akhilgit19/jenkins-shared-library1/blob/main/vars/dockerBuild.groovy
+
+def call(String project, String hubUser) {
+    sh "docker image build -t ${hubUser}/${project} ."
+    sh "docker tag ${hubUser}/${project} ${hubUser}/${project}:${ImageTag}"
+    sh "docker tag ${hubUser}/${project} ${hubUser}/${project}:latest"
+    withCredentials([usernamePassword(
+            credentialsId: "docker_cred",
+            usernameVariable: "USER",
+            passwordVariable: "PASS"
+    )]) {
+        sh "docker login -u '$USER' -p '$PASS'"
+    }
+    sh "docker image push ${hubUser}/${project}:${ImageTag}"
+    sh "docker image push ${hubUser}/${project}:latest"
+}
+
+def call(String project, String hubUser) {
+    sh "docker rmi ${hubUser}/${project}:${ImageTag}"
+    sh "docker rmi ${hubUser}/${project}:latest"
+}
+
+
+def call(Map stageParams) {
+ 
+    checkout([
+        $class: 'GitSCM',
+        branches: [[name:  stageParams.branch ]],
+        userRemoteConfigs: [[ url: stageParams.url ]]
+    ])
+  
+
+
+
+STEP 15 - Install Ansible & Python
+----------------------------------
+sudo apt update
+sudo apt install software-properties-common -y
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible -y
+
+sudo apt install python3 python3-pip -y
+pip3 install kubernetes
+
+STEP 16 - Build with Parameters
+--------------------------------
+In Jenkins:
+ - Action: create
+ - ImageName: kubernetes-configmap-reload
+ - ImageTag: v1
+ - AppName: kubernetes-configmap-reload
+ - Docker_repo: <Docker Hub user>
+
+STEP 17 - Pipeline Execution
+----------------------------
+Pipeline should complete
+
+STEP 18 - Add GitHub Webhook
+----------------------------
+GitHub -> Settings -> Webhooks
+Payload URL:
+http://<EC2_PUBLIC_IP>:8080/github-webhook/
+Event: Push
+
+In Jenkins job:
+Build Triggers -> GitHub webhook trigger
+
+STEP 19 - Delete EKS Cluster
+-----------------------------
+eksctl delete cluster --name first-eks-cluster
+
+NOTE: Steps 5 through 19 run as Jenkins user on Ubuntu EC2.
+
+
 ==========================================================================================================
                                      RED HAT
 
@@ -12452,6 +13205,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
