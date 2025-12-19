@@ -12119,6 +12119,80 @@ eksctl delete cluster --name first-eks-cluster
 NOTE: Steps 5 through 19 run as Jenkins user on Ubuntu EC2.
 
 
+
+Installation 
+
+- 1 - Add user on each machine named for example( Ansible)
+- 2 - Configure SSH login between these servers( control and remotes)
+      without a password
+- 3- Install Ansbile: root@ansible-control ]# yum install -y ansible
+
+          ssh root@servera
+          useradd ansible
+          passwd ansible
+          ssh-keygen
+          cd /etc/suders.d/
+
+
+Ansible - adhoc commands
+=============================
+ansible <host-pattern> -m <module-name>-a"<module-command>"
+
+Transferring file to amny servers/machines
+- $ansible abc -m copy -a "src= /etc/yum.conf dest= /tmp/yum.conf"
+
+ Createing new direcroy
+- $ ansible abc -m file -a "dest=/path/user1/new mode = 777 owner =user1groiup =user1 state =-directoyr"
+
+Transferring file to many servers/machines
+- $ Ansible abc -m copy -a "src =/etc/yu,.conf dest = /tmp/yum.conf"
+
+The following command checks if yum package is installed or not but does not  update it.
+
+- $ Ansible abc -m yum -a "name = demo-comcat-1 state=present"
+
+Ansible Playbooks
+
+- playbooks are one of the core features os ansible and tell ansible what to execute
+- Ansible different YAML tags
+
+- name
+- hosts - creating a role direcroy 
+- vars-   They above command has created the role directories
+- tasks
+
+    $mkdir roles
+    $ cd roles
+    $ ansible-galazy role init tomcat
+    Role tomcat was created sucessfully 
+
+$ tree vim
+vim
+- defaults
+  - main.yml
+- files
+- handlers
+   - main.yml
+- meta
+   - main.yml
+- README.md
+- tasks
+   - main.yml
+- templates
+- test
+   - inventory
+   - test.yml
+- var
+   - main.yml
+
+
+
+
+
+
+
+
+
 ==========================================================================================================
                                      RED HAT
 
@@ -13205,6 +13279,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
