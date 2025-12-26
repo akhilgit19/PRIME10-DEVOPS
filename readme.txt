@@ -12188,8 +12188,139 @@ vim
 
 
 
+Ansible plabook to copy  file:
+====================================
+
+---
+ - name: ply to collect host info
+   hosts: servera,severb,severc,serverd
+   become: true
+   user: devops
+   tasks:
+    - name: collect host info
+      copy:
+        content:"{{ ansible_hostname }}{{ ansible_procesor_count }} {{ansible_default_ipv4.address}}{{
+
+ansible_defaul_ipv4.macaddress}}"
+        dest: /root/hostinfo.txt
 
 
+Handlers and Notifiers:
+===========================
+---
+- name: play to check a package
+  hosts: test
+  become: true
+  user: singam
+  ignore_errors: true
+  tasks:
+    - name: check for package
+      yum:
+        name: http
+        state:  present
+      register: value
+    - name: call a handler
+      shell:
+        cmd: echo ""
+      notify: a
+      when: value | failed
+    - name: check for service
+      service: 
+        name: http
+        state: started
+      register: value2
+    - name: call b handler
+      shell:
+        cmd: echo ""
+      notify: b
+      when: value2 | failed
+    - name: call c handler
+      shell:
+        cmd: echo ""
+      notify: c
+      when: value | failed and value2 | failed
+
+
+handlers:
+  - name: a
+    debug:
+      msg: "Installation failed"
+  - name: b
+    debug:
+      msg: "service failed"
+  - name: c
+    debug:
+      msg: "Playbook was unsuccessful"
+
+
+
+Download an artifact and unzip  
+==================================
+
+---
+ - name:  play to dosnload the jar file from jfrog and unarchieve
+   hosts: devops
+   become: true
+   user: singam
+   tasks:
+      - name: create a folder
+        file:
+         path: /var/deploy
+         state: directory
+      - name: download the tart
+         get_url:
+         url: https://artifactory.com/flipcart.zip
+         dest: /var/tmp/
+       - name: uzipz
+        command: unzip -o /var/tmp/flipcart.zip -d /var/deploy
+
+
+ANSIBLE TAGS SCENARIO TO DEPLOY
+=================================
+
+---
+- name: play to deploy files in grouped servers
+  hosts: all
+  become: true
+  user: singam
+  tasks:
+    - name: create a tar file
+      command: tar cfz /var/tmp/production.tar.gz /var/www/html
+      when: inventory_hostname in groups['production']
+    - name: crete a tar file
+      command: tar cfz /var/tmp/backup.tar.gz /var/log/httpd
+      when: inventory_hostname in groups['backup']
+
+
+Install APACHE and configure the files using ansible modules
+
+
+---
+
+- name: play to install apache
+  hosts: devops
+  become: true
+  user: singam
+  tasks:
+     - name: Install http package
+       yum:
+        name: httpd
+        state: present
+     - name: Download httpd.conf
+       get_url:
+        url: https://artifacts/singam/httpd,confi.j2
+        dest: /etc/httpd/conf/httpd.conf
+        force: yes
+      - name: create index.html
+        lineinfile:
+          path: /var/www/html/index.html
+          line: "Hello from {{ ansible_hostname }}"
+          create: yes
+      - name: start and enable httpd
+        service:
+           name: httpd
+           state: started
+           enabled: true
 
 
 
@@ -13279,6 +13410,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
