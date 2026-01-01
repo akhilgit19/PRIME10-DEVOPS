@@ -12324,6 +12324,66 @@ Install APACHE and configure the files using ansible modules
 
 
 
+
+Ansible Vault:
+==============
+
+echo "hello" > .file1
+ansible-valut create crypto.yml --vault-password-file=.file1
+
+--
+- password: SINGAMD4DEVOPS
+
+ansible-vault view crypto.yml --vault-password-file=.file1
+
+---
+- password: SINGAM4DEVOPS
+
+---
+- name: ansible-vault
+  hosts: dev
+  become: true
+  user: singam
+  var_files:
+   - crypto.yml
+  tasks:
+    - name: create a folder
+      file: 
+        path: /test/vault
+        state: directory
+    - name: download the tar
+      get_url:
+       url: http://artifactory.com/app.zip
+       dest: /var/tmp/
+    - name: uzip
+      command: unzip -o -p {{ password }} /var/tmp/app.zip -d /test/vault
+
+ANSIBLE VAULT
+
+ansible-playbook unarchive.yml \ --vault-password-file=.file1
+
+file - unarchive.yml
+
+Ansible Roles:
+==================
+
+tasks: contains the main list of taks to be executed  by the role
+
+handlers- contains handlers which may be used by this role or even anwhere outside this role
+
+defauts- default variables for the role.
+
+vars- other variables for the role, Vars has the higher priority than defaults
+
+files- cotains files required to transfer or deployed to the target machines via this role.
+
+templates- contains templates which can be deployed via this role 
+
+meta- defines some data/information about this role(author, dependecy,version,examples,etc.)
+
+
+
+
 ==========================================================================================================
                                      RED HAT
 
@@ -13410,6 +13470,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
