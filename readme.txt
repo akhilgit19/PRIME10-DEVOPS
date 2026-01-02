@@ -12381,8 +12381,471 @@ templates- contains templates which can be deployed via this role
 
 meta- defines some data/information about this role(author, dependecy,version,examples,etc.)
 
+Ansible HandsON
+===============================
+(Push Based Methodology
+
+Step1- Create the EC2 instance with the below data
+
+Type- Linux Amazon
+Size- 8 GB T2.micro
+Region- As per your choice
+
+Step1.1- Install Ansible and check for python and git setyo
+
+yum install ansible -y
+
+python3 -v
+
+git -v
+
+Step2- Clone the code from this repo
+
+https://github.com/akhilgit19/Ansible
+
+Step3- Execute each set of playbook from the above repo
+
+https://github.com/akhilgit19/Ansible/blob/main/write_content_to_file.yml
+
+---
+
+- name: 'Test playbook to write content into a file'
+  hosts: localhost
+  gather_facts: false
+  vars:
+    content: 'Test_Content_Line'
+    filepath: '/etc/hello.txt'
+  tasks:
+
+    - name: "Write content into a file"
+      copy:
+        dest: "{{ filepath }}"
+        content: "{{ content }}"
+
+    - name: "Check file {{ filepath }} stat result"
+      stat:
+        path: "{{ filepath }}"
+      register: st
+
+    - name: "Check if file {{ filepath }} exists"
+      fail:
+        msg: "{{ filepath }} doesnt exist"
+      when: not st.stat.exists | bool
+
+    - name: "Get {{ filepath }} content"
+      command: "cat {{ filepath }}"
+      register: cnt
+
+    - name: "Check if {{ filepath }} content is correct"
+      fail:
+        msg: "{{ filepath }} doesnt have the correct content"
+      when: '"{{ content }}" not in cnt.stdout'
 
 
+
+ansible-playbook write_content_to_file.yml
+
+Step4- Execute the playbook to check handlers and notifiers
+
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: task with status "changed"
+      command: /bin/true
+      changed_when: true
+      notify: handler
+  handlers:
+    - name: handler
+      command: /bin/true
+
+ansible-playbook handlers_notify.yml
+
+Step5- Roles
+
+#
+#About: This will create-user
+#
+---
+- hosts: 'localhost'
+  become: yes
+  roles:
+  - create-user
+
+ansible-playbook create_user.yml
+
+Step6- Execute the vars.yaml
+
+---
+
+- hosts: localhost
+  gather_facts: false
+  vars:
+    first: 'one'
+    second: 'fine'
+    third: 'day'
+    results: ['{{ first  }}', '{{ second  }}', '{{ third  }}']
+  tasks:
+    - debug:
+        var: results
+
+ansible-playbook vars.yml
+
+
+Step7- Rest of the automations are given in the slides attached above just have a walkthrough
+
+Ansible works on push based methodology. Ansible is agentless such that i requires
+nothing to be installed on the target host machine except ssh connection and pytho.
+
+
+
+Addon theory
+Difference between chef and ansible
+
+Chef>
+- it works with client server architecture
+- it works with ruby
+- we need to register each and every host individuallly the host mahcine.
+- chef is more secure than ansible
+- it is difficult to setup
+
+Ansible
+- it works with push based methodology. it works with  python.
+- it supports dyanmic inventory
+- ansible is not secure by default. We nee dto add an external module callled vauult
+- it is easy to setup.
+
+RAW Module
+- it is also called a dirty module. if there is no python in the 
+target machine we use raw module to install pythojn or run it by some shell commands
+
+
+ Ansible Inventory ( /etc/ansible/hosts)
+ ================================================
+We have 2 types of inventory
+
+  -> Static inventory
+  -> Dynamic Inventory
+
+Static Inventory:
+==================
+  Static inventory is a file which contains the list of IP address of taget host mahcine  and groups them
+together based on user requirements in json or informati. 
+
+default location of inventory is /etc/ansible/hosts
+
+
+Dynamic Inventory:
+=====================
+Ansible team will provide two fiels, python script and ini file. When we execute the
+scriipt it will automatically fetch the address of target host machines and store it in the inventory file.
+Only thing we have to update is the path of the inventory file in the python script.
+
+
+Modules:
+ Ping Module:
+ ----------------
+ it is used to check connection of target
+ host macines. it will reply with pong.
+ syntax-> ansible ip_address(target m/c) -m ping ansible
+          group_name -m ping
+          ansible -i inventory_filename -m ping
+
+ Packaging Module: 
+-----------------
+it is used to install packages. it is the same as yum  in centos/rhel and apt in 
+ubuntu/debian
+
+- copy moduyle- it is used to copy a file from the host machine to the multipel target machines.
+
+ syntax:
+     copy:
+       src: source path
+            dest: destination path
+
+- How to change the permission of a file?
+ sol. using file module
+ sytnax:
+     file:
+            path: file path
+          mode: 0744
+          owner:
+            group:
+- State Module:
+     state: present-- it will check for the package is already installed or not.if not
+            installed then only it will install the package.
+     state: latest-- it will chekc whether the package is installed or not,
+             if it is installed it will ensure up to date or install with the laterst version.
+
+     state: removed--> it will uninstall the package.
+     state: absent-> it will uninstall the package
+
+- Become Module:
+Privilege Access: 
+ if i want to run with root permissions or other user 
+ privilege permission for this we will use the become module
+ syntax 
+      become: yes
+      become_user: user_name
+- update_cache: used to update repository      
+
+      update_cache: yes
+- Ansible-vault: ( How you are going to scure ansible)
+  Sol:using ansible vault
+ Ansible vault is a feature of ansible that allows you to keep sensitie data such as password or kesy in encrypted files
+  rather then plaintext in playbooks or roles.
+commands:
+  create: it is used to create ansible vault file in the encrupted format
+         ansible-vault create 1.yml
+  view: to view the data of encrypted files
+        ansible-vault view 1.yml
+  edit: it is used to edit the encrpted file
+        ansible-vault view 1.yml
+
+  encrypt: used to encryupte the unencrypted files
+         ansible-vault encrypt 1.yml    
+  Decrypt: used to decrypt an encrypted files
+         ansible-vault decrypt1.yml
+  --ask-vault-pass: used to provide passwords while running playbooks
+         ansible-playbooks 1.yml -ask-vault-pass
+  --vault-password-file: used to pass a vault password through file
+
+Ansible-galaxy: it is command used to create and manage
+the roles,Ansible galazy is a large public repository of ansible roles.
+
+ansible-galaxy list: it display a list of installed roles with version number
+   ansible-galaxy remove role_name: it will remove an installed role
+
+ansible-galaxy info: it will provide a information about ansible galaxy
+   ansible-galaxy init Role_name: to create a role
+
+
+Roles: Roles splits the single playbook into multiple files.
+Ansble roles are defined with 8 directory and with 8 files,
+roles must include at least one of the above directories.
+
+
+Directoy structure of roles:
+sample
+- defaults
+  - main.yml
+- files
+- handlers
+   - main.yml
+- meta
+   - main.yml
+- README.md
+- tasks
+   - main.yml
+- templates
+- test
+   - inventory
+   - test.ym;
+- vars
+- main.yml
+
+default: default variable for the froels
+files: contain files which can be dployed throuh roles
+handlers: whcih contains handlers which may be used by this role or
+ even anywher outside this role
+meta: define some meta data for this role
+tasks:  contain the main list of tasks to be executed by the roles
+templates: it contains templates(files) which can be deployed throughh this roles
+test: it may contain simple inventory and a test, it may be useful if you
+   on autojmated testing process which is build through roles
+vars: variable used in the role
+
+Difference B/w default and vars
+Default have lowest priority value than any other variables in ansible.
+Vars will have the highest prioroty than default
+
+Difference B/w files and templates:
+
+Ansible files are used to coopy static files without changing any contents 
+from host machine to target machine.
+
+Templates take the files from the host machine and change the contents
+of files(value of variable defined in templates).
+before copying. it can be done using a jinja filter(.j2 format) and then it will clpy a file to the target amchine.
+
+Handlers: it are special type of tasks which is executed only when there is change in task to which handler is defined
+
+How will you call handlers?
+
+ using notify:
+    syntax:     - notify: handlers name
+
+How will you include a yml(playbook) file within another yml(playbook) file or how will you call yml files from  ao
+another yml file.
+
+
+Using include:
+syntac - include:yml_file_name
+
+
+
+ Ansible ADHOC Commands:
+==============================
+Ansible is an open source automation tool used for configuraiton managment,
+application deployment and task automation, it is designed to simplity the processing of managing
+large-scalae IT enviromentts, making it easier to deploy and manage applications 
+and infrastructure consistentlg
+
+Create Enviroment to pracice ansible
+- Create two ec2 instance ansible server and node server
+- to install ansible in ansible sever
+
+
+ Userdata script:
+ #!bin/bash
+sudo su
+sudo apt update
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --udpate ppa:ansible/ansilbe
+sudo apt install ansible -y
+
+- connect to the ec2 instances
+- generate a key for passwordless shh on both servers
+
+ssh-keygen
+cd ~/.ssh/
+Copy public key of ansible server and paste in node server
+
+Ansible server:
+cat<public-key> #copy key
+
+node server:
+sudo vi authorized_keys # paste key in the file and save
+
+- configure Ansible server
+cd /etc/ansible
+ls
+sudo vi hosts
+[websever]#node group name
+<node-ip>
+
+add node ip in host file and save
+
+sudo vi ansible.cfg
+uncomment the inventory and sudo user from defaults and save
+
+
+RunPlaybookx:
+What is playbooks?
+In Ansible, a playbook is a file that defines a set of task to be executed on a group of hosts
+Playboosk are wirtten in YAML( yet another markup language) and server as the central mechanism by which ansible configurations,
+deployments and orchestrations are defined
+They allow you to specify automation instrucgtions in a human-readaable
+
+
+- playbook create
+  sudo mkdirPlaybooks
+  sudo vi apache_install
+
+  yaml
+  - name: Ensure webserver is intalled
+    hosts: demo
+    become: yes
+    tasks:
+     - name: Install Apache
+       apt:
+        name: apache2
+        state: present
+        when: ansible_os_family =="Debian"
+     - name: Ensure Apache is running
+       service:
+        name: apache2
+        state: started
+        enabled: yes
+
+- Run a playbook
+ ansible-playbook Playbooks/apache_install
+
+Copy files:
+make sure the file is present at path
+--0
+- name: copy file and create user in dev group
+  hosts: webservers
+  become: yes # ensure the task runs with sudo privileges
+  tasks:
+   - name: copy file to remote host
+     copy: 
+      src: /home/ubuntu/myfile.txt
+      dest:/home/ubuntu/myfuile.txt
+      owner: appy
+      group: dev
+      mode: '0644'
+      backup: true
+
+
+Create and delete file and permissions
+
+Make sure the user is create in node
+
+-- 
+- name: create file in remote server
+  hosts: webserver
+  become: yes
+  tasks:
+- name: create file
+  file:
+    path:/home/ubuntu/new_fil.txt
+    state: absent
+    owner: appu
+    group: appy
+    mode: u=rwx,g=r,o=r
+- name: create directory
+   file:
+     path: /home/ubuntu/playbookfiles
+     state: directory
+
+Cron-job
+========
+create test.sh file in node
+
+test.sh
+    #!/bin/bash
+    echo "hello buddy"
+    touch testfile
+give execute permissions
+sudo chmod u+x test.sh
+
+sudo vi playbooks/cron_job.yaml
+
+---
+
+- name: cron jobs
+  hosts: webservers
+  tasks:
+   - name: cron jobs
+     cron:
+      name: cron job for remote server
+      minute: 30
+      hour: 18
+      day: 15
+      month: "*"
+      weekday: "*"
+      job: /home/ubuntu/test.sh
+
+ubuntu@ip-`72-31-23-232:$ crontab -l
+#Ansible: cron job for remote server
+30 18 15 * * /home/ubuntu/test.sh
+
+Download files
+
+Make sure the user is create in node
+--0
+
+- name: Download files
+  hosts: all
+  tasks:
+  - name: Download file
+    get_url:
+      url: https://www.python.org/ftp/python/3.12.2/pYTHON-3.12.2.tar.xz
+      dest: /tmp/script/
+      owner: appu
+      group: appu
+      mode: 0777
 
 ==========================================================================================================
                                      RED HAT
@@ -13470,6 +13933,7 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 
 
 
