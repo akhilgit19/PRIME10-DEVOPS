@@ -9972,13 +9972,13 @@ Database
 -----------------
 Tb of data
 ----------------
-- My qql
+- My qql- transactional based data
 - postgress
 - cosmos db
   - no sql
   - clidck evenv based database
 - dynamo db
-  - jason based DB
+  - jason based DB , key:value
 
 
 big data platforms
@@ -9987,14 +9987,65 @@ EMR - Elastic map reduce same like of kubernets it has master and slaves and you
 
 
 AWS Project: Python+Dyjango deployment on Elastic Container services with Load Balancer, vpc, subnet, publici, private subnets resource creation using terraform
+===============================================================================================================================================
+
+This project automates the deployment of a Django web application into AWS cloud using Terraform and Docker.
+=================================================================================================================
+
+Architecture
+--------------
+Internet
+   |
+   v
+[ ALB - Load Balancer ]
+   |
+   v
+[ ECS Cluster ]
+   |
+   v
+[ EC2 Instances ]
+   |
+   v
+[ Docker Containers - Django App ]
+   |
+   v
+CloudWatch Logs
+
+
+🔧 Tools Used
 =============
+Tool	        Purpose
+Terraform	      Infrastructure Automation
+Docker	          Containerize Django app
+AWS ECR	          Docker image registry
+AWS ECS	          Container orchestration
+EC2	              Compute
+ALB	              Load Balancer
+CloudWatch	      Logging
+Python boto3	  ECS deployment update
+
 
 Step 1 - Clone the repository and set the aws configure in local terminal
 
 git clone https://github.com/praveen1994dec/terraform_withcontainers
 aws configure
+
 - This clones the project.
 -  aws configure sets up your AWS credentials and default region.
+
+What happens:
+----------------
+Downloads full Terraform + Docker + Django project.
+
+aws configure stores:
+
+Access Key
+
+Secret Key
+
+Region
+
+Allows Terraform + AWS CLI to create resources.
 
 Local Machine
 +--------------------+
@@ -10011,6 +10062,7 @@ Step2 - Create a repo in aws ECR with name- djano-app
 
 - Go to AWS ECR → Create repository → django-app
 - Copy the repository URL.
+
 
 AWS ECR
 +---------------------+
@@ -10122,6 +10174,12 @@ cd deploy/
 python3 update-ecs.py --cluster=production-cluster --service=production-service
 Updates ECS service to use the latest Docker image.
 
+1. Terraform loads JSON template
+2. Terraform fills values (image URL, region)
+3. Terraform creates ECS Task Definition
+4. ECS now knows how to run Django container
+
+
 Step15- validate the ECS service and there should be 0 task pending in the dashboard
 
 Validate Deployment
@@ -10131,6 +10189,97 @@ Validate Deployment
 
 
 Go to cloudwatch VPC and check the data and logs stream
+
+CloudWatch Logs
+   |
+   └── /ecs/django-app   (Log Group)
+         |
+         └── django-app-log-stream  (Log Stream)
+
+Log Group = Folder
+
+🔹 What is CloudWatch Log Stream?
+
+Think of:
+
+Log Stream = Log file inside that folder
+
+🧩 Code Explanation — Line by Line
+PART 1 — Create Log Group
+resource "aws_cloudwatch_log_group" "django-log-group" {
+  name              = "/ecs/django-app"
+  retention_in_days = var.log_retention_in_days
+}
+
+What it does:
+
+Creates a CloudWatch log group named:
+
+/ecs/django-app
+
+
+Stores all logs from Django containers here.
+
+retention_in_days means:
+
+How long logs are kept
+
+Example: 30 days → logs auto deleted after 30 days
+
+PART 2 — Create Log Stream
+resource "aws_cloudwatch_log_stream" "django-log-stream" {
+  name           = "django-app-log-stream"
+  log_group_name = aws_cloudwatch_log_group.django-log-group.name
+}
+
+What it does:
+
+Creates a log stream inside the log group.
+
+Logs will appear inside:
+
+/ecs/django-app → django-app-log-stream
+
+🧠 Simple Visualization
+CloudWatch Logs
+   |
+   └── /ecs/django-app   (Log Group)
+         |
+         └── django-app-log-stream  (Log Stream)
+
+🔥 How Does Django Log Reach Here?
+
+In ECS Task Definition:
+
+"logDriver": "awslogs"
+
+
+This tells ECS:
+
+Send container logs → CloudWatch.
+
+🏗 End-to-End Log Flow
+Django App
+   |
+   v
+Docker Container STDOUT
+   |
+   v
+ECS Logging Driver
+   |
+   v
+CloudWatch Log Group → Log Stream
+
+
+Step16- Go to EC2- Loadbalancer-- copy the DNS name- Hit the below URL in the browser
+
+http://<ALB-DNS>/ping/
+
+
+
+Step17- Hit the command and delete the architecture
+
+terraform destroy
 
 Internet
    |
@@ -10588,6 +10737,27 @@ variable "desired_capacity" {}
 
 
 
+
+Template file: django_app.json.tpl
+{
+  "name": "django-app",
+  "image": "${docker_image_url_django}",
+  "memory": 512,
+  "cpu": 256,
+  "portMappings": [
+    {
+      "containerPort": 8000,
+      "hostPort": 8000
+    }
+  ],
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-region": "${region}",
+      "awslogs-group": "/ecs/django-app"
+    }
+  }
+}
 
                                                  ANSIBLE
  ===========================================================================================
@@ -14015,6 +14185,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
