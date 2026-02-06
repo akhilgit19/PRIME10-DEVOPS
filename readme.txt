@@ -10793,7 +10793,7 @@ name: name of playbook
 become: sudo permission
 user  username
 tasks:
-    -name: copy file from parent server and put it in achild server
+    -name: copy file from parent server and put it in a child server
      copy: module
      content: "heydevops"
      destination: "/etc/text"
@@ -10866,6 +10866,7 @@ https://github.com/akhilgit19/Ansible/blob/main/write_content_to_file.yml
       when: '"{{ content }}" not in cnt.stdout'
 
 
+https://docs.ansible.com/projects/ansible/2.9/modules/aws_s3_module.html#aws-s3-module
 
 aws_s3 – manage objects in S3
 --------------------------------
@@ -14185,6 +14186,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
