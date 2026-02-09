@@ -12291,6 +12291,21 @@ NOTE: Steps 5 through 19 run as Jenkins user on Ubuntu EC2.
 
 
 
+
+
+What is Ansible?
+===================
+- Ansible is simply an open-source IT engine that automates application deployment
+  intra service orchestrations,cloud provisioning along with the complex automation
+  to supporr your project requirements
+- The management node A is the controlling node(managin node) which
+  controls the entire execution of the playbook. it's the node from which you 
+  are running the installtion.
+- The inventory file provides the list of hosts where the ansible modules need
+  to be run and the management node does an SSH connection and executes the samll
+  modules on the host's machine and install the product/software
+
+
 Installation 
 
 - 1 - Add user on each machine named for example( Ansible)
@@ -12305,6 +12320,7 @@ Installation
           cd /etc/suders.d/
 
 
+
 Ansible - adhoc commands
 =============================
 ansible <host-pattern> -m <module-name>-a"<module-command>"
@@ -12313,17 +12329,17 @@ Transferring file to amny servers/machines
 - $ansible abc -m copy -a "src= /etc/yum.conf dest= /tmp/yum.conf"
 
  Createing new direcroy
-- $ ansible abc -m file -a "dest=/path/user1/new mode = 777 owner =user1groiup =user1 state =-directoyr"
+- ansible abc -m file -a "path=/path/user1/new mode=0755 owner=user1 group=user1 state=directory"
 
 Transferring file to many servers/machines
-- $ Ansible abc -m copy -a "src =/etc/yu,.conf dest = /tmp/yum.conf"
+- $ Ansible abc -m copy -a "src =/etc/yum.conf dest = /tmp/yum.conf"
 
 The following command checks if yum package is installed or not but does not  update it.
 
-- $ Ansible abc -m yum -a "name = demo-comcat-1 state=present"
+- $ Ansible abc -m yum -a "name = demo-tomcat-1 state=present"
 
-Ansible Playbooks
-
+Ansible Playbooks:
+---------------------
 - playbooks are one of the core features os ansible and tell ansible what to execute
 - Ansible different YAML tags
 
@@ -12361,89 +12377,97 @@ vim
 
 Ansible plabook to copy  file:
 ====================================
-
 ---
- - name: ply to collect host info
-   hosts: servera,severb,severc,serverd
-   become: true
-   user: devops
-   tasks:
+- name: Play to collect host info
+  hosts: servera,serverb,serverc,serverd
+  become: true
+  remote_user: devops
+  tasks:
     - name: collect host info
       copy:
-        content:"{{ ansible_hostname }}{{ ansible_procesor_count }} {{ansible_default_ipv4.address}}{{
-
-ansible_defaul_ipv4.macaddress}}"
+        content: |
+          Hostname: {{ ansible_hostname }}
+          CPUs: {{ ansible_processor_count }}
+          IP: {{ ansible_default_ipv4.address }}
+          MAC: {{ ansible_default_ipv4.macaddress }}
         dest: /root/hostinfo.txt
-
 
 Handlers and Notifiers:
 ===========================
 ---
-- name: play to check a package
+- name: Play to check a package
   hosts: test
   become: true
-  user: singam
-  ignore_errors: true
+  remote_user: singam  # Standardized keyword
   tasks:
     - name: check for package
       yum:
-        name: http
-        state:  present
+        name: httpd    # Corrected: Apache package name is httpd
+        state: present
       register: value
-    - name: call a handler
-      shell:
-        cmd: echo ""
+      ignore_errors: true
+
+    - name: call a handler for package failure
+      command: echo "notifying a"
       notify: a
-      when: value | failed
+      when: value is failed
+
     - name: check for service
-      service: 
-        name: http
+      service:
+        name: httpd    # Corrected: Service name is httpd
         state: started
       register: value2
-    - name: call b handler
-      shell:
-        cmd: echo ""
+      ignore_errors: true
+
+    - name: call b handler for service failure
+      command: echo "notifying b"
       notify: b
-      when: value2 | failed
-    - name: call c handler
-      shell:
-        cmd: echo ""
+      when: value2 is failed
+
+    - name: call c handler for total failure
+      command: echo "notifying c"
       notify: c
-      when: value | failed and value2 | failed
+      when: value is failed and value2 is failed
 
-
-handlers:
-  - name: a
-    debug:
-      msg: "Installation failed"
-  - name: b
-    debug:
-      msg: "service failed"
-  - name: c
-    debug:
-      msg: "Playbook was unsuccessful"
-
+  handlers:
+    - name: a
+      debug:
+        msg: "Installation failed"
+    - name: b
+      debug:
+        msg: "Service failed"
+    - name: c
+      debug:
+        msg: "Playbook was unsuccessful"
 
 
 Download an artifact and unzip  
 ==================================
-
 ---
- - name:  play to dosnload the jar file from jfrog and unarchieve
-   hosts: devops
-   become: true
-   user: singam
-   tasks:
-      - name: create a folder
-        file:
-         path: /var/deploy
-         state: directory
-      - name: download the tart
-         get_url:
-         url: https://artifactory.com/flipcart.zip
-         dest: /var/tmp/
-       - name: uzipz
-        command: unzip -o /var/tmp/flipcart.zip -d /var/deploy
+- name: Playbook to download the zip file from JFrog and unarchive
+  hosts: devops
+  become: true
+  remote_user: singam
+  tasks:
+    - name: create a folder
+      file:
+        path: /var/deploy
+        state: directory
+        mode: '0755'
+
+    - name: download the zip file
+      get_url:
+        url: https://artifactory.com/flipcart.zip
+        dest: /var/tmp/flipcart.zip
+        # Optional: Add credentials if JFrog requires them
+        # url_username: your_user
+        # url_password: your_password
+
+    - name: unzip the file
+      unarchive:
+        src: /var/tmp/flipcart.zip
+        dest: /var/deploy
+        remote_src: yes
 
 
 ANSIBLE TAGS SCENARIO TO DEPLOY
@@ -12464,36 +12488,39 @@ ANSIBLE TAGS SCENARIO TO DEPLOY
 
 
 Install APACHE and configure the files using ansible modules
-
+===============================================================
 
 ---
-
-- name: play to install apache
+- name: Play to install apache
   hosts: devops
   become: true
-  user: singam
+  remote_user: singam
   tasks:
-     - name: Install http package
-       yum:
+    - name: Install httpd package
+      yum:
         name: httpd
         state: present
-     - name: Download httpd.conf
-       get_url:
-        url: https://artifacts/singam/httpd,confi.j2
+
+    - name: Download httpd.conf
+      get_url:
+        url: https://artifacts/singam/httpd.conf  # Fixed typo (comma and 'i')
         dest: /etc/httpd/conf/httpd.conf
         force: yes
-      - name: create index.html
-        lineinfile:
-          path: /var/www/html/index.html
-          line: "Hello from {{ ansible_hostname }}"
-          create: yes
-      - name: start and enable httpd
-        service:
-           name: httpd
-           state: started
-           enabled: true
 
+    - name: create index.html
+      lineinfile:
+        path: /var/www/html/index.html
+        line: "Hello from {{ ansible_hostname }}"
+        create: yes
+        owner: apache
+        group: apache
+        mode: '0644'
 
+    - name: start and enable httpd
+      service:
+        name: httpd
+        state: started
+        enabled: true
 
 
 Ansible Vault:
@@ -12531,7 +12558,8 @@ ansible-vault view crypto.yml --vault-password-file=.file1
 
 ANSIBLE VAULT
 
-ansible-playbook unarchive.yml \ --vault-password-file=.file1
+ansible-playbook unarchive.yml --vault-password-file=.file1
+
 
 file - unarchive.yml
 
@@ -14186,6 +14214,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
