@@ -12580,6 +12580,7 @@ templates- contains templates which can be deployed via this role
 
 meta- defines some data/information about this role(author, dependecy,version,examples,etc.)
 
+
 Ansible HandsON
 ===============================
 (Push Based Methodology
@@ -12673,6 +12674,42 @@ Step5- Roles
 
 ansible-playbook create_user.yml
 
+
+
+Ansible/roles/create-user/tasks
+/main.yml
+
+---
+- name: set group with name shadow
+  group:
+   name: shadow
+
+- name: set group with name sudo
+  group:
+   name: sudo
+  
+- name: Adding new user
+  user: name=devops groups=sudo,shadow shell=/bin/bash append=yes generate_ssh_key=yes ssh_key_file=.ssh/id_rsa
+  tags:
+    - create-user
+
+
+- name: Adding public key to authorized_keys
+  file: src=/home/devops/.ssh/id_rsa.pub dest=/home/devops/.ssh/authorized_keys state=link
+  tags:
+    - create-user-authorized-keys
+
+- name: Get the private key
+  shell: cat /home/devops/.ssh/id_rsa
+  register: ssh_key
+  tags:
+    - create-user-display-keys
+
+- debug: var=ssh_key
+  tags:
+    - create-user-display-keys
+
+
 Step6- Execute the vars.yaml
 
 ---
@@ -12689,6 +12726,22 @@ Step6- Execute the vars.yaml
         var: results
 
 ansible-playbook vars.yml
+
+Step6.1 Execute playbookk8.yml
+
+- name: Deploy Kubernetes Pods
+  hosts: localhost
+  gather_facts: no
+  tasks:
+
+    - name: Create a Kubernetes Namespace
+      kubernetes.core.k8s:
+        name: demo-namespace
+        api_version: v1
+        kind: Namespace
+        state: present
+
+ansible-playbook playbookk8.yml
 
 
 Step7- Rest of the automations are given in the slides attached above just have a walkthrough
@@ -12810,7 +12863,7 @@ commands:
   --vault-password-file: used to pass a vault password through file
 
 Ansible-galaxy: it is command used to create and manage
-the roles,Ansible galazy is a large public repository of ansible roles.
+the roles,Ansible galaxy is a large public repository of ansible roles.
 
 ansible-galaxy list: it display a list of installed roles with version number
    ansible-galaxy remove role_name: it will remove an installed role
@@ -14214,6 +14267,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
