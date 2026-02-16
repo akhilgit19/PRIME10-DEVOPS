@@ -2159,7 +2159,7 @@ Checkout-----> secrutiy ---> build ---->aritfactory---> IAC---> docker----------
  (gitclone)       |(tools)      |
                   |             |          |------->Java ----------> POM.XML---> Maven
                 checkmarks     maven       | 
-                blackduck       |(tools)---|-------> Nodejs/React---> Package.json----> nmp/node
+                blackduck       |(tools)---|-------> Nodejs/React---> Package.json----> npm/node
                  sonarqube                 |   
                  fortify                   |-------> android--------->-build.gridle-->gridle
                  owasp                     |------->python---------->req.txt ----->python 
@@ -2173,7 +2173,7 @@ Below is  groovy code in Jenkinsfile (configurationfile)
 Syntax of Jenins file:
 --------------------------
 pipeline{
-   agent any{
+   agent any{----------------Any engine(docker/linux.k8 engine)linux system
         environment variables{
               parameters{
                      choice="value=terraform": yes/no
@@ -14267,6 +14267,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
