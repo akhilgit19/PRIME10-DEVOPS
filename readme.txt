@@ -3848,7 +3848,7 @@ Step 9** – Create a pipeline Job
 11. install suggested pluggins
 12. create first admin user ----save and continue
 13. Create a pipeline jobs
-    --click on new item---->pipeline---> pipelinescript from SCM--->GIT--->git repository url--->*/main -->scriptpath-Jenkinsfile
+    --click on new item---->pipeline---> pipelinescript from SCM--->GIT--->git repository url -https://github.com/praveen1994dec/Java_app_3.0--->*/main -->scriptpath-Jenkinsfile
 
 optional:
     click on pipelinesyntax
@@ -3872,6 +3872,7 @@ optional:
      Jfrog
 
 - you can checkin cd /var/lib/jenkins/ to see the installed plugins
+
 
 - Install docker
 ##Install in Amazon Ubuntu
@@ -14267,6 +14268,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
