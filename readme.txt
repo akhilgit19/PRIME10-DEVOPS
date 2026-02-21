@@ -6839,6 +6839,90 @@ spec:
 
 
 
+kubernetes_java_deployment/kubernetes
+/stockmanager-service.yaml
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stockmanager
+  labels:
+    app: stockmanager
+spec:
+  type: NodePort
+  selector:
+    app: stockmanager
+  ports:
+  - protocol: TCP
+    port: 8030
+    name: http
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stockmanager
+spec:
+  selector:
+    matchLabels:
+      app: stockmanager
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: stockmanager
+    spec:
+      containers:
+      - name: stockmanager
+        image: praveensingam1994/stockmanager:latest
+        ports:
+        - containerPort: 8030
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8030
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+
+
+
+kubernetes_java_deployment/productcatalogue
+/Dockerfile
+
+
+FROM openjdk:8-jre
+ADD target/productcatalogue-0.0.1-SNAPSHOT.jar app.jar
+ADD product-catalogue.yml app-config.yml
+EXPOSE 8020
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","app.jar", "server", "app-config.yml"]
+
+
+
+kubernetes_java_deployment/shopfront
+/Dockerfile
+
+FROM openjdk:8-jre
+ADD target/shopfront-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8010
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]'
+
+
+
+kubernetes_java_deployment/stockmanager
+/Dockerfile
+
+
+FROM openjdk:8-jre
+ADD target/stockmanager-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8030
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+
+
+
+
 
 
 
@@ -15509,6 +15593,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
