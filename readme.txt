@@ -7473,7 +7473,7 @@ chmod +x ./kubectl
 
 # Move it to a local bin directory
 [root@ip-172-31-21-53 Custom_Resource_Definition]# mkdir -p $HOME/bin
-[root@ip-172-31-21-53 Custom_Resource_Definition]# mv ./kubectl $HOME/bin/kubectl
+[root@ip-172-31-21-53 Custom_Resource_Definition]# cp ./kubectl $HOME/bin/kubectl
 
 # Add to PATH
 [root@ip-172-31-21-53 Custom_Resource_Definition]# export PATH=$HOME/bin:$PATH
@@ -15593,6 +15593,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
