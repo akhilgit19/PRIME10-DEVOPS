@@ -7716,6 +7716,58 @@ parameters      Env
 
 Python Variables:
 --------------------
+- Variables are containers
+- Variable type does not need to be decleared explicitly.
+
+Example:
+
+name: "Singam" #type str
+batch: 1.0 #type int
+job: Ture #type bool
+
+
+Unordered list- Use to create a list of related items, in no particular order.
+
+Ordered list- Used to create a list of related items, in a specific ordered
+
+Scope of variable:
+
+Local/Global Variable:
+====================================
+
+def f():
+#local variable
+  s = " Devops Course."
+  print(s)
+
+# Global varialbe
+s= "Python data"
+f()
+print(s)
+
+
+Code:
+==========
+
+Using end parameter:
+def f():
+    s = "Hello"
+    print(s, end=" ")
+
+s ="world"
+f() 
+print(s)
+
+
+Using return paremeter in function:
+def greetings():
+    return "How are you doing today?"
+
+s1= "world"
+print(greetings(),s1)
+
+
+
 
 1) List 
 ==========
@@ -7845,8 +7897,8 @@ Name             Operator          Example
 
 equal                ==               a==b
 not equal            !=              a!=b
-less than             <                a>b
-Greate than           >                a<b
+less than             <                a<b
+Greate than           >                a>b
 less than or equal to <=               a<=b
 
 Identify operators
@@ -7916,10 +7968,42 @@ print(names)
 List Mehods:
 ---------------
 - sort(): THis method sorts the list in ascending order
+
+servers = ["web-03", "web-01", "db-02", "app-04"]
+servers.sort()
+print(servers)
+Output: ['app-04', 'db-02', 'web-01', 'web-03']
+
 - reverse(): this method reverses the ordr of the list
+
+tasks = ["Build", "Test", "Deploy"]
+tasks.reverse()
+print(tasks)
+Output: ['Deploy', 'Test', 'Build']
+
 - index() this method returns the index of the first occurrence
+tools = ["Jenkins", "Docker", "Kubernetes", "Ansible"]
+pos = tools.index("Kubernetes")
+print(pos)
+Output: 2
+
 - count() Returns the count of the number of items with the given value
+status_codes = [200, 404, 200, 500, 200, 404]
+success_count = status_codes.count(200)
+print(success_count)
+Output: 3
+
 - copy(): Returns copy of the list
+original = ["Prod", "Dev"]
+new_list = original.copy()
+
+new_list.append("Stage")
+
+print(f"Original: {original}")
+print(f"New List: {new_list}")
+Output: Original: ['Prod', 'Dev']
+New List: ['Prod', 'Dev', 'Stage']
+
 
 Conditions:
 
@@ -8129,6 +8213,38 @@ class B(A):
 obje = B("Something")
 
 
+
+
+class A(object):
+   def __init__(Self,something):
+       print("A init called")
+       self.something  = something
+class B(A):
+    def __init__(self,something):
+        print("B init called")
+        self.something = something
+        A.__init__(self,something)
+
+obje = B("Something")
+
+
+
+
+class A(object):
+    def __init__(self, something):
+        print("A init called")
+        self.something = something
+
+class B(A):
+    def __init__(self, something):
+        print("B init called")
+        self.something = something
+        # Always call the parent first
+        super().__init__(something)
+
+obje = B("Something")
+
+
 Converting JSON sting to python/oythong to jSON:
 ------------------------------------------------------
 
@@ -8182,6 +8298,20 @@ file.close()
 file = open("Text.txt", "r")
 print(file.read())
 file.close()
+
+
+
+
+# Writing safely
+with open("Text.txt", "w") as file:
+    file.write("New DevOps Engineer at work.")
+
+# Reading safely
+with open("Text.txt", "r") as file:
+    content = file.read()
+    print(content)
+# No .close() needed!
+
 
 
 
@@ -15593,6 +15723,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
