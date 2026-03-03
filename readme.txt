@@ -8332,6 +8332,9 @@ print(dictionary)
 6. tuple  - non mutable
 
 
+
+
+
 Python modules/libraries
 --------------------------------
                     import(module)
@@ -8527,6 +8530,15 @@ To execute:
 -
 
 
+
+
+Another endpoint automation for python code:
+=========================================
+python_automation/Org_Automation
+/Endpoint_hit2.py
+https://github.com/praveen1994dec/python_automation/blob/main/Org_Automation/Endpoint_hit2.py
+
+
 Link for below json code - api.open-notify.org/astros.json
 
 
@@ -8611,6 +8623,10 @@ space_data("http://api.open-notify.org/astros.json")
 
 OOPS Concepts - Ojbect oriented programing language
 --------------------------------------------------------
+https://github.com/praveen1994dec/python_automation/blob/main/Python/Python_Cars_class.py
+python_automation/Python
+/Python_Cars_class.py
+
 
 ####CREATE AN OBJECT
 class Tools:
@@ -8895,6 +8911,690 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+Python code for compare list and remove duplicates:
+-------------------------------------------------------
+python_automation/Org_Automation
+/Compare_list.py
+https://github.com/praveen1994dec/python_automation/blob/main/Org_Automation/Compare_list.py
+
+
+
+# Input list with version_prefix + value
+items = ["V1_abcd", "V2_cejn", "V300_dnmewx", "V300_cenjc", "V301_ceiknce"]
+
+# Function to extract only the prefix before "_"
+def extract_version_prefixes(data):
+    prefixes = []
+    if data:  # correct way to check if list is non-empty
+        for entry in data:
+            prefix = entry.split("_")[0]  # extract "V1", "V300", etc.
+            prefixes.append(prefix)
+    else:
+        print("List is empty")
+    return prefixes
+
+# Function to detect duplicate prefixes
+def detect_duplicates(prefix_list):
+    for i in range(len(prefix_list)):
+        for j in range(i + 1, len(prefix_list)):
+            if prefix_list[i] == prefix_list[j]:
+                print("SAME →", prefix_list[i])
+
+# MAIN FUNCTION
+def main():
+    # Step 1: Extract prefixes
+    prefixes = extract_version_prefixes(items)
+    print("Extracted prefixes:", prefixes)
+
+    # Step 2: Detect duplicates
+    print("Duplicate check results:")
+    detect_duplicates(prefixes)
+
+# Run the script only when executed directly
+if __name__ == "__main__":
+    main()
+
+
+
+
+Pythong automqation using endpoint
+=======================================
+
+
+
+python_automation/Org_Automation
+/Endpoint_Hit.py
+
+https://github.com/praveen1994dec/python_automation/blob/main/Org_Automation/Endpoint_Hit.py
+
+
+import json
+import requests
+from socket import timeout
+import logging
+
+def hit_endpoint(url):
+    list=[]
+    if(url!="null"):
+        data = requests.get(url)
+        #print(data.json())
+        dump = data.json()
+        print(dump["count"])
+        for link in dump["entries"]:
+            print(link['Link'])
+            try:
+                data2 = requests.get(link['Link'],timeout=10)
+                if (data2.status_code==200):
+                    list.append(link['Link'])
+                    print(list)
+                else:
+                    print("Status Code is not 200")
+            except requests.exceptions.Timeout:
+                logging.error("timeout")
+
+    else:
+        print("Error loading the url")
+
+hit_endpoint("https://api.publicapis.org/entries")
+
+
+
+Python automation using List and sort:
+=========================================
+python_automation/Org_Automation
+/List_with_sort.py
+
+
+https://github.com/praveen1994dec/python_automation/blob/main/Org_Automation/List_with_sort.py
+
+
+list1=[-10, -8, 2, 4, 6]
+list2=[ 4, 16, 36, 64, 100]
+list3=[]
+j=0
+def data(list1):
+    if(len(list1)!=0):
+        for i in list1:
+            j= i*i
+            list3.append(j)
+        print(sorted(list3), "is the list3 with sorted order")
+
+    else:
+        print("Input list is empty")
+data(list1)
+
+
+
+Python_automation for  Python text to speech
+=======================================
+
+Install the librares first in the local
+
+
+pip install PyPDF2
+pip install pyttsx3
+
+
+
+python_automation/Python-Speech
+/SPEECH.py
+
+https://github.com/praveen1994dec/python_automation/blob/main/Python-Speech/SPEECH.py
+
+
+#yPDF2 is a free and open-source pure-python 
+# pip install PyPDF2
+# PDF library capable of splitting, merging, cropping, and transforming the pages of PDF files
+
+
+#pyttsx3 is a text-to-speech conversion library in Python
+
+
+#pip install pyttsx3
+
+
+import PyPDF2
+
+import pyttsx3
+
+pdfReader = PyPDF2.PdfFileReader(open('dummypdf.pdf', 'rb'))
+
+#######CASE 1 PDF READ
+# Initialize the Pyttsx3 engine
+
+speaker = pyttsx3.init()
+
+for page_num in range(pdfReader.numPages):
+    text =  pdfReader.getPage(page_num).extractText()
+    speaker.say(text)
+    speaker.runAndWait()
+speaker.stop()
+
+
+
+speaker.save_to_file(text, 'audio.mp3')
+
+
+ 
+####CASE 2 READ A STRING ###########
+# Create a string
+string = "Lorem Ipsum is simply dummy text " \
+    + "of the printing and typesetting industry."
+ 
+# Initialize the Pyttsx3 engine
+engine = pyttsx3.init()
+ 
+# We can use file extension as mp3 and wav, both will work
+engine.save_to_file(string, 'speech.mp3')
+ 
+# Wait until above command is not finished.
+engine.runAndWait()
+
+
+Python Programs:
+===================
+https://github.com/praveen1994dec/python_automation/blob/main/Python-Speech/SLIDES_PYTHON.py
+
+python_automation/Python-Speech
+/SLIDES_PYTHON.py
+
+
+#SLIDE VARIABLES ##################################################
+
+def f():
+    #local variable
+    s = "DevOps course."
+    print(s)
+  
+  
+# Global variable
+s = "Python Data"
+f()
+print(s)
+
+
+
+#SLIDE DATA TYPES #################################################
+
+tuple1 = (("cicd", "Jenkins"), ("security", "fortify"))
+print(tuple1)
+
+list_data = [9, 2.9, [-3, 5], ["jenkins", "Jira"]]
+print(list_data)
+
+
+
+letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+string_letters = str(letters)
+lists_letters = list(letters)
+tuples_letters = tuple(letters)
+sets_letters = set(letters)
+
+
+print("String: ", string_letters)
+print() # for new line
+print("Lists: ", lists_letters)
+print() # for new line
+print("Tuples: ", tuples_letters)
+print() # for new line
+print("Sets: ", sets_letters)
+
+
+
+
+dict1 = {"name":"Devops", "batch":1.0, "canVote":True,"name":"test"}
+print(dict1)
+
+print(dict1["name"])
+
+
+######SLIDE Numbers/Operators #################################################
+
+x = 13
+if(x>=13):
+    print("Met the condition")
+else:
+    print("Didn't met the condition")
+
+
+print("Zero:",bool(0))
+print("Integer:",bool(23))
+print("Float:",bool(3.142))
+print("Complex:",bool(5+2j))
+
+
+######## OPERTATIONS ON STRINGS #####
+
+
+#1
+Tool = "SONAR"
+len1 = len(Tool)
+print(len1)
+print("Code analysis tool is", Tool, ".Its part of devops")
+
+#2
+IAAS = "TERRAFORM"
+print(IAAS[:5])      #Slicing from Start
+print(IAAS[5:])      #Slicing till End
+print(IAAS[2:6])     #Slicing in between
+
+#3
+Name = "AMAZON WEB SERVICES"
+for i in Name:
+    print(i)
+
+
+
+######SLIDE LIST #################################################
+
+ToolsData = ["Maven", "Ansible", "Jenkins", "Sonar"] 
+if "Maven" in ToolsData:
+    print("Maven is present.")
+else:
+    print("Maven is absent.")
+
+
+ToolsData.append("Fortify")
+
+#print(ToolsData)
+
+
+del ToolsData[3]
+
+print(ToolsData)
+
+
+########LIST ITERATION #######################################
+
+
+ToolsData = ["Maven","Ansible","Jenkins","Sonar"] 
+ToolsData.sort()
+print(ToolsData)
+
+
+############CONDITIONAL STATEMENTS ###########################
+
+
+applePrice = 180
+budget = 200
+if (applePrice <= budget):
+    print("Alexa, add 1kg Apples to the cart.")
+
+
+
+VERSION = 18
+if (VERSION < 0):
+    print("Version is negative.")
+elif (VERSION > 0):
+    if (VERSION <= 10):
+        print("Version is between 1-10")
+    elif (VERSION > 10 and VERSION <= 20):
+        print("Version is between 11-20")
+    else:
+        print("Version is greater than 20")
+else:
+    print("Version is zero")
+
+
+#FOR LOOP
+
+#Iterating over string
+name = 'SINGAM'
+for i in name:
+    print(i)
+
+
+#iterating over a tuple
+
+tools = ("Maven", "Jenkins", "sonar", "jira")
+for x in tools:
+    print(x)
+
+
+#PYTHON WHILE LOOP
+
+count = 5
+while (count > 0):
+    print(count)
+    count = count - 1
+
+
+
+#NESTED LOOPS
+i=1
+while (i<=3):
+    #for loop will run till end
+    for k in range(1, 4):
+        print(i, "*", k, "=", (i*k))
+    i = i + 1
+    print()
+
+
+for i in range(1, 4):
+    k = 1
+    while (k<=3):
+        print(i, "*", k, "=", (i*k))
+        k = k + 1
+    print()
+
+
+
+##### PYTHON FUNCTIONS ###############################
+
+def toolname(security, analysis):
+    print("Tools,", security, analysis)
+
+toolname("Fortify", "Sonar")
+
+
+def name(fname, mtame = "Jenkins", boardname = "Jira"):
+    print("Hello,", fname, mtame, boardname)
+
+name("Sonar")
+
+
+def name(firsttool, secondtool, thirdtool):
+    print("Hello,", firsttool, secondtool, thirdtool)
+
+name(thirdtool = "Ansible", firsttool = "Terraform", secondtool = "Jmeter")
+
+
+def name(firsttool, secondtool, thirdtool):
+    print("Hello,", firsttool, secondtool, thirdtool)
+
+name("Ansible", "Terraform", "Jmeter")
+
+
+
+def name(*name):
+    print("Hello,", name[0], name[1], name[2])
+
+name("Ansible", "Terraform", "Jmeter")
+
+
+
+########### RECURSION SLIDE ########################################
+
+
+def factorial(num): 
+    if (num == 1 or num == 0):
+        return 1
+    else:
+        return (num * factorial(num - 1))   ########FUNCTION IS FACTORIAL
+  
+# Driver Code 
+num = 7; 
+print("number: ",num)
+print("Factorial: ",factorial(num))
+
+
+
+
+from math import *
+print(pi)
+print(factorial(6))
+
+
+
+#############PYTHON OOPS ##########################
+
+###CREATE A CLASS
+
+class Tools:
+    name = "Jenkins"
+    version = 20
+
+T1 = Tools()
+print(T1.name)
+print(T1.version)
+
+
+####CREATE AN OBJECT
+class Tools:
+    name = "Jenkins"
+    version = 20
+
+    def toolsdes(self):
+        print(self.version, self.name + "\tTOOLS")
+
+T1 = Tools()
+T1.toolsdes()
+
+print(T1.name)
+print(T1.version)
+
+
+#####INITIALIZE 
+
+# A Sample class with init method
+class Data:
+ 
+    # init method or constructor
+    def __init__(self, name):
+        self.name = name
+ 
+    # Sample Method
+    def say_hi(self):
+        print('Hello, my name is', self.name)
+ 
+ 
+p = Data('PowerBI')
+p.say_hi()
+
+
+#######PYTHON INHERITENCE ################
+
+
+
+# Python program to
+# demonstrate init with
+# inheritance
+ 
+class A(object):
+    def __init__(self, something):
+        print("A init called")
+        self.something = something
+ 
+ 
+class B(A):
+    def __init__(self, something):
+        # Calling init of parent class
+        A.__init__(self, something)
+        print("B init called")
+        self.something = something
+ 
+ 
+obj = B("Something")
+
+
+
+# Python program to
+# demonstrate init with
+# inheritance
+ 
+class A(object):
+    def __init__(self, something):
+        print("A init called")
+        self.something = something
+ 
+ 
+class B(A):
+    def __init__(self, something):
+        print("B init called")
+        self.something = something
+        # Calling init of parent class
+        A.__init__(self, something)
+ 
+ 
+obj = B("Something")
+
+
+############JSON SLIDE ###############################
+
+
+
+import json
+
+# JSON String:
+tools =  '["Maven", "Jira", "Kubernetes", "Docker"]'
+
+# JSON string to python dictionary:
+lst1 = json.loads(tools)
+print(lst1)
+
+
+import json
+
+# python dictionary
+lst1 = ['Maven', 'Jira', 'Kubernetes', 'Docker']
+
+# Convert Python dict to JSON
+jsonObj = json.dumps(lst1)
+print(jsonObj)
+
+
+######PYTHON TRY CATCH #############
+
+
+try:
+    num = int(input("Enter an integer: "))
+except ValueError:
+    print("Number entered is not an integer.")
+else:
+    print("Integer Accepted.")
+finally:
+    print("This block is always executed.")
+
+
+Python Automation for password generator:
+============================================
+https://github.com/praveen1994dec/python_automation/blob/main/Python/PASSWORD_GENERATOR.py
+
+python_automation/Python
+/PASSWORD_GENERATOR.py
+
+
+
+#brew install python-tk@3.9 . 
+# // pip install pyperclip 
+##curl https://files.pythonhosted.org/packages/a7/2c/4c64579f847bd5d539803c8b909e54ba087a79d01bb3aba433a95879a6c5/pyperclip-1.8.2.tar.gz > pyperclip.tar.gz
+
+## tar -xzvf pyperclip.tar.gz
+##cd pyperclip-1.8.2
+##python3 setup.py install
+
+#Pyperclip is a cross-platform Python module for copy and paste clipboard functions
+
+
+import random
+from tkinter import *
+from tkinter import messagebox
+import pyperclip
+
+gui = Tk()
+gui.title('Password Generator')
+gui.geometry('250x200')
+gui.resizable(0,0)
+
+def process():
+    length = int(string_pass.get())
+
+    lower = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    upper = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    num = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    special = ['@', '#', '$', '%', '&', '*']
+    all = lower + upper + num + special
+    ran = random.sample(all,length)
+    password = "".join(ran)
+    messagebox.showinfo('Result', 'Your password {} \n\nPassword copied to clipboard'.format(password))
+    pyperclip.copy(password)
+
+string_pass = StringVar()
+label = Label(text="Password Length").pack(pady=10)
+txt = Entry(textvariable=string_pass).pack()
+btn = Button(text="Generator", command=process).pack(pady=10)
+
+gui.mainloop()
+
+
+Python Automation for qr code:
+=====================================
+
+python_automation/Python
+/QR_CODE_WORKING.py
+
+https://github.com/praveen1994dec/python_automation/blob/main/Python/QR_CODE_WORKING.py
+
+#pip install pyqrcode
+
+import pyqrcode 
+from pyqrcode import QRCode 
+  
+# String which represent the QR code 
+s = "https://www.youtube.com/channel/UCBz4yaxNxfiz1XYh-07UfWQ"
+  
+# Generate QR code 
+url = pyqrcode.create(s) 
+  
+# Create and save the png file naming "myqr.png" 
+#Scalable Vector Graphics
+url.svg("myyoutube.svg", scale = 8) 
+
+
+
+
+Python automation for Scraping Website HTML URL
+========================================================
+
+#In DevOps it is used for log analysis/processing
+#pip install beautifulsoup4
+
+
+import urllib.request
+from bs4 import BeautifulSoup
+import requests
+
+
+class Scraper:
+    def __init__(self, site):
+        self.site = site
+
+    def scrape(self):
+        r = urllib.request.urlopen(self.site)
+        html = r.read()
+        parser = "html.parser"
+        sp = BeautifulSoup(html,parser)
+        print(sp)
+        for tag in sp.find_all("a"):
+            url = tag.get("href")
+            if url is None:
+                continue
+            if "articles" in url:
+                print("\n" + url)
+
+news = "https://news.google.com/"
+Scraper(news).scrape()
+
+
+#Creating a class
+class cloud:
+    def __init__(self, value):
+        self.value = value
+
+#Method inside a class
+    def hello(self):
+        print(self.value)
+
+#calling aclass with method
+test="DevOps a gaya"
+cloud(test).hello()
+
+
+
 
 
 
@@ -15723,6 +16423,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
