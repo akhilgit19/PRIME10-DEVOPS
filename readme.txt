@@ -9594,6 +9594,504 @@ test="DevOps a gaya"
 cloud(test).hello()
 
 
+Python Coding Interview Questions related to  Devops
+=======================================================================
+
+Write  a Python script to build a docker image from a docker file and run a container from the image
+------------------------------------------------------------------------------------------------------------
+
+import subprocess
+import sys
+
+IMAGE_NAME = "my_python_app"
+CONTAINER_NAME = "my_running_container"
+DOCKERFILE_PATH = "."
+
+
+def build_image():
+    print("Building Docker image...")
+    result = subprocess.run(
+        ["docker", "build", "-t", IMAGE_NAME, DOCKERFILE_PATH],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        print("Image build failed!")
+        print(result.stderr)
+        sys.exit(1)
+
+    print("Image built successfully!")
+
+
+def run_container():
+    print("Running container...")
+    result = subprocess.run(
+        ["docker", "run", "-d", "--name", CONTAINER_NAME, IMAGE_NAME],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        print("Container failed to start!")
+        print(result.stderr)
+        sys.exit(1)
+
+    print("Container started successfully!")
+    print("Container ID:", result.stdout.strip())
+
+
+if __name__ == "__main__":
+    build_image()
+    run_container()
+
+
+Write a python script to trigger a jenkins job and  print the build status using the jenkins api
+----------------------------------------------------------------------------------
+
+
+import requests
+import time
+from requests.auth import HTTPBasicAuth
+
+# ----------------------------
+# CONFIGURATION
+# ----------------------------
+JENKINS_URL = "http://localhost:8080"
+JOB_NAME = "my-job"
+USERNAME = "admin"
+API_TOKEN = "your_api_token_here"
+
+# ----------------------------
+# TRIGGER JENKINS JOB
+# ----------------------------
+def trigger_job():
+    trigger_url = f"{JENKINS_URL}/job/{JOB_NAME}/build"
+
+    response = requests.post(
+        trigger_url,
+        auth=HTTPBasicAuth(USERNAME, API_TOKEN)
+    )
+
+    if response.status_code == 201:
+        print("Job triggered successfully!")
+    else:
+        print("Failed to trigger job:", response.text)
+        exit(1)
+
+
+# ----------------------------
+# GET LATEST BUILD NUMBER
+# ----------------------------
+def get_latest_build_number():
+    api_url = f"{JENKINS_URL}/job/{JOB_NAME}/api/json"
+
+    response = requests.get(
+        api_url,
+        auth=HTTPBasicAuth(USERNAME, API_TOKEN)
+    )
+
+    data = response.json()
+    return data["lastBuild"]["number"]
+
+
+# ----------------------------
+# CHECK BUILD STATUS
+# ----------------------------
+def check_build_status(build_number):
+    build_url = f"{JENKINS_URL}/job/{JOB_NAME}/{build_number}/api/json"
+
+    while True:
+        response = requests.get(
+            build_url,
+            auth=HTTPBasicAuth(USERNAME, API_TOKEN)
+        )
+
+        build_data = response.json()
+        status = build_data["result"]
+        building = build_data["building"]
+
+        if building:
+            print("Build is still running...")
+            time.sleep(5)
+        else:
+            print("Build finished!")
+            print("Build Status:", status)
+            break
+
+
+# ----------------------------
+# MAIN EXECUTION
+# ----------------------------
+if __name__ == "__main__":
+    trigger_job()
+    time.sleep(5)  # Wait for build to start
+    build_number = get_latest_build_number()
+    print("Triggered Build Number:", build_number)
+    check_build_status(build_number)
+
+
+Write a python scirpt to list all pods in a specific namespace using the kubernetes API
+----------------------------------------------------------------------------------------
+
+# File: list_pods_table.py
+
+from kubernetes import client, config
+from kubernetes.client.rest import ApiException
+from prettytable import PrettyTable
+
+# ----------------------------
+# CONFIGURATION
+# ----------------------------
+NAMESPACE = "default"  # Change this to your namespace
+
+# ----------------------------
+# LOAD KUBERNETES CONFIG
+# ----------------------------
+try:
+    config.load_kube_config()  # For local use
+    # config.load_incluster_config()  # Uncomment if running inside a pod
+except Exception as e:
+    print("Failed to load kubeconfig:", e)
+    exit(1)
+
+# ----------------------------
+# CREATE API CLIENT
+# ----------------------------
+v1 = client.CoreV1Api()
+
+# ----------------------------
+# PREPARE TABLE
+# ----------------------------
+table = PrettyTable()
+table.field_names = ["Pod Name", "Status", "Node", "Pod IP"]
+
+# ----------------------------
+# LIST PODS IN SPECIFIC NAMESPACE
+# ----------------------------
+try:
+    pods = v1.list_namespaced_pod(namespace=NAMESPACE)
+    
+    if not pods.items:
+        print(f"No pods found in namespace '{NAMESPACE}'")
+    else:
+        for pod in pods.items:
+            pod_name = pod.metadata.name
+            status = pod.status.phase
+            node_name = pod.spec.node_name
+            pod_ip = pod.status.pod_ip
+            table.add_row([pod_name, status, node_name, pod_ip])
+
+        print(f"Pods in namespace '{NAMESPACE}':")
+        print(table)
+
+except ApiException as e:
+    print(f"Exception when listing pods: {e}")
+
+
+🔹 How This Script Works
+
+Imports Required Modules
+
+client & config → Kubernetes API access
+
+ApiException → Handles API errors
+
+PrettyTable → For table formatting
+
+Sets the Namespace
+
+Change NAMESPACE = "default" to list pods in any namespace
+
+Loads Kubernetes Configuration
+
+load_kube_config() → Local kubeconfig
+
+load_incluster_config() → For running inside cluster
+
+Creates Kubernetes API Client
+
+v1 = client.CoreV1Api()
+
+Creates a PrettyTable
+
+Columns: "Pod Name", "Status", "Node", "Pod IP"
+
+Fetches Pods in Namespace
+
+pods = v1.list_namespaced_pod(namespace=NAMESPACE)
+
+Loops Through Pods and Adds Rows
+
+For each pod: name, status, node, pod IP
+
+Adds to the table
+
+Prints Table
+
+Handles Exceptions
+
+Prints error if API call fails
+
+🔹 Example Output
+Pods in namespace 'default':
++--------------------------+---------+-------------+------------+
+|        Pod Name          | Status  |     Node    |   Pod IP   |
++--------------------------+---------+-------------+------------+
+| nginx-deployment-7c8f9d7 | Running | worker-node-1 | 10.244.1.5 |
+| redis-master-0           | Pending | worker-node-2 | None       |
++--------------------------+---------+-------------+------------+
+🔹 Notes
+
+Install dependencies if you haven’t:
+
+pip install kubernetes prettytable
+
+Change NAMESPACE for any namespace.
+
+Works for local kubeconfig or in-cluster pods.
+
+This is a clean, professional, interview-ready script.
+
+
+
+Write a python script to check the health of multiple web services  and log their statuses
+------------------------------------------------------------------------------------------------------------
+
+# File: web_health_check.py
+
+import requests
+from datetime import datetime
+
+# ----------------------------
+# CONFIGURATION
+# ----------------------------
+# List of web service URLs to check
+web_services = [
+    "https://www.google.com",
+    "https://www.github.com",
+    "https://www.invalidwebsite12345.com"  # Example of a DOWN service
+]
+
+# Log file path
+LOG_FILE = "web_health.log"
+
+# ----------------------------
+# FUNCTION TO CHECK HEALTH
+# ----------------------------
+def check_service(url):
+    try:
+        response = requests.get(url, timeout=5)  # 5 seconds timeout
+        status_code = response.status_code
+        if 200 <= status_code < 300:
+            status = "UP"
+        else:
+            status = f"DOWN (HTTP {status_code})"
+    except requests.exceptions.RequestException as e:
+        status = f"DOWN ({e})"
+
+    # Log entry with timestamp
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_entry = f"{timestamp} | {url} | {status}"
+    
+    # Print to console
+    print(log_entry)
+
+    # Append to log file
+    with open(LOG_FILE, "a") as log_file:
+        log_file.write(log_entry + "\n")
+
+# ----------------------------
+# MAIN EXECUTION
+# ----------------------------
+if __name__ == "__main__":
+    print("Starting health check for web services...\n")
+    for service_url in web_services:
+        check_service(service_url)
+    print("\nHealth check completed. Logs saved to:", LOG_FILE)
+
+
+🔹 How This Script Works
+
+Imports Modules
+
+requests → To send HTTP requests
+
+datetime → To log timestamps
+
+Configures Web Services
+
+Add all URLs in web_services list
+
+Specifies Log File
+
+LOG_FILE = "web_health.log"
+
+Defines check_service(url) Function
+
+Sends a GET request to the URL
+
+Uses a 5-second timeout to avoid hanging
+
+Determines status:
+
+200–299 → UP
+
+Others or exceptions → DOWN
+
+Logs Results
+
+Creates a timestamped log entry
+
+Prints to console
+
+Appends to log file
+
+Main Execution Loop
+
+Iterates through all URLs
+
+Calls check_service() for each
+
+Prints completion message
+
+🔹 Example Console Output
+Starting health check for web services...
+
+2026-03-04 12:15:02 | https://www.google.com | UP
+2026-03-04 12:15:03 | https://www.github.com | UP
+2026-03-04 12:15:08 | https://www.invalidwebsite12345.com | DOWN (HTTPSConnectionPool(host='www.invalidwebsite12345.com', port=443): Max retries exceeded with url: / (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x...>: Failed to resolve 'www.invalidwebsite12345.com'")))
+
+Health check completed. Logs saved to: web_health.log
+
+
+Write a Python script to parse a log file  and count the number of occurrences of each type of error
+-------------------------------------------------------------------------------------------
+
+
+
+# File: parse_log_errors.py
+
+from collections import defaultdict
+import re
+
+# ----------------------------
+# CONFIGURATION
+# ----------------------------
+LOG_FILE = "web_health.log"  # Change this to your log file
+
+# Define a dictionary to store counts of each error type
+error_counts = defaultdict(int)
+
+# Optional: define a regex pattern to detect error messages
+# Example assumes errors start with "DOWN"
+error_pattern = re.compile(r'DOWN.*', re.IGNORECASE)
+
+# ----------------------------
+# PARSE LOG FILE
+# ----------------------------
+try:
+    with open(LOG_FILE, "r") as file:
+        for line in file:
+            line = line.strip()
+            match = error_pattern.search(line)
+            if match:
+                error_message = match.group()
+                error_counts[error_message] += 1
+
+except FileNotFoundError:
+    print(f"Log file '{LOG_FILE}' not found.")
+    exit(1)
+
+# ----------------------------
+# PRINT RESULTS
+# ----------------------------
+if error_counts:
+    print("Error Summary:\n")
+    for error, count in error_counts.items():
+        print(f"{error} → {count} occurrence(s)")
+else:
+    print("No errors found in the log.")
+🔹 How This Script Works
+1️⃣ Imports
+from collections import defaultdict
+import re
+
+defaultdict(int) → Automatically initializes counts to 0
+
+re → For regular expression matching
+
+2️⃣ Configuration
+LOG_FILE = "web_health.log"
+
+Set your log file path here
+
+ 1️⃣ Create a dictionary to store error counts
+error_counts = defaultdict(int)
+
+defaultdict is from Python’s collections module.
+
+defaultdict(int) means:
+
+If a key doesn’t exist yet, it will automatically be created with default value 0.
+
+We are using this to count how many times each error occurs in the log.
+
+Example:
+
+error_counts["DOWN (Timeout)"] += 1
+
+If "DOWN (Timeout)" did not exist in the dictionary before, defaultdict creates it with 0, then adds 1 → becomes 1.
+
+2️⃣ Define a pattern to detect errors
+error_pattern = re.compile(r'DOWN.*', re.IGNORECASE)
+
+re.compile() → Compiles a regular expression (regex) for faster repeated matching.
+
+r'DOWN.*' → Matches any string that starts with "DOWN" and then any characters after it.
+
+re.IGNORECASE → Makes the search case-insensitive (DOWN, down, Down all match).
+
+Example Matches:
+
+"DOWN (Timeout)"
+"DOWN (ConnectionError)"
+3️⃣ Open and parse the log file safely
+try:
+    with open(LOG_FILE, "r") as file:
+        for line in file:
+            line = line.strip()
+            match = error_pattern.search(line)
+            if match:
+                error_message = match.group()
+                error_counts[error_message] += 1
+
+try: → To handle exceptions if the log file does not exist.
+
+with open(LOG_FILE, "r") as file:
+
+Opens the log file in read mode "r"
+
+Using with ensures the file is automatically closed after reading
+
+for line in file: → Reads the log line by line
+
+line.strip() → Removes leading/trailing whitespace or newlines
+
+match = error_pattern.search(line) → Searches for the pattern "DOWN" in the line
+
+if match: → Only process the line if it contains an error
+
+error_message = match.group() → Gets the exact matching error string from the line
+
+error_counts[error_message] += 1 → Increment the count for this specific error
+
+Example:
+
+Log lines:
+
+2026-03-04 12:15:08 | https://example.com | DOWN (Timeout)
+2026-03-04 12:16:02 | https://example.com | DOWN (Timeout)
 
 
 
@@ -16423,6 +16921,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
