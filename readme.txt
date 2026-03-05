@@ -10095,6 +10095,466 @@ Log lines:
 
 
 
+Write a Python script to initialize a terraform configuration and apply it to create infrastructure.
+---------------------------------------------------------------------------------
+
+# File: terraform_deploy.py
+
+import subprocess
+import sys
+import os
+
+# ----------------------------
+# CONFIGURATION
+# ----------------------------
+TERRAFORM_DIR = "./terraform"  # Path where your .tf files exist
+
+# ----------------------------
+# FUNCTION TO RUN COMMANDS
+# ----------------------------
+def run_command(command, working_dir):
+    try:
+        result = subprocess.run(
+            command,
+            cwd=working_dir,          # Run inside terraform directory
+            check=True,               # Raise error if command fails
+            text=True,                # Output as string
+            capture_output=True       # Capture stdout and stderr
+        )
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print("Error occurred while running command:")
+        print(e.stderr)
+        sys.exit(1)
+
+# ----------------------------
+# MAIN EXECUTION
+# ----------------------------
+if __name__ == "__main__":
+
+    # Check if directory exists
+    if not os.path.isdir(TERRAFORM_DIR):
+        print(f"Terraform directory '{TERRAFORM_DIR}' does not exist.")
+        sys.exit(1)
+
+    print("Initializing Terraform...\n")
+    run_command(["terraform", "init"], TERRAFORM_DIR)
+
+    print("Applying Terraform configuration...\n")
+    run_command(["terraform", "apply", "-auto-approve"], TERRAFORM_DIR)
+
+    print("Terraform deployment completed successfully!")
+
+
+
+Write a Python script to parse a log file and count the number of occurrences  of each type of error
+-----------------------------------------------------------------------------------------------------
+
+Python Script: Count Occurrences of Each Error Type
+# File: count_log_errors.py
+
+from collections import defaultdict
+import re
+
+# ----------------------------
+# CONFIGURATION
+# ----------------------------
+LOG_FILE = "application.log"   # Change to your log file path
+
+# Dictionary to store error counts
+error_counts = defaultdict(int)
+
+# Regex pattern to extract error type
+# Assumes log lines like:
+# 2026-03-05 10:15:32 ERROR TimeoutError: Connection timed out
+error_pattern = re.compile(r'ERROR\s+([A-Za-z0-9_]+)', re.IGNORECASE)
+
+# ----------------------------
+# PARSE LOG FILE
+# ----------------------------
+try:
+    with open(LOG_FILE, "r") as file:
+        for line in file:
+            match = error_pattern.search(line)
+            if match:
+                error_type = match.group(1)   # Extract error name
+                error_counts[error_type] += 1
+
+except FileNotFoundError:
+    print(f"Log file '{LOG_FILE}' not found.")
+    exit(1)
+
+# ----------------------------
+# PRINT RESULTS
+# ----------------------------
+if error_counts:
+    print("Error Summary:\n")
+    for error, count in error_counts.items():
+        print(f"{error} → {count} occurrence(s)")
+else:
+    print("No errors found in the log.")
+🔎 How This Works
+1️⃣ Uses defaultdict(int)
+
+Automatically initializes each new error type with count 0.
+
+2️⃣ Uses Regex Pattern
+error_pattern = re.compile(r'ERROR\s+([A-Za-z0-9_]+)', re.IGNORECASE)
+
+This means:
+
+Look for the word ERROR
+
+Followed by spaces
+
+Then capture the error type name (like TimeoutError, ValueError, etc.)
+
+3️⃣ Reads File Line by Line
+with open(LOG_FILE, "r") as file:
+
+Safe file handling
+
+Processes one line at a time (memory efficient)
+
+4️⃣ Extracts and Counts Errors
+error_type = match.group(1)
+error_counts[error_type] += 1
+
+If the same error appears again → count increases.
+
+🧪 Example Log File (application.log)
+2026-03-05 10:15:32 ERROR TimeoutError: Connection timed out
+2026-03-05 10:16:10 INFO Service started
+2026-03-05 10:18:44 ERROR ValueError: Invalid input
+2026-03-05 10:19:20 ERROR TimeoutError: Connection timed out
+📊 Output
+Error Summary:
+
+TimeoutError → 2 occurrence(s)
+ValueError → 1 occurrence(s)
+
+
+Write a Python script to backup a My SQL database and upload the backup to an S3 bucket
+--------------------------------------------------------------------------------------------------------
+
+
+# File: mysql_backup_to_s3.py
+
+import subprocess
+import boto3
+import os
+from datetime import datetime
+
+# ----------------------------
+# CONFIGURATION
+# ----------------------------
+DB_HOST = "localhost"
+DB_USER = "root"
+DB_PASSWORD = "your_password"
+DB_NAME = "your_database"
+
+S3_BUCKET = "your-s3-bucket-name"
+S3_FOLDER = "db-backups"
+
+# ----------------------------
+# GENERATE BACKUP FILE NAME
+# ----------------------------
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+backup_file = f"{DB_NAME}_backup_{timestamp}.sql"
+
+# ----------------------------
+# STEP 1: TAKE MYSQL BACKUP
+# ----------------------------
+try:
+    print("Starting MySQL backup...")
+
+    dump_command = [
+        "mysqldump",
+        "-h", DB_HOST,
+        "-u", DB_USER,
+        f"-p{DB_PASSWORD}",
+        DB_NAME
+    ]
+
+    with open(backup_file, "w") as output_file:
+        subprocess.run(dump_command, stdout=output_file, check=True)
+
+    print(f"Backup created successfully: {backup_file}")
+
+except subprocess.CalledProcessError as e:
+    print("Error creating MySQL backup:", e)
+    exit(1)
+
+# ----------------------------
+# STEP 2: UPLOAD TO S3
+# ----------------------------
+try:
+    print("Uploading backup to S3...")
+
+    s3_client = boto3.client("s3")
+
+    s3_key = f"{S3_FOLDER}/{backup_file}"
+
+    s3_client.upload_file(backup_file, S3_BUCKET, s3_key)
+
+    print(f"Backup uploaded successfully to s3://{S3_BUCKET}/{s3_key}")
+
+except Exception as e:
+    print("Error uploading to S3:", e)
+    exit(1)
+
+# ----------------------------
+# OPTIONAL: DELETE LOCAL FILE
+# ----------------------------
+try:
+    os.remove(backup_file)
+    print("Local backup file removed.")
+except Exception as e:
+    print("Could not delete local backup file:", e)
+
+print("Backup process completed successfully.")
+
+
+
+Write a python script to clone a Git repository, create a new branch, and push a file
+to the new branch
+----------------------------------------------------------------------------------------
+
+
+# File: git_automation.py
+
+import subprocess
+import os
+
+# ----------------------------
+# CONFIGURATION
+# ----------------------------
+REPO_URL = "https://github.com/your-username/your-repo.git"
+CLONE_DIR = "my_repo"
+NEW_BRANCH = "feature-branch"
+FILE_NAME = "sample.txt"
+FILE_CONTENT = "This file was added using Python automation."
+
+# ----------------------------
+# FUNCTION TO RUN COMMANDS
+# ----------------------------
+def run_command(command, cwd=None):
+    result = subprocess.run(command, cwd=cwd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print("Error:", result.stderr)
+        exit(1)
+    return result.stdout.strip()
+
+# ----------------------------
+# STEP 1: CLONE REPOSITORY
+# ----------------------------
+print("Cloning repository...")
+run_command(["git", "clone", REPO_URL, CLONE_DIR])
+
+# ----------------------------
+# STEP 2: CREATE NEW BRANCH
+# ----------------------------
+print("Creating new branch...")
+run_command(["git", "checkout", "-b", NEW_BRANCH], cwd=CLONE_DIR)
+
+# ----------------------------
+# STEP 3: CREATE NEW FILE
+# ----------------------------
+file_path = os.path.join(CLONE_DIR, FILE_NAME)
+with open(file_path, "w") as f:
+    f.write(FILE_CONTENT)
+
+# ----------------------------
+# STEP 4: ADD & COMMIT FILE
+# ----------------------------
+print("Adding and committing file...")
+run_command(["git", "add", FILE_NAME], cwd=CLONE_DIR)
+run_command(["git", "commit", "-m", "Added sample.txt via automation"], cwd=CLONE_DIR)
+
+# ----------------------------
+# STEP 5: PUSH BRANCH
+# ----------------------------
+print("Pushing branch to remote...")
+run_command(["git", "push", "-u", "origin", NEW_BRANCH], cwd=CLONE_DIR)
+
+print("Process completed successfully.")
+
+
+Write a python script to give  system metrics
+-----------------------------------------------
+
+
+
+
+
+# File: system_metrics.py
+
+import psutil
+import platform
+from datetime import datetime
+
+# ----------------------------
+# CPU Metrics
+# ----------------------------
+cpu_percent = psutil.cpu_percent(interval=1)
+cpu_count = psutil.cpu_count(logical=True)
+
+# ----------------------------
+# Memory Metrics
+# ----------------------------
+memory = psutil.virtual_memory()
+total_memory = round(memory.total / (1024 ** 3), 2)
+used_memory = round(memory.used / (1024 ** 3), 2)
+memory_percent = memory.percent
+
+# ----------------------------
+# Disk Metrics
+# ----------------------------
+disk = psutil.disk_usage('/')
+total_disk = round(disk.total / (1024 ** 3), 2)
+used_disk = round(disk.used / (1024 ** 3), 2)
+disk_percent = disk.percent
+
+# ----------------------------
+# System Info
+# ----------------------------
+boot_time = datetime.fromtimestamp(psutil.boot_time())
+system_name = platform.system()
+system_version = platform.version()
+
+# ----------------------------
+# PRINT METRICS
+# ----------------------------
+print("===== SYSTEM METRICS =====\n")
+
+print(f"System        : {system_name}")
+print(f"Version       : {system_version}")
+print(f"Boot Time     : {boot_time}\n")
+
+print("---- CPU ----")
+print(f"CPU Cores     : {cpu_count}")
+print(f"CPU Usage     : {cpu_percent}%\n")
+
+print("---- Memory ----")
+print(f"Total Memory  : {total_memory} GB")
+print(f"Used Memory   : {used_memory} GB")
+print(f"Memory Usage  : {memory_percent}%\n")
+
+print("---- Disk ----")
+print(f"Total Disk    : {total_disk} GB")
+print(f"Used Disk     : {used_disk} GB")
+print(f"Disk Usage    : {disk_percent}%")
+
+print("\n===========================")
+
+
+
+
+===== SYSTEM METRICS =====
+
+System        : Linux
+Version       : #1 SMP Ubuntu 22.04
+Boot Time     : 2026-03-04 08:15:12
+
+---- CPU ----
+CPU Cores     : 8
+CPU Usage     : 23.5%
+
+---- Memory ----
+Total Memory  : 16.0 GB
+Used Memory   : 7.2 GB
+Memory Usage  : 45.3%
+
+---- Disk ----
+Total Disk    : 100.0 GB
+Used Disk     : 58.7 GB
+Disk Usage    : 58%
+
+===========================
+
+
+Write a python script to test a REST API endpoint and validate the response.
+-------------------------------------------------------------------------------
+
+ # File: api_test.py
+
+import requests
+import sys
+import time
+
+# -----------------------------
+# CONFIGURATION
+# -----------------------------
+API_URL = "https://jsonplaceholder.typicode.com/posts/1"
+EXPECTED_STATUS = 200
+MAX_RESPONSE_TIME = 2  # seconds
+
+# -----------------------------
+# SEND REQUEST
+# -----------------------------
+try:
+    start_time = time.time()
+    response = requests.get(API_URL)
+    end_time = time.time()
+
+    response_time = end_time - start_time
+
+except requests.exceptions.RequestException as e:
+    print("❌ API Request Failed:", e)
+    sys.exit(1)
+
+# -----------------------------
+# VALIDATE STATUS CODE
+# -----------------------------
+if response.status_code != EXPECTED_STATUS:
+    print(f"❌ Status Code Validation Failed. Expected {EXPECTED_STATUS}, Got {response.status_code}")
+    sys.exit(1)
+else:
+    print("✅ Status Code Validation Passed")
+
+# -----------------------------
+# VALIDATE RESPONSE TIME
+# -----------------------------
+if response_time > MAX_RESPONSE_TIME:
+    print(f"❌ Response Time Too Slow: {response_time:.2f}s")
+    sys.exit(1)
+else:
+    print(f"✅ Response Time OK: {response_time:.2f}s")
+
+# -----------------------------
+# VALIDATE JSON BODY
+# -----------------------------
+try:
+    data = response.json()
+except ValueError:
+    print("❌ Response is not valid JSON")
+    sys.exit(1)
+
+# -----------------------------
+# VALIDATE REQUIRED FIELDS
+# -----------------------------
+required_fields = ["userId", "id", "title", "body"]
+
+for field in required_fields:
+    if field not in data:
+        print(f"❌ Missing Field: {field}")
+        sys.exit(1)
+
+print("✅ JSON Structure Validation Passed")
+
+# -----------------------------
+# VALIDATE FIELD VALUES
+# -----------------------------
+if data["id"] != 1:
+    print("❌ ID Validation Failed")
+    sys.exit(1)
+
+print("✅ Field Value Validation Passed")
+
+print("\n🎉 API Test Passed Successfully!")
+
+
+
 
                                      Monitoring
 =================================================================================================================
@@ -16921,6 +17381,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
