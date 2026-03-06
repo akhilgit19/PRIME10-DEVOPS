@@ -10555,6 +10555,131 @@ print("\n🎉 API Test Passed Successfully!")
 
 
 
+ Scenario Based Python  Automation Ideas
+--------------------------------------------
+
+Scenario 1: Automated Trivy Scan
+
+- Scanario: Scan Docker images for vulnerablities using Trivy
+
+import subprocess
+import sys
+
+# Docker image to scan
+IMAGE_NAME = "nginx:latest"
+
+def scan_image(image):
+    print(f"Scanning Docker image: {image}")
+
+    # Run Trivy scan
+    result = subprocess.run(
+        ["trivy", "image", image],
+        capture_output=True,
+        text=True
+    )
+
+    # Check if command failed
+    if result.returncode != 0:
+        print("Error running Trivy scan")
+        print(result.stderr)
+        sys.exit(1)
+
+    # Print scan results
+    print("\nScan Results:\n")
+    print(result.stdout)
+
+
+if __name__ == "__main__":
+    scan_image(IMAGE_NAME)
+
+
+Scenario 2:  Automated SonarQube Analsis
+==============================================================
+   Scenario: Perform code quality analysis using Sonarqube
+
+
+
+You need:
+
+SonarQube running (example: http://localhost:9000)
+
+Sonar Token
+
+A project created in SonarQube
+
+Install library:
+
+pip install requests
+2️⃣ Python Script
+import requests
+import sys
+
+# -------------------------------
+# CONFIGURATION
+# -------------------------------
+
+SONAR_URL = "http://localhost:9000"
+PROJECT_KEY = "my_project"
+SONAR_TOKEN = "your_sonar_token"
+
+# SonarQube API endpoint
+API_URL = f"{SONAR_URL}/api/qualitygates/project_status?projectKey={PROJECT_KEY}"
+
+
+# -------------------------------
+# FUNCTION TO CHECK CODE QUALITY
+# -------------------------------
+
+def check_quality():
+
+    print("Checking SonarQube Quality Gate...")
+
+    try:
+        response = requests.get(
+            API_URL,
+            auth=(SONAR_TOKEN, "")
+        )
+
+    except requests.exceptions.RequestException as e:
+        print("Error connecting to SonarQube:", e)
+        sys.exit(1)
+
+    # Check HTTP response
+    if response.status_code != 200:
+        print("Failed to get quality gate status")
+        sys.exit(1)
+
+    data = response.json()
+
+    status = data["projectStatus"]["status"]
+
+    print("Quality Gate Status:", status)
+
+    if status != "OK":
+        print("Code quality check FAILED")
+        sys.exit(1)
+
+    print("Code quality check PASSED")
+
+
+# -------------------------------
+# MAIN PROGRAM
+# -------------------------------
+
+if __name__ == "__main__":
+    check_quality()
+3️⃣ Run the Script
+python sonar_check.py
+
+Example output:
+
+Checking SonarQube Quality Gate...
+Quality Gate Status: OK
+Code quality check PASSED
+
+
+
+
 
                                      Monitoring
 =================================================================================================================
@@ -10604,7 +10729,7 @@ inbuilt Time series databse-----Promethesu-(Scrapping the data from K8  in time 
 -------------------------------------------------------------------------------
 To extract the CPU and memory usage of a Kubernetes pod using Prometheus Query Language (PromQL), you can use the following queries. These queries assume you're using the kube-state-metrics and node-exporter or metrics-server to collect Kubernetes metrics.
 
-CPU Usage for a Pod
+- CPU Usage for a Pod
 To get the CPU usage of a specific pod in your cluster, you can query the container_cpu_usage_seconds_total metric:
 
 promql
@@ -10616,7 +10741,8 @@ container_cpu_usage_seconds_total: Metric for the total CPU time consumed by con
 pod="your-pod-name": Filter by the pod name.
 namespace="your-namespace": Filter by the namespace.
 [1m]: The rate() function computes the per-second average rate of increase over the last 1 minute.
-Memory Usage for a Pod
+
+- Memory Usage for a Pod
 To get the memory usage of a specific pod in your cluster, you can query the container_memory_usage_bytes metric:
 
 promql
@@ -10627,17 +10753,18 @@ Explanation:
 container_memory_usage_bytes: Metric for the memory usage (in bytes) of containers.
 pod="your-pod-name": Filter by the pod name.
 namespace="your-namespace": Filter by the namespace.
-CPU and Memory Usage for All Pods in a Namespace
+
+- CPU and Memory Usage for All Pods in a Namespace
 If you want to get the aggregate CPU and memory usage for all pods in a specific namespace, you can use the following queries:
 
 CPU Usage (All Pods)
-promql
-Copy
+
 sum(rate(container_cpu_usage_seconds_total{namespace="your-namespace"}[1m])) by (pod)
+
 Memory Usage (All Pods)
-promql
-Copy
+
 sum(container_memory_usage_bytes{namespace="your-namespace"}) by (pod)
+
 Notes:
 If you are looking for a specific container inside a pod, you can further refine your queries by adding the container label.
 The rate() function helps calculate the per-second average over a given time range (e.g., [1m]).
@@ -10800,7 +10927,7 @@ Let me know if you need further details or adjustments on your queries!
 
 
 4-grafana query language for getting the CPU of pod from Prometheus
-
+------------------------------------------------------------------
 
 To query the CPU usage of a pod in Grafana using PromQL (Prometheus Query Language), the most common metric is:
 
@@ -11124,7 +11251,7 @@ K8-----> helm package---> to share and deploy in other k8 pods
 
 
 Standard Helm Chart Directory Structure with example of each and every files
---------------------------------------------------
+------------------------------------------------------------------------------------
 
  Here's the standard Helm Chart directory structure with examples of each file and directory:
 
@@ -11498,6 +11625,14 @@ kubectl delete namespace jenkins
 Project  5
 --------------
 
+EKS Cluster
+   │
+   ├── Metrics Server
+   ├── Prometheus
+   ├── Grafana
+   │
+   └── Java Application Monitoring
+
 REAL TIME MONITORING HANDSON
 Prometheus and Grafana Dashboard on EKS Cluster using Helm Chart
 Step 1 – Setup EC2 Instance
@@ -11510,6 +11645,7 @@ Step 1.1 – Create the IAM role having full access
  Go to IAM -> Create role -> Select EC2 -> Give Full admin access
 Step 1.2 – Attach the IAM role having full access
 Go to EC2 -> Click on Actions on the left hand side -> Security -> Modify IAM role
+
 Step 2 - Install AWS CLI and Configure
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 sudo apt install unzip unzip awscliv2.zip sudo ./aws/install
@@ -11519,9 +11655,11 @@ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s htt
 chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin kubectl version
 kubectl version --short
+
 Step 4 - Install and Setup eksctl
 curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$ (uname -s)_amd64.tar.gz" | tar xz -C /tmp
 sudo mv /tmp/eksctl /usr/local/bin eksctl version
+
 Step 5 - Install Helm chart
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod 700 get_helm.sh ./get_helm.sh
@@ -11536,16 +11674,21 @@ Step 6 - Creating an Amazon EKS cluster using eksctl
 7. Minimum Number of nodes: --nodes-min 2
 8. Maximum Number of nodes: --nodes-max 3
 eksctl create cluster --name eks2 --version 1.24 --region us-east-1 --nodegroup-name worker-nodes --node-type t2.medium --nodes 2 --nodes-min 2 --nodes-max 3
+
 Step 6.1 - IF ANY ERROR:
 aws eks update-kubeconfig --region <region-code> --name <cluster-name>
+
 Step 7 - Installing the Kubernetes Metrics Server
                          
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/downlo ad/components.yaml
+
 Step 7.1 - Verify that the metrics-server deployment is running the desired number of pods with the following command
 kubectl get deployment metrics-server -n kube-system
+
 Step 8 - Install Prometheus
 Now install the Prometheus using the helm chart. Add Prometheus helm chart repository
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
 Step 8.1 - Update helm chart repository
 helm repo update helm repo list
 Step 8.2 Create prometheus namespace kubectl create namespace prometheus Step 8.3 - Install Prometheus
@@ -11554,9 +11697,13 @@ Step 8.2 Create prometheus namespace kubectl create namespace prometheus Step 8.
  
      Step 9 - Create IAM OIDC Provider
 Your cluster has an OpenID Connect (OIDC) issuer URL associated with it. To use AWS Identity and Access Management (IAM) roles for service accounts, an IAM OIDC provider must exist for your cluster's OIDC issuer URL.
+
 oidc_id=$(aws eks describe-cluster --name eks2 --region us-east-1 --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5)
+
 aws iam list-open-id-connect-providers | grep $oidc_id | cut -d "/" -f4
+
 eksctl utils associate-iam-oidc-provider --cluster eks2 --approve --region us-east-1
+
 Step 10 – Create iamserviceaccount with role
 eksctl create iamserviceaccount --name ebs-csi-controller-sa --namespace kube-system --cluster eks2 --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --approve --role-only --role-name AmazonEKS_EBS_CSI_DriverRole --region us-east-1
    
@@ -11600,6 +11747,428 @@ kubectl get pods
 kubectl logs shopfront-7868468c56-4r2kk -c shopfront
 Step 14 - Clean Up
 eksctl delete cluster --name eks2 --region us-east-1
+
+
+In easy way follow these steps to execute above project:
+-------------------------------------------------------------
+Step 1 – Setup EC2 Instance
+
+Create an EC2 instance that will act as the DevOps workstation to create and manage the EKS cluster.
+
+Configuration
+
+Instance Type
+
+t2.medium
+
+Operating System
+
+Ubuntu
+
+Region
+
+us-east-1
+Step 1.1 – Create IAM Role
+
+Go to AWS Console
+
+IAM → Roles → Create Role
+
+Select
+
+Trusted Entity: EC2
+
+Attach policies:
+
+AmazonEKSClusterPolicy
+AmazonEKSWorkerNodePolicy
+AmazonEC2ContainerRegistryReadOnly
+AmazonEKS_CNI_Policy
+
+Create role.
+
+Example Role Name
+
+EKS-Admin-Role
+Step 1.2 – Attach IAM Role to EC2
+
+Go to
+
+EC2 → Instances
+
+Select your instance
+
+Click
+
+Actions → Security → Modify IAM Role
+
+Attach
+
+EKS-Admin-Role
+Step 2 – Install AWS CLI
+
+Connect to EC2 using SSH.
+
+Update system
+
+sudo apt update
+
+Install unzip
+
+sudo apt install unzip -y
+
+Download AWS CLI
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+Unzip the package
+
+unzip awscliv2.zip
+
+Install AWS CLI
+
+sudo ./aws/install
+
+Verify installation
+
+aws --version
+Step 3 – Configure AWS CLI
+
+Run configuration command
+
+aws configure
+
+Enter the following
+
+AWS Access Key
+AWS Secret Key
+Region: us-east-1
+Output format: json
+Step 4 – Install kubectl
+
+Download kubectl
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+
+Make kubectl executable
+
+chmod +x kubectl
+
+Move kubectl to system path
+
+sudo mv kubectl /usr/local/bin/
+
+Verify installation
+
+kubectl version --client
+Step 5 – Install eksctl
+
+Download eksctl
+
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+
+Move binary
+
+sudo mv /tmp/eksctl /usr/local/bin
+
+Verify installation
+
+eksctl version
+Step 6 – Install Helm
+
+Download Helm installation script
+
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
+Make script executable
+
+chmod 700 get_helm.sh
+
+Run script
+
+./get_helm.sh
+
+Verify Helm installation
+
+helm version
+Step 7 – Create EKS Cluster
+
+Create cluster using eksctl.
+
+Cluster Name
+
+eks2
+
+Region
+
+us-east-1
+
+Run command
+
+eksctl create cluster \
+--name eks2 \
+--version 1.29 \
+--region us-east-1 \
+--nodegroup-name worker-nodes \
+--node-type t2.medium \
+--nodes 2 \
+--nodes-min 2 \
+--nodes-max 3
+
+Cluster creation may take
+
+15–20 minutes
+Step 7.1 – Configure kubectl for EKS
+
+If kubectl is not connected, run
+
+aws eks update-kubeconfig --region us-east-1 --name eks2
+
+Verify cluster
+
+kubectl get nodes
+Step 8 – Install Kubernetes Metrics Server
+
+Metrics server collects CPU and memory usage from nodes and pods.
+
+Apply metrics server manifest
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+Verify deployment
+
+kubectl get deployment metrics-server -n kube-system
+
+Check pods
+
+kubectl get pods -n kube-system
+Step 9 – Install Prometheus using Helm
+
+Add Prometheus Helm repository
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+Update repositories
+
+helm repo update
+
+Verify repository
+
+helm repo list
+Step 9.1 – Create Namespace for Prometheus
+kubectl create namespace prometheus
+Step 9.2 – Install Prometheus
+
+Install Prometheus Helm chart
+
+helm install prometheus prometheus-community/prometheus \
+--namespace prometheus \
+--set alertmanager.persistentVolume.storageClass="gp2" \
+--set server.persistentVolume.storageClass="gp2"
+
+Verify installation
+
+kubectl get pods -n prometheus
+Step 10 – Create IAM OIDC Provider
+
+Retrieve OIDC ID
+
+oidc_id=$(aws eks describe-cluster --name eks2 --region us-east-1 --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5)
+
+Check if provider exists
+
+aws iam list-open-id-connect-providers | grep $oidc_id
+
+If not found, associate provider
+
+eksctl utils associate-iam-oidc-provider \
+--cluster eks2 \
+--approve \
+--region us-east-1
+Step 11 – Install AWS EBS CSI Driver
+
+Create IAM service account
+
+eksctl create iamserviceaccount \
+--name ebs-csi-controller-sa \
+--namespace kube-system \
+--cluster eks2 \
+--attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+--approve \
+--role-only \
+--role-name AmazonEKS_EBS_CSI_DriverRole \
+--region us-east-1
+
+Install addon
+
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+eksctl create addon \
+--name aws-ebs-csi-driver \
+--cluster eks2 \
+--service-account-role-arn arn:aws:iam::$ACCOUNT_ID:role/AmazonEKS_EBS_CSI_DriverRole \
+--force \
+--region us-east-1
+Step 12 – Access Prometheus Dashboard
+
+Port forward Prometheus server
+
+kubectl port-forward deployment/prometheus-server 9090:9090 -n prometheus
+
+Open browser
+
+http://localhost:9090
+
+Prometheus dashboard will open.
+
+Step 13 – Install Grafana
+
+Add Grafana Helm repository
+
+helm repo add grafana https://grafana.github.io/helm-charts
+
+Update repository
+
+helm repo update
+Step 13.1 – Create Grafana Namespace
+kubectl create namespace grafana
+Step 13.2 – Install Grafana
+helm install grafana grafana/grafana \
+--namespace grafana \
+--set persistence.storageClassName="gp2" \
+--set persistence.enabled=true \
+--set adminPassword='EKS!sAWSome' \
+--set service.type=LoadBalancer
+Step 13.3 – Verify Grafana
+
+Check pods
+
+kubectl get pods -n grafana
+
+Check service
+
+kubectl get svc -n grafana
+
+Copy the EXTERNAL-IP of Grafana service.
+
+Open browser
+
+http://<EXTERNAL-IP>:80
+
+Login credentials
+
+Username: admin
+Password: EKS!sAWSome
+Step 14 – Add Prometheus as Data Source in Grafana
+
+Open Grafana
+
+Navigate
+
+Configuration → Data Sources
+
+Select
+
+Prometheus
+
+Prometheus URL
+
+http://prometheus-server.prometheus.svc.cluster.local
+
+Click
+
+Save & Test
+Step 15 – Import Grafana Dashboard
+
+Go to
+
+Dashboards → Import
+
+Enter Dashboard ID
+
+6417
+
+Select
+
+Prometheus Data Source
+
+Import dashboard.
+
+Now metrics will appear.
+
+Step 16 – Deploy Java Application
+
+Clone repository
+
+git clone https://github.com/praveen1994dec/kubernetes_java_deployment.git
+
+Navigate directory
+
+cd kubernetes_java_deployment/Kubernetes
+
+Deploy application
+
+kubectl apply -f shopfront-service.yaml
+
+Verify deployment
+
+kubectl get deployment
+
+Check pods
+
+kubectl get pods
+
+Check logs
+
+kubectl logs -l app=shopfront
+Step 17 – Visualize Application Metrics
+
+Open Grafana dashboard.
+
+You will see:
+
+CPU usage
+Memory usage
+Pod metrics
+Node metrics
+Application metrics
+
+Metrics are collected by
+
+Prometheus
+
+And visualized using
+
+Grafana
+Step 18 – Clean Up
+
+Delete EKS cluster
+
+eksctl delete cluster --name eks2 --region us-east-1
+
+This removes
+
+EKS cluster
+Worker nodes
+Load balancer
+EBS volumes
+Final Architecture
+EC2 (DevOps Machine)
+   │
+   ├── AWS CLI
+   ├── kubectl
+   ├── eksctl
+   └── Helm
+        │
+        ▼
+      EKS Cluster
+        │
+        ├── Metrics Server
+        ├── Prometheus
+        ├── Grafana
+        │
+        └── Java Application
+
+
 
 
                                         Shell Scripting
@@ -17381,6 +17950,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
