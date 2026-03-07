@@ -12216,9 +12216,9 @@ Command
 4. awk -F'[.]''/^version/{print $1"."$2"."$4+1}' test.sh
 version=1.2.3.4 -- Version increment
 
-5. sed 's/tenth/eleaven//=g' test.sh -> Replace a value in a file
-   hello=Devops=learners
-
+5. sed 's/tenth/eleaven/g' test.sh -> Replace a value in a file
+  
+hello=Devops=learners
 6.echo $hello |sed's/=/ /g' | awk '{print $2}'
 
 
@@ -12249,8 +12249,8 @@ fi
 
 
 
-
- automation-2- For loop with Jira  Rest API
+Jira rest api's   https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/#anonymous-operations
+ automation-2- For loop with Jira  Rest API  
 ================================================
 - Step1 - created jiraid.tx
 - step2- Add your ticket id
@@ -12275,6 +12275,7 @@ done
 
 
 Automation 4 Archive the Data with Find/Mtime/Tar/Name command
+-------------------------------------------------------------------
 
 step1- create two folder
  mkdir -p /opt/logs
@@ -12310,7 +12311,7 @@ Step6- ./automation4.sh
 -----------------
 
 Automation 5- Playing with Dates and while loop
-
+--------------------------------------------------------------------
 #!/bin/bash
 
 # Number of days
@@ -17950,6 +17951,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
