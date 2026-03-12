@@ -10675,10 +10675,323 @@ Example output:
 
 Checking SonarQube Quality Gate...
 Quality Gate Status: OK
-Code quality check PASSED
+Code quality check PASSED]
+
+
+Scenario 3 Automated Docker Image build and push
+   Automatically build and push docker images to ECR when new artifacts are published
+----------------------------------------------------------------------------------------
+
+import os
+import subprocess
+import boto3
+from datetime import datetime
+
+# Configuration
+AWS_REGION = "us-east-1"
+ACCOUNT_ID = "123456789012"
+REPO_NAME = "myapp-repo"
+ARTIFACT_PATH = "./artifact/app.jar"
+
+ECR_URI = f"{ACCOUNT_ID}.dkr.ecr.{AWS_REGION}.amazonaws.com/{REPO_NAME}"
+
+
+def artifact_exists():
+    """Check if new artifact is available"""
+    return os.path.exists(ARTIFACT_PATH)
+
+
+def build_docker_image(tag):
+    """Build docker image"""
+    print("Building Docker image...")
+    subprocess.run(["docker", "build", "-t", f"myapp:{tag}", "."], check=True)
+
+
+def ecr_login():
+    """Login to AWS ECR"""
+    print("Logging into ECR...")
+    
+    client = boto3.client("ecr", region_name=AWS_REGION)
+    token = client.get_authorization_token()
+    
+    auth_data = token["authorizationData"][0]
+    username, password = (
+        subprocess.check_output(
+            ["aws", "ecr", "get-login-password", "--region", AWS_REGION]
+        )
+        .decode()
+        .strip(),
+        None,
+    )
+
+    subprocess.run(
+        f"aws ecr get-login-password --region {AWS_REGION} | docker login --username AWS --password-stdin {ACCOUNT_ID}.dkr.ecr.{AWS_REGION}.amazonaws.com",
+        shell=True,
+        check=True,
+    )
+
+
+def tag_image(tag):
+    """Tag docker image for ECR"""
+    print("Tagging Docker image...")
+    subprocess.run(
+        ["docker", "tag", f"myapp:{tag}", f"{ECR_URI}:{tag}"], check=True
+    )
+
+
+def push_image(tag):
+    """Push docker image to ECR"""
+    print("Pushing Docker image to ECR...")
+    subprocess.run(["docker", "push", f"{ECR_URI}:{tag}"], check=True)
+
+
+def main():
+    if not artifact_exists():
+        print("No artifact found. Exiting.")
+        return
+
+    # Create version tag using timestamp
+    tag = datetime.now().strftime("%Y%m%d%H%M%S")
+
+    build_docker_image(tag)
+    ecr_login()
+    tag_image(tag)
+    push_image(tag)
+
+    print(f"Image successfully pushed: {ECR_URI}:{tag}")
+
+
+if __name__ == "__main__":
+    main()
+
+
+Scenario4: Automated Jenkins Pipeline Trigger:
+  Scenario: Trigger Jenkins pipeline when a new commit is pushed to the repository
+
+-----------------------------------------------------------------------------------------
+import requests
+
+# Jenkins configuration
+JENKINS_URL = "http://localhost:8080"
+JOB_NAME = "my-pipeline"
+USERNAME = "admin"
+API_TOKEN = "your_api_token"
+
+def trigger_pipeline():
+
+    url = f"{JENKINS_URL}/job/{JOB_NAME}/build"
+
+    response = requests.post(
+        url,
+        auth=(USERNAME, API_TOKEN)
+    )
+
+    if response.status_code == 201:
+        print("Jenkins pipeline triggered successfully!")
+    else:
+        print("Failed to trigger pipeline", response.text)
+
+
+if __name__ == "__main__":
+    trigger_pipeline()
+
+Scenaio 5 Automated Kubernetes Deployment
+  Scanario: Deploy Docker images to EKS
+
+---------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: myapp
+
+  template:
+    metadata:
+      labels:
+        app: myapp
+
+    spec:
+      containers:
+      - name: myapp-container
+        image: 123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp-repo:latest
+        ports:
+        - containerPort: 8080
+
+
+import subprocess
+import yaml
+
+DEPLOYMENT_FILE = "deployment.yaml"
+NEW_IMAGE = "123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp-repo:latest"
+
+
+def update_image():
+
+    with open(DEPLOYMENT_FILE) as f:
+        deployment = yaml.safe_load(f)
+
+    deployment["spec"]["template"]["spec"]["containers"][0]["image"] = NEW_IMAGE
+
+    with open(DEPLOYMENT_FILE, "w") as f:
+        yaml.dump(deployment, f)
+
+    print("Deployment file updated with new image")
+
+
+def deploy_to_eks():
+
+    print("Deploying to EKS cluster...")
+
+    subprocess.run(
+        ["kubectl", "apply", "-f", DEPLOYMENT_FILE],
+        check=True
+    )
+
+    print("Deployment applied successfully")
+
+
+def main():
+
+    update_image()
+
+    deploy_to_eks()
+
+
+if __name__ == "__main__":
+    main()
 
 
 
+Scenario6: Automated Artifact upload to Artifactory
+  Scenario: upload build JAR files to artifactory.
+
+--------------------------------------------------------
+
+
+
+import requests
+import os
+
+# Artifactory configuration
+ARTIFACTORY_URL = "https://artifactory.company.com/artifactory"
+REPOSITORY = "libs-release-local"
+GROUP_PATH = "com/company/myapp"
+VERSION = "1.0"
+
+USERNAME = "admin"
+PASSWORD = "password"
+
+JAR_FILE = "target/myapp-1.0.jar"
+
+
+def upload_artifact():
+
+    if not os.path.exists(JAR_FILE):
+        print("Artifact not found!")
+        return
+
+    file_name = os.path.basename(JAR_FILE)
+
+    upload_url = f"{ARTIFACTORY_URL}/{REPOSITORY}/{GROUP_PATH}/{VERSION}/{file_name}"
+
+    print("Uploading artifact to Artifactory...")
+
+    with open(JAR_FILE, "rb") as f:
+
+        response = requests.put(
+            upload_url,
+            auth=(USERNAME, PASSWORD),
+            data=f
+        )
+
+    if response.status_code == 201:
+        print("Artifact uploaded successfully!")
+    else:
+        print("Upload failed:", response.text)
+
+
+if __name__ == "__main__":
+    upload_artifact()
+
+
+Scenario7: Automated Environment Health Check
+
+ Scenario: Regularly check the health of deployed service in EKS
+-------------------------------------------------------------------
+
+
+import subprocess
+import requests
+import time
+
+NAMESPACE = "default"
+APP_LABEL = "app=myapp"
+SERVICE_HEALTH_URL = "http://myapp-service/api/health"
+
+
+def check_pods():
+
+    print("Checking pod status...")
+
+    cmd = [
+        "kubectl",
+        "get",
+        "pods",
+        "-n",
+        NAMESPACE,
+        "-l",
+        APP_LABEL,
+        "-o",
+        "jsonpath={.items[*].status.phase}"
+    ]
+
+    result = subprocess.check_output(cmd).decode()
+
+    if "Running" not in result:
+        print("Pod health check FAILED")
+        return False
+
+    print("Pods are healthy")
+    return True
+
+
+def check_service():
+
+    print("Checking service endpoint...")
+
+    try:
+        response = requests.get(SERVICE_HEALTH_URL, timeout=5)
+
+        if response.status_code == 200:
+            print("Service is healthy")
+            return True
+        else:
+            print("Service returned error")
+            return False
+
+    except Exception as e:
+        print("Service check failed:", e)
+        return False
+
+
+def main():
+
+    pod_status = check_pods()
+    service_status = check_service()
+
+    if not (pod_status and service_status):
+        print("Environment health check FAILED")
+    else:
+        print("Environment is healthy")
+
+
+if __name__ == "__main__":
+    main()
 
 
                                      Monitoring
@@ -18746,6 +19059,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
