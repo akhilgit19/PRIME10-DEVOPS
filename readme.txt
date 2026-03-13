@@ -10994,6 +10994,194 @@ if __name__ == "__main__":
     main()
 
 
+
+Scenario 8 Automated Log Aggregation and Analysis
+  Scenario: Aggreagate and analyze logs from different  services
+
+5️⃣ Python Script for Log Aggregation
+import os
+
+LOG_DIR = "./logs"
+AGGREGATED_LOG = "combined_logs.txt"
+
+
+def aggregate_logs():
+
+    with open(AGGREGATED_LOG, "w") as output:
+
+        for file in os.listdir(LOG_DIR):
+
+            file_path = os.path.join(LOG_DIR, file)
+
+            if os.path.isfile(file_path):
+
+                with open(file_path) as f:
+
+                    output.write(f.read())
+                    output.write("\n")
+
+    print("Logs aggregated successfully")
+
+
+if __name__ == "__main__":
+    aggregate_logs()
+
+6️⃣ Log Analysis Script
+
+
+ERROR_KEYWORDS = ["ERROR", "FAIL", "EXCEPTION"]
+
+LOG_FILE = "combined_logs.txt"
+
+
+def analyze_logs():
+
+    error_count = 0
+
+    with open(LOG_FILE) as f:
+
+        for line in f:
+
+            if any(keyword in line for keyword in ERROR_KEYWORDS):
+
+                print("Error found:", line.strip())
+                error_count += 1
+
+    print(f"\nTotal Errors Found: {error_count}")
+
+
+if __name__ == "__main__":
+    analyze_logs()
+
+
+
+Scenario 9: Automated Database Backup
+  Scenario: Regularly backup your production database
+
+import os
+import subprocess
+from datetime import datetime
+
+DB_NAME = "production_db"
+DB_USER = "admin"
+DB_PASSWORD = "password"
+
+BACKUP_DIR = "./db_backups"
+
+
+def backup_database():
+
+    if not os.path.exists(BACKUP_DIR):
+        os.makedirs(BACKUP_DIR)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    backup_file = f"{BACKUP_DIR}/{DB_NAME}_{timestamp}.sql"
+
+    command = [
+        "mysqldump",
+        "-u",
+        DB_USER,
+        f"-p{DB_PASSWORD}",
+        DB_NAME
+    ]
+
+    with open(backup_file, "w") as f:
+        subprocess.run(command, stdout=f)
+
+    print(f"Backup created: {backup_file}")
+
+
+if __name__ == "__main__":
+    backup_database()
+
+
+Scenario10: Automated Resource Scaling:
+
+Scenario Automatically scale kubernetes resources based on usage metrics
+
+from kubernetes import client, config
+import time
+
+# Configuration
+DEPLOYMENT_NAME = "web-app"
+NAMESPACE = "default"
+MAX_REPLICAS = 10
+MIN_REPLICAS = 2
+CPU_THRESHOLD_HIGH = 70
+CPU_THRESHOLD_LOW = 20
+
+
+def get_current_replicas(apps_v1):
+    deployment = apps_v1.read_namespaced_deployment(
+        name=DEPLOYMENT_NAME,
+        namespace=NAMESPACE
+    )
+    return deployment.spec.replicas
+
+
+def scale_deployment(apps_v1, replicas):
+
+    body = {
+        "spec": {
+            "replicas": replicas
+        }
+    }
+
+    apps_v1.patch_namespaced_deployment_scale(
+        name=DEPLOYMENT_NAME,
+        namespace=NAMESPACE,
+        body=body
+    )
+
+    print(f"Deployment scaled to {replicas} replicas")
+
+
+def get_cpu_usage():
+
+    # Simulated CPU value (replace with real metrics)
+    import random
+    cpu = random.randint(10, 90)
+
+    print(f"Current CPU Usage: {cpu}%")
+    return cpu
+
+
+def main():
+
+    config.load_kube_config()
+
+    apps_v1 = client.AppsV1Api()
+
+    while True:
+
+        cpu = get_cpu_usage()
+
+        replicas = get_current_replicas(apps_v1)
+
+        if cpu > CPU_THRESHOLD_HIGH and replicas < MAX_REPLICAS:
+
+            scale_deployment(apps_v1, replicas + 1)
+
+        elif cpu < CPU_THRESHOLD_LOW and replicas > MIN_REPLICAS:
+
+            scale_deployment(apps_v1, replicas - 1)
+
+        else:
+
+            print("No scaling required")
+
+        time.sleep(30)
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
                                      Monitoring
 =================================================================================================================
 
@@ -19059,6 +19247,7 @@ spec:
     app: mysql
     tier: database
   clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+
 
 
 
