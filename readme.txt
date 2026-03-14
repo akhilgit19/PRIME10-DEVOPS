@@ -11099,7 +11099,7 @@ if __name__ == "__main__":
 Scenario10: Automated Resource Scaling:
 
 Scenario Automatically scale kubernetes resources based on usage metrics
-
+----------------------------------------------------------------------------
 from kubernetes import client, config
 import time
 
@@ -11178,6 +11178,130 @@ if __name__ == "__main__":
     main()
 
 
+Scenario 11: Automated Slack Notificatinos
+ Scenario: Send notifications to slack for various events( eg. build failures, sucessful deployments)
+
+import requests
+import json
+
+# Slack webhook URL
+WEBHOOK_URL = "https://hooks.slack.com/services/XXXXX/XXXXX/XXXXX"
+
+def send_slack_message(message):
+
+    payload = {
+        "text": message
+    }
+
+    response = requests.post(
+        WEBHOOK_URL,
+        data=json.dumps(payload),
+        headers={"Content-Type": "application/json"}
+    )
+
+    if response.status_code == 200:
+        print("Notification sent to Slack")
+    else:
+        print("Failed to send notification")
+
+
+def build_failure():
+
+    message = "❌ Build Failed for project: web-app"
+    send_slack_message(message)
+
+
+def deployment_success():
+
+    message = "✅ Deployment Successful for service: web-app"
+    send_slack_message(message)
+
+
+if __name__ == "__main__":
+
+    # Example events
+    build_failure()
+    deployment_success()
+
+
+Scenario 12: Automated Artifact Cleanup
+  Scenario: Clean up old artifacts from 
+------------------------------------------
+
+import os
+import time
+
+ARTIFACT_DIR = "./artifacts"
+DAYS_TO_KEEP = 30
+
+
+def cleanup_artifacts():
+
+    now = time.time()
+
+    for file in os.listdir(ARTIFACT_DIR):
+
+        file_path = os.path.join(ARTIFACT_DIR, file)
+
+        if os.path.isfile(file_path):
+
+            file_modified_time = os.path.getmtime(file_path)
+
+            file_age_days = (now - file_modified_time) / 86400
+
+            if file_age_days > DAYS_TO_KEEP:
+
+                os.remove(file_path)
+                print(f"Deleted old artifact: {file}")
+
+
+if __name__ == "__main__":
+    cleanup_artifacts()
+
+
+
+Scenario 13: Automated Log Monitoring and Alerting
+ Scenarion: Monitor application logs and send alerts for  specific patterns or errors
+
+
+import time
+
+LOG_FILE = "app.log"
+
+ERROR_PATTERNS = ["ERROR", "CRITICAL", "FAILED"]
+
+
+def monitor_logs():
+
+    print("Starting log monitoring...")
+
+    with open(LOG_FILE, "r") as file:
+
+        file.seek(0, 2)  # move to end of file
+
+        while True:
+
+            line = file.readline()
+
+            if not line:
+                time.sleep(1)
+                continue
+
+            for pattern in ERROR_PATTERNS:
+
+                if pattern in line:
+
+                    print("ALERT! Issue detected:", line.strip())
+                    send_alert(line)
+
+
+def send_alert(message):
+
+    print("Sending alert:", message)
+
+
+if __name__ == "__main__":
+    monitor_logs()
 
 
 
