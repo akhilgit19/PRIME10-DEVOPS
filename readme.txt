@@ -11304,6 +11304,151 @@ if __name__ == "__main__":
     monitor_logs()
 
 
+Scenario 14: Automated Performance Testing
+  Scenario: Run performance test  on your application using a tool like JMeter and analyze the resulgts
+
+---------------------------------------------------------------------------------------------------
+
+import time
+
+LOG_FILE = "app.log"
+
+ERROR_PATTERNS = ["ERROR", "CRITICAL", "FAILED"]
+
+
+def monitor_logs():
+
+    print("Starting log monitoring...")
+
+    with open(LOG_FILE, "r") as file:
+
+        file.seek(0, 2)  # move to end of file
+
+        while True:
+
+            line = file.readline()
+
+            if not line:
+                time.sleep(1)
+                continue
+
+            for pattern in ERROR_PATTERNS:
+
+                if pattern in line:
+
+                    print("ALERT! Issue detected:", line.strip())
+                    send_alert(line)
+
+
+def send_alert(message):
+
+    print("Sending alert:", message)
+
+
+if __name__ == "__main__":
+    monitor_logs()
+
+
+Scenario 15. Automated Backup and Restor
+  Scenario: Regularly Backup databased and restore them in case of data loss
+
+
+import os
+import subprocess
+from datetime import datetime
+
+DB_NAME = "production_db"
+DB_USER = "admin"
+DB_PASSWORD = "password"
+
+BACKUP_DIR = "./backups"
+
+
+def backup_database():
+
+    if not os.path.exists(BACKUP_DIR):
+        os.makedirs(BACKUP_DIR)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    backup_file = f"{BACKUP_DIR}/{DB_NAME}_{timestamp}.sql"
+
+    command = [
+        "mysqldump",
+        "-u",
+        DB_USER,
+        f"-p{DB_PASSWORD}",
+        DB_NAME
+    ]
+
+    with open(backup_file, "w") as file:
+        subprocess.run(command, stdout=file)
+
+    print("Backup completed:", backup_file)
+
+
+if __name__ == "__main__":
+    backup_database()
+
+
+
+Scenario16: Automated Deployment
+
+ Scenario: Deploy application to server automatically when new code is pushed to the respository.
+
+-----------------------------------------------------------------------------------------------------------
+    
+import subprocess
+
+REPO_DIR = "/home/ubuntu/myapp"
+DOCKER_IMAGE = "myapp:latest"
+CONTAINER_NAME = "myapp-container"
+
+
+def pull_latest_code():
+
+    print("Pulling latest code from repository...")
+    subprocess.run(["git", "-C", REPO_DIR, "pull"])
+
+
+def build_docker_image():
+
+    print("Building Docker image...")
+    subprocess.run(["docker", "build", "-t", DOCKER_IMAGE, REPO_DIR])
+
+
+def stop_old_container():
+
+    print("Stopping old container...")
+    subprocess.run(["docker", "stop", CONTAINER_NAME], stderr=subprocess.DEVNULL)
+
+    subprocess.run(["docker", "rm", CONTAINER_NAME], stderr=subprocess.DEVNULL)
+
+
+def start_new_container():
+
+    print("Starting new container...")
+    subprocess.run([
+        "docker", "run",
+        "-d",
+        "--name", CONTAINER_NAME,
+        "-p", "80:5000",
+        DOCKER_IMAGE
+    ])
+
+
+def deploy():
+
+    pull_latest_code()
+    build_docker_image()
+    stop_old_container()
+    start_new_container()
+
+    print("Deployment completed successfully")
+
+
+if __name__ == "__main__":
+    deploy()
 
 
                                      Monitoring
