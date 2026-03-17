@@ -16722,6 +16722,7 @@ Application LB                                        Network lob
 - SSL Termination( Secure scoket layer)         - certificates can be added
    it will check at loabalancer if it is valid
    if not valid it will terminate
+
 - you can watch for erro's [500, 404            - when you need high traffice flow
 - health checks
 - 3 way TLS handshake happens in Application LB
@@ -16777,6 +16778,7 @@ big data platforms
 ------------------------
 EMR - Elastic map reduce same like of kubernets it has master and slaves and your database is converted into tables
 
+2:10:13
 
 AWS Project: Python+Dyjango deployment on Elastic Container services with Load Balancer, vpc, subnet, publici, private subnets resource creation using terraform
 ===============================================================================================================================================
