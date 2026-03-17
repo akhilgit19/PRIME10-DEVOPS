@@ -3895,6 +3895,517 @@ sudo apt install docker-ce -y
 
 sudo chmod 777 /var/run/docker.sock
 
+
+
+Project repo:
+https://github.com/DEVOPS-WITH-WEB-DEV/spring-cloud-kubernetes/blob/main/kubernetes-configmap-reload/Jenkinsfile
+
+Jenkinsfile:
+------------
+
+@Library('jenkins-shared-library@main') _
+pipeline {
+
+  agent any
+  
+  parameters {
+	choice(name: 'action', choices: 'create\nrollback', description: 'Create/rollback of the deployment')
+    string(name: 'ImageName', description: "Name of the docker build", defaultValue: "kubernetes-configmap-reload")
+	string(name: 'ImageTag', description: "Name of the docker build",defaultValue: "v1")
+	string(name: 'AppName', description: "Name of the Application",defaultValue: "kubernetes-configmap-reload")
+    string(name: 'docker_repo', description: "Name of docker repository",defaultValue: "praveensingam1994")
+  }
+      
+  tools{ 
+        maven 'maven3'
+    }
+    stages {
+        stage('Git-Checkout') {
+            when {
+				expression { params.action == 'create' }
+			}
+            steps {
+                gitCheckout(
+                    branch: "main",
+                    url: "https://github.com/DEVOPS-WITH-WEB-DEV/spring-cloud-kubernetes.git"
+                )
+            }
+        }
+        stage('Build-Maven'){
+            when {
+				expression { params.action == 'create' }
+			}
+    		steps {
+        		dir("${params.AppName}") {
+        			sh 'mvn clean package'
+        		}
+    		}
+	    }
+	    stage("DockerBuild and Push") {
+	        when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            dir("${params.AppName}") {
+	                dockerBuild ( "${params.ImageName}", "${params.docker_repo}" )
+	            }
+	        }
+	    }
+	    stage("Docker-CleanUP") {
+	        when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            dockerCleanup ( "${params.ImageName}", "${params.docker_repo}" )
+			}
+		}
+			    stage("Ansible Setup") {
+	        when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            sh 'ansible-playbook ${WORKSPACE}/kubernetes-configmap-reload/server_setup.yml'
+			}
+		}
+	    stage("Create deployment") {
+			when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            sh 'echo ${WORKSPACE}'
+	            sh 'kubectl create -f ${WORKSPACE}/kubernetes-configmap-reload/kubernetes-configmap.yml'
+	        }
+	    }
+	    stage ("wait_for_pods"){
+	    steps{
+              
+                sh 'sleep 300'
+             
+	    }
+	    }
+		stage("rollback deployment") {
+	        steps {	            	         	           
+	              sh """
+	                   kubectl delete deploy ${params.AppName}
+					    kubectl delete svc ${params.AppName}
+				  """	       
+	        }
+	    }
+    }
+}
+
+
+Docker file:
+-------------
+FROM openjdk:8-jdk-alpine
+COPY ./target/*.jar app.jar
+ENV JAVA_OPTS=""
+ENTRYPOINT exec java -jar app.jar --info
+
+
+Jenkins Ansible Deployment:
+------------------------------
+
+@Library('jenkins-shared-library@main') _
+pipeline {
+
+  agent any
+  
+  parameters {
+	choice(name: 'action', choices: 'create\nrollback', description: 'Create/rollback of the deployment')
+    string(name: 'ImageName', description: "Name of the docker build")
+	string(name: 'ImageTag', description: "Name of the docker build")
+	string(name: 'AppName', description: "Name of the Application")
+    string(name: 'docker_repo', description: "Name of docker repository")
+  }
+      
+  tools{ 
+        maven 'maven3'
+    }
+    stages {
+        stage('Git Checkout') {
+            when {
+				expression { params.action == 'create' }
+			}
+            steps {
+                gitCheckout(
+                    branch: "main",
+                    url: "https://github.com/praveen1994dec/spring-cloud-kubernetes.git"
+                )
+            }
+        }
+        stage('Build Maven'){
+            when {
+				expression { params.action == 'create' }
+			}
+    		steps {
+        		dir("${params.AppName}") {
+        			sh 'mvn clean package'
+        		}
+    		}
+	    }
+	    stage("Docker Build and Push") {
+	        when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            dir("${params.AppName}") {
+	                dockerBuild ( "${params.ImageName}", "${params.docker_repo}" )
+	            }
+	        }
+	    }
+	    stage("Docker CleanUP") {
+	        when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            dockerCleanup ( "${params.ImageName}", "${params.docker_repo}" )
+			}
+		}
+	    stage("Create deployment") {
+			when {
+				expression { params.action == 'create' }
+			}
+	        steps {
+	            dir("${params.AppName}") {
+	                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
+	                        accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+	                        credentialsId: 'AWS_Credentials', 
+	                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+	                    withCredentials([kubeconfigContent(credentialsId: 'kubernetes_config', 
+	                        variable: 'KUBECONFIG')]) {
+	                        sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
+                            sh 'chmod u+x ./kubectl'  
+	                        sh 'kubectl create -f kubernetes-configmap.yml'
+	                    }
+	                }
+	            }
+	        }
+	    }
+		stage("rollback deployment") {
+			when {
+				expression { params.action == 'rollback' }
+			}
+	        steps {
+	           withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
+	                        accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+	                        credentialsId: 'AWS_Credentials', 
+	                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+	               withCredentials([kubeconfigContent(credentialsId: 'kubernetes_config', 
+	                        variable: 'KUBECONFIG')]) {
+	               sh """
+	                    kubectl delete deploy ${params.AppName}
+					    kubectl delete svc ${params.AppName}
+				   """
+	               }
+	            }
+	        }
+	    }
+    }
+}
+
+
+Deployment.yaml
+------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-configmap-reload
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kubernetes-configmap-reload
+  template:
+    metadata:
+      labels:
+        app: kubernetes-configmap-reload
+    spec:
+      containers:
+        - name: kubernetes-configmap-reload
+          image: praveensingam1994/kubernetes-configmap-reload:latest
+
+
+
+Kubernets-configmap.yml
+---------------------------
+kind: Service
+apiVersion: v1
+metadata:
+  name: kubernetes-configmap-reload
+spec:
+  type: LoadBalancer
+  selector:
+    app: kubernetes-configmap-reload
+  ports:
+    - name: http
+      protocol: TCP
+      # ELB's port
+      port: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-configmap-reload
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kubernetes-configmap-reload
+  template:
+    metadata:
+      labels:
+        app: kubernetes-configmap-reload
+    spec:
+      containers:
+        - name: kubernetes-configmap-reload
+          image: praveensingam1994/kubernetes-configmap-reload:latest
+
+Playbooks.yaml
+---------------
+
+- hosts: localhost
+  vars:
+    ansible_python_interpreter: '/usr/bin/python3'
+  tasks:
+  - name: Deploy the service
+    k8s:
+      state: present
+      definition: "{{ lookup('template', 'service.yml') | from_yaml }}"
+      validate_certs: no
+      namespace: default
+  - name: Deploy the application
+    k8s:
+      state: present
+      validate_certs: no
+      namespace: default
+      definition: "{{ lookup('template', 'deployment.yml') | from_yaml }}"
+
+
+Service.yaml
+-------------
+kind: Service
+apiVersion: v1
+metadata:
+  name: kubernetes-configmap-reload
+spec:
+  type: LoadBalancer
+  selector:
+    app: kubernetes-configmap-reload
+  ports:
+    - name: http
+      protocol: TCP
+      # ELB's port
+      port: 8081
+
+Server_setup.yaml
+---------------------
+
+- hosts: localhost
+  become: yes
+  tasks:
+
+    - name: update
+      apt: update_cache=yes   
+   
+    - name: install apache2
+      apt: name=apache2 state=latest
+
+    - name: enabled mod_rewrite
+      apache2_module: name=rewrite state=present
+
+    - name: enabled proxy
+      apache2_module: name=proxy state=present
+
+    - name: enabled proxy_http
+      apache2_module: name=proxy_http state=present
+    
+    - name: enabled ssl
+      apache2_module: name=ssl state=present
+    
+    - name: enabled socache_shmcb
+      apache2_module: name=socache_shmcb state=present
+
+    - name: enabled mpm_event
+      apache2_module: name=mpm_event state=present
+
+
+      notify:
+        - restart apache2
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
+
+
+Service.yaml
+--------------
+kind: Service
+apiVersion: v1
+metadata:
+  name: kubernetes-configmap-reload
+spec:
+  type: LoadBalancer
+  selector:
+    app: kubernetes-configmap-reload
+  ports:
+    - name: http
+      protocol: TCP
+      # ELB's port
+      port: 8081
+
+
+https://github.com/praveen1994dec/jenkins_shared_lib/tree/main/vars
+
+
+
+jenkins_shared_lib/vars
+/QualityGateStatus.groovy
+
+def call(credentialsId){
+
+waitForQualityGate abortPipeline: false, credentialsId: credentialsId
+
+}
+
+jenkins_shared_lib/vars
+/dockerBuild.groovy
+
+
+def call(String project, String ImageTag, String hubUser){
+    
+    sh """
+     docker image build -t ${hubUser}/${project}:latest .
+    """
+}
+
+// def call(String aws_account_id, String region, String ecr_repoName){
+    
+//     sh """
+//      docker build -t ${ecr_repoName} .
+//      docker tag ${ecr_repoName}:latest ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:latest
+//     """
+// }
+
+
+
+jenkins_shared_lib/vars
+/dockerImageCleanup.groovy
+
+
+def call(String project, String ImageTag, String hubUser){
+    
+    sh """
+     docker rmi ${hubUser}/${project}:latest
+    """
+}
+
+// def call(String aws_account_id, String region, String ecr_repoName){
+    
+//     sh """
+//      docker rmi ${ecr_repoName}:latest ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:latest
+//     """
+// }
+
+
+jenkins_shared_lib/vars
+/dockerImagePush.groovy
+
+
+def call(String project, String ImageTag, String hubUser){
+    withCredentials([usernamePassword(
+            credentialsId: "docker",
+            usernameVariable: "USER",
+            passwordVariable: "PASS"
+    )]) {
+        sh "docker login -u '$USER' -p '$PASS'"
+    }
+    //sh "docker image push ${hubUser}/${project}:${ImageTag}"
+    sh "docker image push ${hubUser}/${project}:latest"   
+}
+
+
+// def call(String aws_account_id, String region, String ecr_repoName){
+    
+//     sh """
+//      aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${aws_account_id}.dkr.ecr.${region}.amazonaws.com
+//      docker push ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:latest
+//     """
+// }
+
+
+jenkins_shared_lib/vars
+/dockerImageScan.groovy
+
+
+def call(String project, String ImageTag, String hubUser){
+    
+    sh """   
+     trivy image ${hubUser}/${project}:latest > scan.txt
+     cat scan.txt
+    """
+}
+
+// def call(String aws_account_id, String region, String ecr_repoName){
+    
+//     sh """
+//     trivy image ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:latest > scan.txt
+//     cat scan.txt
+//     """
+// }
+
+
+jenkins_shared_lib/vars
+/gitCheckout.groovy
+
+
+def call(Map stageParams) {
+ 
+    checkout([
+        $class: 'GitSCM',
+        branches: [[name:  stageParams.branch ]],
+        userRemoteConfigs: [[ url: stageParams.url ]]
+    ])
+  }
+
+jenkins_shared_lib/vars
+/mvnBuild.groovy
+
+def call(){
+    sh 'mvn clean install -DskipTests'
+}
+
+
+jenkins_shared_lib/vars
+/mvnIntegrationTest.groovy
+
+
+def call(){
+    sh 'mvn verify -DskipUnitTests'
+}
+
+
+jenkins_shared_lib/vars
+/mvnTest.groovy
+
+
+def call(){
+    sh 'mvn test'
+}
+
+
+jenkins_shared_lib/vars
+/statiCodeAnalysis.groovy
+
+
+def call(credentialsId){
+
+    withSonarQubeEnv(credentialsId: credentialsId) {
+         sh 'mvn clean package sonar:sonar'
+    }
+}
+
+
 - JFROG Setup in EC2 Instance:--- Assignment 1
 ======================================================
 
@@ -3910,7 +4421,7 @@ http://<EC2IP or domain>:8081/arifactory
 
 
 back to project:
-
+===================
 -  Install sonarqube
  docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
 
