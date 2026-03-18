@@ -4847,6 +4847,176 @@ Expected Output : The jar kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar should 
 
 
 
+Check for https://github.com/akhilgit19/scenario_based_learnings you will find all k8,docker,jenkins,python and all other scenarios
+
+scenario_based_learnings
+
+Jenkins Files Scenaios:
+-------------------------
+
+SCENARIO 1 - stages-parallel-with-sequential.groovy
+pipeline { agent any stages {
+stage('Stage 1') { steps {
+script {
+echo 'This whole pipeline will take ~40sec to finish.'
+} }
+}
+stage('Parallel stages') { parallel {
+stage('Sequential nested stages') { stages {
+stage('Stage 2') { steps {
+script {
+echo 'Stage 2' sh 'sleep 20'
+} }
+}
+stage('Stage 3') {
+steps { script {
+echo 'Stage 3'
+sh 'sleep 20' }
+} }
+} }
+stage('Stage 4') { steps {
+script {
+echo 'Stage 4' sh 'sleep 20'
+} }
+}
+} }
+} }
+ SCENARIO 2 - WAIT UNTIL AND POST ACTIONS
+pipeline { agent any
+stages {
+stage('Stage 1') { steps {
+timeout(time: 1, unit: 'SECONDS') { waitUntil {
+script {
+echo 'This stage will execute again and again until timeout is reached then the
+stage will fail.' return false
+} }
+} }
+post {
+always { script { echo 'post.stage1.always' } } success { script { echo 'post.stage1.success' } } changed { script { echo 'post.stage1.changed' } } aborted { script { echo 'post.stage1.aborted' } } failure { script { echo 'post.stage1.failure' } }
+} }
+}
+post {
+always { script { echo 'post.always' } } success { script { echo 'post.success' } } changed { script { echo 'post.changed' } } aborted { script { echo 'post.aborted' } } failure { script { echo 'post.failure' } }
+} }
+
+ SCENARIO 3 - WAIT FOR USER INPUT
+pipeline {
+agent none // agent can only be overwritten if the initial value is 'none' stages {
+stage('Stage 1') { agent any steps {
+script {
+echo 'This stage is blocking the executor because of the "agent any"'
+} }
+}
+stage('Stage 2') { agent none steps {
+timeout(time: 1, unit: 'MINUTES') { script {
+echo 'This stage does not block an executor because of "agent none"' milestone 1
+inputResponse = input([
+message : 'Please confirm.', submitterParameter: 'submitter', parameters : [
+[$class: 'BooleanParameterDefinition', defaultValue: true, name: 'param1', description: 'description1'],
+[$class: 'ChoiceParameterDefinition', choices: 'choice1\nchoice2', name: 'param2', description: 'description2']
+] ])
+milestone 2
+echo "Input response: ${inputResponse}" }
+} }
+}
+stage('Stage 3') { agent any steps {
+script {
+echo 'This stage is blocking the executor because of the "agent any"' sh 'sleep 15'
+} }
+}
+} }
+
+ SCENARIO 4 - accessing-credentials
+pipeline { agent any stages {
+stage('usernamePassword') { steps {
+script { withCredentials([
+usernamePassword(credentialsId: 'gitlab', usernameVariable: 'username', passwordVariable: 'password')
+]) {
+print 'username=' + username + 'password=' + password
+print 'username.collect { it }=' + username.collect { it }
+print 'password.collect { it }=' + password.collect { it } }
+} }
+}
+stage('usernameColonPassword') { steps {
+script { withCredentials([
+usernameColonPassword( credentialsId: 'gitlab', variable: 'userpass')
+]) {
+print 'userpass=' + userpass
+print 'userpass.collect { it }=' + userpass.collect { it }
+} }
+} }
+stage('string (secret text)') { steps {
+script { withCredentials([
+string(
+credentialsId: 'joke-of-the-day', variable: 'joke')
+]) {
+print 'joke=' + joke
+print 'joke.collect { it }=' + joke.collect { it }
+} }
+} }
+
+ stage('sshUserPrivateKey') { steps {
+script { withCredentials([
+sshUserPrivateKey(
+credentialsId: 'production-bastion', keyFileVariable: 'keyFile', passphraseVariable: 'passphrase', usernameVariable: 'username')
+]) {
+print 'keyFile=' + keyFile
+print 'passphrase=' + passphrase
+print 'username=' + username
+print 'keyFile.collect { it }=' + keyFile.collect { it }
+print 'passphrase.collect { it }=' + passphrase.collect { it } print 'username.collect { it }=' + username.collect { it } print 'keyFileContent=' + readFile(keyFile)
+} }
+} }
+stage('dockerCert') { steps {
+script { withCredentials([
+dockerCert(
+credentialsId: 'production-docker-ee-certificate', variable: 'DOCKER_CERT_PATH')
+]) {
+print 'DOCKER_CERT_PATH=' + DOCKER_CERT_PATH
+print 'DOCKER_CERT_PATH.collect { it }=' + DOCKER_CERT_PATH.collect { it } print 'DOCKER_CERT_PATH/ca.pem=' +
+readFile("$DOCKER_CERT_PATH/ca.pem")
+print 'DOCKER_CERT_PATH/cert.pem=' +
+readFile("$DOCKER_CERT_PATH/cert.pem") print 'DOCKER_CERT_PATH/key.pem=' +
+readFile("$DOCKER_CERT_PATH/key.pem") }
+} }
+}
+stage('list credentials ids') { steps {
+script {
+sh 'cat $JENKINS_HOME/credentials.xml | grep "<id>"'
+} }
+}
+} }
+
+ SCENARIO 5 - Parameterized build
+pipeline { agent any
+parameters { choice(
+description: 'Run flyway database migration using latest master branch from prices in what environment?',
+name: 'environment',
+choices: ['PRE', 'PRO'] )
+}
+stages { stage("Wat") {
+steps {
+echo "selectedEnvironment: ${params.environment}"
+} }
+} }
+SCENARIO 6 - CREDENTIALS DUMP
+pipeline { agent any stages {
+stage('Dump credentials') { steps {
+script { sh '''
+curl -L \
+"https://github.com/hoto/jenkins-credentials-decryptor/releases/download/0.0.5-alpha/jenkins -credentials-decryptor_0.0.5-alpha_$(uname -s)_$(uname -m)" \
+-o jenkins-credentials-decryptor
+chmod +x jenkins-credentials-decryptor
+./jenkins-credentials-decryptor \
+-m $JENKINS_HOME/secrets/master.key \
+-s $JENKINS_HOME/secrets/hudson.util.Secret \ -c $JENKINS_HOME/credentials.xml
+''' }
+} }
+
+} }
+
+
+
 Jekins Scenario based:
 =============================
 
@@ -4978,7 +5148,13 @@ HeyDevops
 ● Benefits:Accelerates pipeline execution by running multiple tasks concurrently,
 reducing overall build/test time.and also Maximizes the utilization of available resources (agents/containers) by parallelizing independent tasks
 Jenkinfile link - .scenario_based_learnings/Jenkinsfiles/jenkinsfile16.txt at main · praveen1994dec/scenario_based_learnings (github.com)
-   
+
+
+
+
+
+
+
                                         Docker
 ==============================================================================================================
 
@@ -6576,6 +6752,281 @@ Docker System
 • docker system df: check container space
 
 
+Commands of Container:
+=========================
+Run a new Container
+---------------------
+Start a new Container from an Image
+docker run IMAGE
+docker run nginx
+
+and assign it a name:
+docker run --name CONTAINER IMAGE
+docker run --name web nginx
+
+and map a ports
+docker run -p IMAGE
+docker run -p nginx
+
+and start  container in background
+docker run -d IMAGE
+docker run -d nginx
+
+and assign it a hostname
+docker run --hostname HOSTNAME IMAGE
+docker run --hostname srv nginx
+
+and add a dns entry
+docker run --add-host HOSTNAME: IP IMAGE
+
+and map a local directory into the container
+docker run -v HOSTDIR:TARGETDIR IMAAGE
+docker run -v ~/:/usr/share/nginx/html nginx
+
+but change the entrypoint
+docker run -it --entrypoint EXECUTABLE IMAGE
+docker run -it --entrypoint bash nginx
+
+
+
+Manage Containers
+--------------------
+Show a list of running containers
+docker ps
+
+Show a list of all containers
+docker ps -a
+
+Delete a container
+docker rm  CONTAINER
+docker rm web
+
+Delete a runnning container
+docker rum -f CONTAINER
+docker rm  -f web
+
+Delete stopped containers
+docker container prune
+
+Stop a running container
+docker stop CONTAINER
+docker stop web
+
+Start a stopped container
+docker start CONTAINER
+docker start web
+
+COPY a file from a container to the host
+docker cp CONTAINER:SOURCE TARGET
+docker cp web:/index.html index.html
+
+Copy a file from the host to a container
+docker cp TARGET CONTAINER EXECUTABLE
+docker cp index.html web://index.html
+
+Start a shell inside a running container
+docker exec -it CONTAINER EXECUTABLE
+docker exec- it web bash
+
+Rename a container
+docker rename OLD_NAME NEW_NAME
+docker rename 096 web
+
+Create an image out of container
+docker commit CONTAINER
+
+
+
+Manage Images:
+------------------------
+
+Download an image
+docker pull IMAGE[:TAG]
+docker pull nginx
+
+Upload an image to a repository
+docker push IMAGE
+docker push myimage:1.0
+
+Delete an image
+docker rmi IMAGE
+
+Show a list of all images
+docker images
+
+Delete danging images
+docker image prune
+
+Delete a unused images
+docker image prune -a
+
+Build an image from a Dockerfile
+docker build DRECTORY
+docker build .
+
+Tag an image
+docker tag IMAGE NEWIMAGE
+docker tag ubuntu ubuntu:18.04
+
+Build and tag an image from Dockerfile
+docker build -t IMAGE DIRECTORY
+docker build -t myimage .
+
+Save an image to tar file
+docker save IMAGE > FILE
+docker save nginx > nginx.tar
+
+Load an image from a tar file
+docker load -i TARFILE
+docker load -i nginx.tar
+
+
+
+Info and Stats
+------------------------
+
+Show the logs of a container
+docker logs CONTAINER
+docker logs web
+
+Show stats of running containers
+docker stats
+
+Show processes of container
+docker top CONTAINER
+docker top web
+
+Show installed docker version
+docker version
+
+Get detailed info about an object
+docker inspect NAME
+docker inspect nginx
+
+
+Show all modified file in container
+docker diff CONTAINER
+docker diff web
+
+Show mapped ports of a container
+docker port CONTAINER
+docker port web
+
+
+
+Docker Commands
+----------------------
+
+Installation
+  - sudo apt update
+  - sudo apt install docker.io
+  - sudo service docker start
+  - sudo systemctl enable docker
+  - sudo systemctl status docker
+
+ Docker hub
+  - docker pull img_name: download an image from Docker Hub
+
+ Running Containers
+  - docker run image-name/image-id: create a container from an image
+  - docker run img_name: create a container
+  - docker run --detach/-d img_nmae: pull, start, and create a container
+  - docker run -d --name cont_name container_id: create a container with a name
+
+ Listing Containers and images
+  - docker ps: show running containers
+  - docker ps -a/--all: show all containers( running and stopped)
+  - docker  container ls: show all containers( running and stopped )
+  - docker images: show a list of images
+
+ Deleting Containers and Images
+  - docker rmi img_name: delete an image
+  - docker rmi $(docker images -a)/ docker image prune /docker rmi $(docker imageIs):
+    remove all images
+  - docker stop container_id: stop a container
+  - docker rm container_id: delete a stopped container
+  - docker rm $(docker ps -a/docker container ls -a) /docker container prune: delete all stopped containers
+
+Working with containers
+  - docker exec -it container_id /bin/bash: start working in a container
+  - docker inspect container_id: show all information about a container
+  - docker run -d --name name nginx: create a container with a nname
+  - docker history img_id: show all layers of an image
+
+
+Port Mappying
+  - docker run -d -p80(ec2-port):80(container-port)img_id: map a port of an esisting image
+  - docker un -d --name name -p80(ec2-port):(cntainer-port) nginx: create a container with port mapping
+
+Creating images
+  - docker commit container_id name: create an image from a container
+  - docker save > img_name.tar: create a tar file of an image
+  - docker export contaienr_id > file_name.tar: create a tar file of a container
+
+Volumes
+  - docker run -d --name name -p80(ec2-port):(container-port) -v path of directory:project
+    directory path in container img_name: create a container  with a volume
+  - docker volume create vol_name: create a named volume
+
+Environment Variables
+  - docker run -d --name merabaladb1 -e MYSQL_ROOT_PASSWORD='Pass@123'MYSQL:
+    CREATE A MySQL container with enviroment variables
+
+  - docker run -d  --name sqlvol -v /home/ubuntu/sqlvol:/var/lib/mysql -e
+    WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=pass123 -e
+    WORDPRESS_DB_NAME=db1 --link mydb:mysql wordpress: link a MySQL container  to WordPress container
+
+Dockerfile
+
+ Components of dockerfile
+
+   FROM: use for base images or to pull an image( can be used multiple times)
+   RUN: for installing software or unning linx commands( can be used multiple  times)
+   EXPOSE: To open a port number
+   COPY: to copy files and directories from the host to the  image
+   ENV: to set environemnt variables
+   CMD: specifies the command to run when a container is run from the  image( can only be used onece)
+   ENTRYPOINT: specifies the command to run when a  container is un form the image,
+   but allows additional arguments to be passed in ( can only be used once)
+
+   
+• ADD: copies files from the host to the image, downloads zip or tar files from a given link, and
+extracts them automatically
+• ARG: defines a variable that is passed to the container while building the image
+• VOLUME: creates a volume, sets a volume
+• WORKDIR: sets the working directory
+• MAINTAINER: sets the name and email of the author/user
+• LABEL: adds metadata (data about data)
+• USER: sets the user (root, ec2-user, docker, etc.)
+• HEALTHCHECK: specifies the path for a health check or checks the health of a mentioned URL
+• SHELL: specifies the shell to be used to run commands
+• STOPSIGNAL: specifies the signal to be sent to the container to stop it gracefully
+• ONBUILD: specifies the instruction to be used when the
+Docker Build
+• docker build -f file_name .: run a file (if file name is different)
+• docker build -t tag_name -f file_name . --> run file with tag
+• docker system df --> for check container space
+Docker Network
+• docker network ls: show a list of networks
+• docker network create name: create a network
+• docker network inspect name: show all information about a network
+• docker network rm name: delete a network
+• docker run -d --name cont_name --network network_name image_id: create a container in
+a network
+• docker network connect network_name cont_name: add a container to a network
+• docker network disconnect network_name cont_name: remove a container from a network
+Docker Compose
+• docker-compose up -d: run a compose file (if the file name is docker-compose.yml)
+• docker-compose -f file_name up -d: run a compose file with a different name
+• docker-compose down: delete containers
+Docker System
+• docker system df: check container space
+
+
+
+
+Decresing the size of image
+===========================
 
 
 # Stage 1:  Base Image
@@ -6772,6 +7223,152 @@ def call(String project, String ImageTag, String hubUser){
 //     cat scan.txt
 //     """
 // }
+
+
+
+
+DOCKERFILE’S BASED ON DIFFERENT SCENARIOS Scenario 1: Multi-Stage Build for Optimized Image Size
+================================================================================================
+Link - scenario_based_learnings/Dockerfiles/Dockerfile1.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: To reduce the final image size by separating the build and runtime stages.
+The purpose of using multi-stage builds is to separate build dependencies from the runtime environment. This approach helps in reducing the final image size by eliminating unnecessary build artifacts and dependencies, thus improving security and efficiency.
+Benefits:
+● Efficiency: Separates build dependencies from the runtime environment, reducing the final Docker image size.
+● Security: Eliminates unnecessary build artifacts, minimizing potential attack surfaces.
+● Performance: Optimizes Docker image build times by focusing on required dependencies only
+       https://heydevops.in/
+ Scenario 2: Using Non-Root User
+Link - scenario_based_learnings/Dockerfiles/Dockerfile2.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+Purpose: Enhance security by running the application as a non-root user.
+The purpose of using a non-root user (javauser) is to enhance security within the Docker container. Running applications with non-root privileges minimizes the potential impact of security vulnerabilities by limiting the scope of access an attacker could gain if they exploit the application.
+Benefits:
+● Security: Reduces the impact of security vulnerabilities by limiting container
+privileges.
+         https://heydevops.in/
+
+ Scenario 3: Health Checks
+Link- scenario_based_learnings/Dockerfiles/Dockerfile3.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+Purpose: Ensure the application is running correctly by adding health checks.
+The purpose of implementing health checks is to monitor the application's health status within the Docker container. This allows Docker to automatically restart containers that fail health checks, ensuring continuous availability of the application.
+Benefits:
+● Reliability: Ensures continuous monitoring of application health, automatically restarting containers that fail health checks.
+● Availability: Improves service availability by quickly detecting and responding to application failures.
+         https://heydevops.in/
+
+ Scenario 4: Minimal Base Image
+Link - scenario_based_learnings/Dockerfiles/Dockerfile4.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: Use a minimal base image to reduce attack surface and image size.
+The purpose of using a minimal base image (openjdk:11-jre-slim) is to reduce the Docker image size. Slim images exclude unnecessary packages and utilities, reducing the attack surface and optimizing runtime performance of the application.
+Benefits:
+● Reduced Attack Surface: Minimizes the number of installed packages and dependencies, reducing potential vulnerabilities.
+● Improved Performance: Enhances Docker container startup time and runtime performance due to fewer resources being utilized
+         https://heydevops.in/
+
+ Scenario 5: Environment Variables and Secrets
+Link - scenario_based_learnings/Dockerfiles/Dockerfile5.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: Use environment variables to manage configuration and secrets.
+The purpose of setting environment variables like (DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD) and using Docker secrets is to securely configure sensitive
+information required by the application at runtime. This approach ensures that sensitive data is not exposed in Dockerfiles or version-controlled files.
+        Benefits:
+● Security: Safely manages sensitive information such as database credentials and API keys without exposing them in Dockerfiles or version-controlled files.
+● Flexibility: Allows dynamic configuration of application environments during runtime, supporting different deployment environments (development, testing, production)
+ https://heydevops.in/
+
+ Scenario 6: Using External Configuration Files
+Link -scenario_based_learnings/Dockerfiles/Dockerfile6.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: Separate configuration from the application code.
+The purpose of copying an external configuration file (application.properties) into the Docker image is to provide flexibility in configuring the application without modifying the Dockerfile. External configuration files can be mounted as volumes during container runtime, allowing dynamic configuration updates.
+Benefits:
+● Configuration Management: Separates configuration settings from the Docker
+image, facilitating easier configuration updates without rebuilding images.
+        https://heydevops.in/
+
+ Scenario 7: Customizing Base Image
+Link -scenario_based_learnings/Dockerfiles/Dockerfile7.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: Use a specific base image that includes only necessary dependencies.
+The purpose of customizing the base image by installing additional packages (curl, wget) is to meet specific application dependencies or operational requirements. This approach enhances the functionality of the Docker container by including necessary tools or utilities.
+Benefits:
+● Application Dependencies: Installs additional tools or libraries required by the
+application, ensuring compatibility and functionality.
+        https://heydevops.in/
+
+ Scenario 8: Including External Dependencies
+Link - scenario_based_learnings/Dockerfiles/Dockerfile8.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: Install additional system dependencies required by your application.
+The purpose of installing external dependencies (curl) during the Docker image build process is to ensure that the Docker container has all necessary tools or libraries required by the application. This approach facilitates seamless integration with external services or APIs.
+Benefits:
+● Integration: Integrates with external services or APIs required by the application, enabling seamless communication and data exchange.
+● Compatibility: Ensures compatibility with third-party systems or services by including necessary dependencies in Docker images.
+● Operational Efficiency: Simplifies deployment and management of applications with external dependencies, reducing configuration overhead
+        https://heydevops.in/
+
+ Scenario 9: Using Build Arguments
+Link - scenario_based_learnings/Dockerfiles/Dockerfile9.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: Use build arguments to customize the Docker build process.
+The purpose of using build arguments (MAVEN_VERSION, JAVA_VERSION) is to parameterize the Docker image build process. Build arguments allow customization of dependencies or runtime environments without modifying the Dockerfile directly, improving flexibility and maintainability.
+Benefits:
+● Configuration Flexibility: Allows customization of Docker image builds based on environment-specific variables or user-defined parameters.
+● Version Control: Supports versioning and tracking of build configurations, improving reproducibility and consistency across deployments.
+● Automation: Facilitates automated builds and deployments using CI/CD pipelines by parameterizing build processes with configurable arguments.
+        https://heydevops.in/
+
+ Scenario 10: Handling Timezones
+Link - scenario_based_learnings/Dockerfiles/Dockerfile10.txt at main ·
+praveen1994dec/scenario_based_learnings (github.com)
+Purpose: The purpose of setting the timezone (Asia/Kolkata) in the Docker container environment is to ensure that date and time-related operations within the application reflect the local timezone. This approach helps in maintaining accurate timestamps and scheduling tasks based on local time.
+Benefits:
+● Localization: Ensures accurate date and time handling within Docker containers based on specific geographic regions or user preferences.
+● Application Consistency: Maintains consistency in timestamp records and scheduled tasks across distributed systems or global deployments.
+● User Experience: Improves usability by presenting time-related information in local timezones, enhancing user experience and application functionality.
+        https://heydevops.in/
+
+ Scenario 11. Using Multi-Stage Builds for Different Environments
+Link - scenario_based_learnings/Dockerfiles/Dockerfile11.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: The purpose of using multi-stage builds for different environments (development and production) is to optimize the Docker image for each stage. Development stages may include additional tools or dependencies for debugging and testing, while production stages focus on minimizing image size and enhancing performance.
+Benefits:
+● Development Efficiency: Separates development dependencies from production environments, optimizing developer productivity and build times.
+● Production Optimization: Creates lean and optimized Docker images for production deployments, minimizing image size and reducing attack surfaces.
+● Environment Consistency: Ensures consistent application behavior across development, testing, and production environments by using environment-specific build stages.
+        https://heydevops.in/
+
+ Scenario 12. Running Initialization Scripts
+Link - scenario_based_learnings/Dockerfiles/Dockerfile12.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: The purpose of executing initialization scripts (init.sh) during container startup is to perform pre-deployment tasks such as environment setup, database migrations, or application configuration. Initialization scripts automate routine tasks, ensuring consistent and reliable container initialization.
+Benefits:
+● Automation: Automates pre-deployment tasks such as environment setup, database schema migrations, or application configuration.
+● Consistency: Ensures consistent and reproducible container initialization across different deployment environments.
+        https://heydevops.in/
+
+ Scenario 13. Using Docker Labels
+Link - scenario_based_learnings/Dockerfiles/Dockerfile13.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: The purpose of adding Docker labels (maintainer, description) to the Docker image is to provide metadata that describes the image's purpose, ownership, and other relevant information. Docker labels enhance image documentation, tracking, and management across development, testing, and production environments.
+Benefits:
+● Documentation: Provides metadata and descriptive information about Docker images, enhancing visibility and understanding of image purpose and ownership.
+● Tracking: Supports image management and tracking throughout its lifecycle, including versioning, updates, and deployment history.
+● Compliance and Governance: Facilitates compliance with organizational policies and governance requirements by labeling Docker images with relevant information.
+         https://heydevops.in/
+
+ Scenario 14: Using Docker Volumes for Persistent Data
+Link - scenario_based_learnings/Dockerfiles/Dockerfile14.txt at main · praveen1994dec/scenario_based_learnings (github.com)
+Purpose: The purpose of using Docker volumes in a Dockerfile is to manage and persist application data outside the container filesystem. This approach ensures data persistence across container restarts and allows for data sharing between containers or with the host system.
+Benefits:
+● Persistence: Data stored in Docker volumes persists even if the container is stopped or removed.
+● Separation of Concerns: Separating data from the container filesystem simplifies backup, restoration, and migration of application data.
+● Flexibility: Docker volumes can be easily shared between containers, enabling data exchange and collaboration in multi-container applications.
+          https://heydevops.in/
+
+ DOCKER COMPOSE SCENARIOS
+Scenario 1: Development Environment Setup
+Objective: Setting up a development environment for the Java web application using Docker Compose.
+      https://heydevops.in/
+
+  https://heydevops.in/
+
+Scenario 4: Docker Compose for Java Web Application Deployment
+Objective: Build and deploy a Java web application (java-hello-world.war) using Docker Compose.
+     
 ===================================================
                                 Kubernetes K8 
 ==============================================================================================================
@@ -8203,6 +8800,161 @@ eksctl delete cluster --name=eksdemo --region=us-east-1
 2025-08-26 16:09:12 [✔]  all cluster resources were deleted
 [root@ip-172-31-21-53 Custom_Resource_Definition]#
 
+
+
+ KUBERNETES TROUBLESHOOTING SCENARIOS
+1. Error: Unable to connect to the cluster
+o Troubleshooting:
+▪ Check kubeconfig file for correct cluster information. ▪ Verify network connectivity to the cluster.
+o Example Commands:
+kubectl config view
+kubectl cluster-info
+2. Error: Pod stuck in Pending state
+o Troubleshooting:
+▪ Check events for the pod using kubectl describe pod.
+▪ Inspect the pod's YAML for resource constraints or affinity issues.
+o Example Commands:
+kubectl describe pod <pod-name>
+kubectl get events --namespace <namespace>
+3. Error: Insufficient resources to schedule pod
+Troubleshooting:
+▪ Check resource requests and limits in the pod specification.
+▪ Verify node resources using kubectl describe node.o Example Commands: kubectl describe pod <pod-name>
+kubectl describe node <node-name>
+4. Error: ImagePullBackOff
+o Troubleshooting:
+▪ Verify the image name and availability.
+ 
+ ▪ Check image pull credentials using kubectl describe pod. o Example Commands:
+kubectl describe pod <pod-name>
+kubectl get pods --namespace <namespace> - o=jsonpath='{.items[*].status.containerStatuses[*].state}'
+5. Error: CrashLoopBackOff
+o Troubleshooting:
+▪ Check container logs for details on the crash. ▪ Inspect pod events using kubectl describe pod. o Example Commands:
+kubectl logs <pod-name> <container-name> kubectl describe pod <pod-name>
+6. Error: Unauthorised access
+o Troubleshooting:
+▪ Verify RBAC permissions for the user.
+▪ Check kubeconfig for correct credentials. o Example Commands:
+kubectl auth can-i --list
+kubectl config view
+7. Error: ConfigMap not updating in the pod
+o Troubleshooting:
+▪ Check if the ConfigMap is updated.
+▪ Verify that the pod is configured to use the latest version.Example Commands: kubectl get configmap <configmap-name> -o yaml
+kubectl describe pod <pod-name>
+8. Error: Service not reachable
+ 
+ o Troubleshooting:
+▪ Check service endpoints using kubectl describe service. ▪ Verify network policies and firewall rules.
+o Example Commands:
+kubectl describe service <service-name>
+kubectl get networkpolicies
+9. Error: Node not ready
+o Troubleshooting:
+▪ Check node status with kubectl get nodes.
+▪ Review kubelet logs on the node for issues. o Example Commands:
+kubectl get nodes
+kubectl describe node <node-name>
+10. Error: PersistentVolumeClaim (PVC) pending
+o Troubleshooting:
+▪ Verify available storage in the cluster. ▪ Check storage class and provisioner. o Example Commands:
+kubectl get pvc
+kubectl describe storageclass
+11. Error: VolumeMounts not working in pod
+o Troubleshooting:
+▪ Check pod's YAML for correct volume mounts.
+▪ Verify if the volume exists and is accessible.o Example Commands: kubectl describe pod <pod-name>
+kubectl get pv
+ 
+ 12. Error: Pod Security Policies (PSP) blocking pod
+o Troubleshooting:
+▪ Check PSP rules and RBAC for the pod.
+▪ Inspect pod events using kubectl describe pod. o Example Commands:
+kubectl get psp
+kubectl describe pod <pod-name>
+13. Error: ServiceAccount permissions
+o Troubleshooting:
+▪ Verify ServiceAccount permissions using kubectl auth can-i. ▪ Check RBAC roles and role bindings.
+o Example Commands:
+kubectl auth can-i --list -- as=system:serviceaccount:<namespace>:<serviceaccount-name> kubectl get roles,rolebindings --namespace <namespace>
+14. Error: NodeSelector not working
+o Troubleshooting:
+▪ Check pod's YAML for correct node selector. ▪ Verify that nodes have the required labels.
+o Example Commands:
+kubectl describe pod <pod-name>
+kubectl get nodes --show-labels
+15. Error: Ingress not routing traffic
+o Troubleshooting:
+▪ Check Ingress resource for correct backend services.▪ Verify that the Ingress controller is running.
+o Example Commands:
+ 
+ kubectl describe ingress <ingress-name>
+kubectl get pods --namespace <ingress-controller-namespace>
+16. Error: Unable to scale deployment
+o Troubleshooting:
+▪ Verify available resources in the cluster.
+▪ Check replica count in the deployment specification. o Example Commands:
+kubectl get deployments
+kubectl describe deployment <deployment-name>
+17. Error: Custom Resource Definition (CRD) not creating resources
+o Troubleshooting:
+▪ Check CRD definition for correct syntax. ▪ Verify controller logs for errors.
+o Example Commands:
+kubectl get crd
+kubectl describe crd <crd-name>
+18. Error: Pod in Terminating state
+o Troubleshooting:
+▪ Check for stuck finalizers in pod metadata.
+▪ Force delete pod using kubectl delete pod --grace-period=0. o Example Commands:
+kubectl get pods --all-namespaces --field-
+selector=status.phase=Terminating
+kubectl delete pod <pod-name> --grace-period=0 –force
+ 
+ 19. Error: Resource quota exceeded
+o Troubleshooting:
+▪ Check resource quotas for the namespace. ▪ Verify resource usage in the namespace.
+o Example Commands:
+kubectl describe quota --namespace <namespace> kubectl top pods --namespace <namespace>
+20. Error: Rolling update stuck or not progressing
+o Troubleshooting:
+▪ Check rollout status using kubectl rollout status.
+▪ Verify image versions in the deployment.
+o Example Commands:
+kubectl rollout status deployment <deployment-name>
+kubectl set image deployment/<deployment-name> <container- name>=<new-image>
+21. Error: Node draining or cordoning
+o Troubleshooting:
+▪ Check node conditions and events.
+▪ Use kubectl drain with caution.
+o Example Commands:
+kubectl get nodes
+kubectl describe node <node-name>
+kubectl drain <node-name> --ignore-daemonsets
+22. Error: Resource creation timeout
+o Troubleshooting:
+▪ Check for issues with the API server.
+▪ Verify network connectivity to the API server. o Example Commands:
+kubectl get events --sort-by='.metadata.creationTimestamp' kubectl describe pod <pod-name>
+ 
+ 23. Error: Pod stuck in ContainerCreating state
+o Troubleshooting:
+▪ Check container runtime logs on the node. ▪ Inspect kubelet logs for errors.
+o Example Commands:
+kubectl get pods
+kubectl describe pod <pod-name>
+24. Error: Invalid YAML syntax
+o Troubleshooting:
+▪ Validate YAML syntax using online tools or linters. ▪ Check for indentation and formatting issues.
+o Example Commands:
+kubectl apply -f <file.yaml> --dry-run=client
+25. Error: etcd cluster issues
+o Troubleshooting:
+▪ Check etcd logs for errors.
+▪ Verify etcd cluster health.
+o Example Commands:
+kubectl get events --all-namespaces --field- selector=involvedObject.kind=Pod,involvedObject.name=etcd kubectl exec -it etcd-pod-name --namespace kube-system -- sh
+etcdctl member list etcdctl cluster-health
 
 
 
@@ -13948,6 +14700,9 @@ EKS Cluster
 
 REAL TIME MONITORING HANDSON
 Prometheus and Grafana Dashboard on EKS Cluster using Helm Chart
+--------------------------------------------------------------------
+
+
 Step 1 – Setup EC2 Instance
 Instance Type as t2.medium AMIs as
 Step 1.1 – Create the IAM role having full access
@@ -13994,6 +14749,213 @@ aws eks update-kubeconfig --region <region-code> --name <cluster-name>
 Step 7 - Installing the Kubernetes Metrics Server
                          
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/downlo ad/components.yaml
+
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    k8s-app: metrics-server
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: system:aggregated-metrics-reader
+rules:
+- apiGroups:
+  - metrics.k8s.io
+  resources:
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: system:metrics-server
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes/metrics
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server-auth-reader
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server:system:auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: system:metrics-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:metrics-server
+subjects:
+- kind: ServiceAccount
+  name: metrics-server
+  namespace: kube-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+spec:
+  ports:
+  - appProtocol: https
+    name: https
+    port: 443
+    protocol: TCP
+    targetPort: https
+  selector:
+    k8s-app: metrics-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      k8s-app: metrics-server
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        k8s-app: metrics-server
+    spec:
+      containers:
+      - args:
+        - --cert-dir=/tmp
+        - --secure-port=10250
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+        - --kubelet-use-node-status-port
+        - --metric-resolution=15s
+        image: registry.k8s.io/metrics-server/metrics-server:v0.8.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /livez
+            port: https
+            scheme: HTTPS
+          periodSeconds: 10
+        name: metrics-server
+        ports:
+        - containerPort: 10250
+          name: https
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readyz
+            port: https
+            scheme: HTTPS
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp-dir
+      nodeSelector:
+        kubernetes.io/os: linux
+      priorityClassName: system-cluster-critical
+      serviceAccountName: metrics-server
+      volumes:
+      - emptyDir: {}
+        name: tmp-dir
+---
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: v1beta1.metrics.k8s.io
+spec:
+  group: metrics.k8s.io
+  groupPriorityMinimum: 100
+  insecureSkipTLSVerify: true
+  service:
+    name: metrics-server
+    namespace: kube-system
+  version: v1beta1
+  versionPriority: 100
+
+
+
 
 Step 7.1 - Verify that the metrics-server deployment is running the desired number of pods with the following command
 kubectl get deployment metrics-server -n kube-system
@@ -14483,7 +15445,59 @@ EC2 (DevOps Machine)
 
 
 
+ASSIGNMENT9 - HANDS-ON
+SPRING BOOT APPLICATION INTEGRATION WITH SPLUNK
+=======================================================
+PREREQUISITES –
+1) INSTALLSPRINGTOOLSUITE-
+https://spring.io/tools
+2) INSTALLSPLUNK-followbelowsteps
+3) INSTALLPOSTMAN-
+https://www.postman.com/downloads/
+  
+  Step1 - Splunk download link : https://www.splunk.com/en_us/download
+Step2 -
+   Step 3 – Give username and password
 
+  Step 4 – Login http://localhost:8000
+Give username and password which you have set in step 3
+Step 5 – Create the Data Input for splunk
+Go to settings -> Data inputs -> HTTP EVENT COLLECTOR -> Global Settings
+Step 6 – Set the below parameters in Global Settings:
+    
+ Step 7 – Create the Token now [ Button will be beside Global settings ]
+Step 8 – Go to Next -> Select SOURCE TYPE – log4j
+Step 9 – Create Index and select that index under “Select Allowed Indexes”
+Step 10 – Click on review
+Step 11 - Go to settings -> Data inputs -> HTTP EVENT COLLECTOR and copy the token
+    
+  Step 12 – GO TO SETTINGS -> DATA INPUTS -> EVENT COLLECTOR -> CHECK FOR ALL DETAILS
+Step 13 – CLONE THE CODE
+https://github.com/DEVOPS-WITH-WEB-DEV/Splunk_Grafana_Setup.git
+CHECK FOR EXCLUSION OF DEFAULT SPRING BOOT LOGGING AND ADD
+LOG4J2 AS DEPENDENCY
+   STEP 14 – ADD LOGGER STATEMENTS Create the logger object
+ 
+  Step 15 – ADD THE SPLUNK REPOSITORY AND SPLUNK LOGGING DEPENDENCY IN POM.XML
+Step 16 – MAP YOUR SPLUNK VALUES TO LOG4J2-SPRING.XML FILE
+Token :**********
+Port : 8088
+Source :log4j
+Index: order_api_index Source name : http-event-logs
+Step 17 – Open Postman
+Add POST method - http://localhost:9090/orders Add BODY
+Add JSON
+   
+ {
+"id":101, "name":"mobile", "qty":"1", "price":30000
+}
+ ADD GET http://localhost:9090/orders ADD GET http://localhost:9090/orders/101
+ADD GET http://localhost:9090/orders/102
+Step 18 – Search in SPLUNK with this query
+index="order_api_dev" OrderService:getOrder
+    index="order_api_dev" AND (EXCEPTION OR ERROR)
+
+ 
                                         Shell Scripting
 ================================================================================================================================
 
