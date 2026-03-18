@@ -13746,6 +13746,8 @@ validate(instance=data, schema=schema)
 print("Data is valid")
 except ValidationError as e:
 print(f"Data is invalid: {e.message}")
+
+
                                      Monitoring
 =================================================================================================================
 
@@ -19108,19 +19110,6 @@ curl http://nginx.local
 
 ansible-playbook cleanup.yml
 
-
-Messages beyond this point are only visible to you
-
-
-
-Attach
-
-Search
-
-Reason
-
-Voice
-ChatGPT can make mistakes. Check important info.
 
 
 
