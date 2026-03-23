@@ -21388,8 +21388,72 @@ vi /etc/fstab [For permanent mount]
 
 swapon -s
 
-Logical Volume Management
 
+
+
+🧠 SWAP PARTITION (Type 82)
+📌 What is Swap?
+Swap partition acts as overflow space for RAM.
+
+👉 When RAM is full:
+
+System moves inactive data → Swap
+
+Prevents system crash
+
+🎯 Why Swap is Used
+1️⃣ Memory Overflow
+Extra applications run using swap when RAM is full
+2️⃣ Hibernation
+System state is saved to swap during hibernation
+🛠️ Steps to Create Swap Partition
+🔍 Step 1: Check Disk
+fdisk -l
+
+Example:
+
+/dev/xvda 8GB
+⚙️ Step 2: Create Partition
+fdisk /dev/xvda
+
+Inside fdisk:
+
+n  → create new partition
+p  → primary partition
+Enter → default first sector
++512M → size
+🔧 Step 3: Change Partition Type
+t → change type
+l → list all types
+82 → Linux Swap
+💾 Step 4: Save Changes
+w → write and exit
+🔄 Step 5: Refresh Partition Table
+partprobe /dev/xvda
+🧱 Step 6: Create Swap Area
+mkswap /dev/xvda3
+
+👉 (Replace /dev/xvda3 with your actual partition)
+
+🚀 Step 7: Enable Swap
+swapon /dev/xvda3
+🔍 Step 8: Verify Swap
+swapon -s
+
+or
+
+free -h
+📌 Permanent Mount (Important)
+✏️ Edit fstab
+vi /etc/fstab
+
+Add this line:
+
+/dev/xvda3   swap   swap   defaults   0 0
+
+
+Logical Volume Management
+=========================
 Logical Volumen Managment enables the combingin of multiple individual hard drives and/or disk partitions into a single volume
 group( VG). That volume group can then be subdivided into logical volumes(LV) or used as a signle large volume
 
