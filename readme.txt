@@ -15603,6 +15603,197 @@ done
 - Step6- Then hit the ./jira.sh script
 
 
+Automation  3- Array Declearation Process to check Jar Process
+------------------------------------------------------------------------------------------------------------------------------------
+
+#!/bin/bash
+
+array=(helloservice hiservice nameservice managerservice teamservice)
+
+for line in "${array[@]}"
+do 
+  COUNT=$(ps -ef | grep $line | grep -v grep | wc -l)
+  MAX=2
+
+  echo "Service: $line"
+  echo "Running Count: $COUNT"
+
+  if [ $COUNT -gt $MAX ]
+  then
+     PROCS=$(ps -ef | grep $line | grep -v grep | awk '{print $2,$11,$13}')
+     JAR=$(echo "$PROCS" | awk -F" -Djar_name=| " '{print $5}')
+     JAR_RUN=$(echo $JAR | tr ' ' ',')
+
+     echo "JAR: $JAR_RUN"
+
+     cd /apps/nnos/vzomega/scripts
+     ./mail.sh $line $JAR_RUN $COUNT
+  fi
+done
+
+
+
+Hands On pracie
+step1 - ADD Below Script IN automation3.sh
+
+
+array=(helloservice hiservice nameservice managerservice teamservice)
+
+for line in "${array[@]}"
+do 
+  echo $line
+done
+
+STEP2- chmod +x automation3.sh
+
+STEP4- ./automation3.sh
+
+🧾 Line-by-Line Explanation
+🔹 1. Shebang
+#!/bin/bash
+
+👉 Tells the system:
+
+“Run this script using Bash shell”
+🔹 2. Array Declaration
+array=(helloservice hiservice nameservice managerservice teamservice)
+
+👉 Creates a list of service names
+
+Think of it like:
+
+array[0] = helloservice
+array[1] = hiservice
+...
+🔹 3. Loop Start
+for line in "${array[@]}"
+
+👉 Loop through each service in the array
+
+${array[@]} → all elements
+line → current value in each loop
+🔹 4. Loop Block Start
+do
+
+👉 Start of loop body
+
+🔹 5. Count Running Processes
+COUNT=$(ps -ef | grep $line | grep -v grep | wc -l)
+
+👉 This is the most important line
+
+Breakdown:
+ps -ef → list all running processes
+grep $line → filter processes matching service name
+grep -v grep → remove the grep process itself
+wc -l → count number of lines (process count)
+
+👉 $(...) → executes command and stores result in COUNT
+
+Example:
+
+helloservice → 3 processes running
+COUNT=3
+🔹 6. Set Threshold
+MAX=2
+
+👉 Define limit:
+
+If more than 2 processes → alert
+🔹 7. Print Service Name
+echo "Service: $line"
+
+👉 Prints current service name
+
+🔹 8. Print Count
+echo "Running Count: $COUNT"
+
+👉 Shows how many processes are running
+
+🔹 9. Condition Check
+if [ $COUNT -gt $MAX ]
+
+👉 Meaning:
+
+-gt = greater than
+Check if process count > max limit
+
+Example:
+
+COUNT=3, MAX=2 → TRUE
+🔹 10. If Block Start
+then
+
+👉 Execute below code if condition is true
+
+🔹 11. Get Process Details
+PROCS=$(ps -ef | grep $line | grep -v grep | awk '{print $2,$11,$13}')
+
+👉 Extract specific columns from process list
+
+Breakdown:
+$2 → Process ID (PID)
+$11 → Command
+$13 → Additional argument (often jar info)
+
+Example output:
+
+1234 java -Djar_name=app.jar
+🔹 12. Extract JAR Name
+JAR=$(echo "$PROCS" | awk -F" -Djar_name=| " '{print $5}')
+
+👉 This is advanced parsing
+
+What it does:
+Splits text using:
+-Djar_name=
+space " "
+Extracts JAR file name
+
+Example:
+
+Input: java -Djar_name=app.jar
+Output: app.jar
+🔹 13. Convert to Comma-Separated
+JAR_RUN=$(echo $JAR | tr ' ' ',')
+
+👉 Replace spaces with commas
+
+Example:
+
+app1.jar app2.jar → app1.jar,app2.jar
+🔹 14. Print JAR Names
+echo "JAR: $JAR_RUN"
+
+👉 Displays extracted jar names
+
+🔹 15. Change Directory
+cd /apps/nnos/vzomega/scripts
+
+👉 Move to scripts folder
+
+🔹 16. Send Alert (Mail Script)
+./mail.sh $line $JAR_RUN $COUNT
+
+👉 Calls another script
+
+Passes 3 values:
+$line → service name
+$JAR_RUN → jar names
+$COUNT → number of processes
+
+👉 This script likely sends email alert
+
+🔹 17. End If Block
+fi
+🔹 18. End Loop
+done
+
+
+
+
+
+
 Automation 4 Archive the Data with Find/Mtime/Tar/Name command
 -------------------------------------------------------------------
 
@@ -15659,6 +15850,26 @@ echo "$Fourteendaysold and $Sevendaysold are obtained"
 
 
 https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-labels/#api-group-labels
+
+AUTOMATIONS5 for linux systems
+----------------------------------
+
+#!/bin/bash
+
+Instead of hardcoding:
+
+2023-04-01
+
+👉 Use current date:
+
+today=$(date '+%Y-%m-%d')
+future=$(date -d "$today +30 days" '+%Y-%m-%d')
+past=$(date -d "$today -2 days" '+%Y-%m-%d')
+
+echo "Today: $today"
+echo "Future: $future"
+echo "Past: $past"
+
 
 
 
@@ -15746,6 +15957,7 @@ echo "Email sent to $email_recipient with the results."
 
 
 Special Variables in Shell
+-----------------------------
 
 1) $# stores the number of command-line arguments that were passed to the shell program
 
@@ -15928,6 +16140,146 @@ LOG_FILE="logfile.txt"
 grep "interface" "$LOG_FILE" | \
 grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | \
 grep -v "^127\.0\.0\.1$"
+
+
+
+Automation 7- Creating HTML
+
+#!/bin/bash
+
+FILE=system_report.html
+
+echo "<html><head><title>System Report</title></head><body>" > $FILE
+
+echo "<h1>System Health Report</h1>" >> $FILE
+echo "<h2>Date: $(date)</h2>" >> $FILE
+
+echo "<h3>Disk Usage</h3><pre>" >> $FILE
+df -h >> $FILE
+echo "</pre>" >> $FILE
+
+echo "<h3>Memory Usage</h3><pre>" >> $FILE
+free -m >> $FILE
+echo "</pre>" >> $FILE
+
+echo "<h3>CPU Load</h3><pre>" >> $FILE
+uptime >> $FILE
+echo "</pre>" >> $FILE
+
+echo "</body></html>" >> $FILE
+
+
+Automation 8  Sonar / Gitalb Rest API
+
+#!/bin/bash
+
+# Call SonarQube API and save response
+curl -u "GITLAB:$gitlab" \
+"https://sonar/api/qualitygates/project_status?projectKey=${sonarProjectKey}&branch=${PIPELINE_GIT_BRANCH}" \
+> status.json
+
+# Extract status using jq
+cat status.json | jq -r '.projectStatus.status' > status.txt
+
+# Remove quotes (extra safety)
+sed 's/"//g' status.txt > QG.txt
+
+# Read first line
+STATUS=$(sed -n '1p' QG.txt)
+
+echo "status=$STATUS"
+
+# Check if Quality Gate failed
+if [ "$STATUS" == "ERROR" ]
+then
+  echo -e "******** QUALITY GATE ERROR ********"
+  echo "To validate check https://sonar/dashboard?id=${sonarProjectKey}"
+fi
+🧠 LINE-BY-LINE EXPLANATION
+🔹 1. Shebang
+#!/bin/bash
+
+👉 Run script using Bash
+
+🔹 2. Call SonarQube API
+curl -u "GITLAB:$gitlab" \
+"https://sonar/api/qualitygates/project_status?projectKey=${sonarProjectKey}&branch=${PIPELINE_GIT_BRANCH}" \
+> status.json
+What it does:
+Calls SonarQube REST API
+
+Authenticates using:
+
+-u "GITLAB:$gitlab"
+
+Saves response into:
+
+status.json
+🔹 3. Extract Status using jq
+cat status.json | jq -r '.projectStatus.status' > status.txt
+Breakdown:
+cat status.json → read JSON file
+jq -r → parse JSON
+.projectStatus.status → extract status field
+Example JSON:
+{
+  "projectStatus": {
+    "status": "ERROR"
+  }
+}
+
+👉 Output:
+
+ERROR
+
+Saved in:
+
+status.txt
+🔹 4. Remove Quotes (optional cleanup)
+sed 's/"//g' status.txt > QG.txt
+
+👉 Removes quotes (if any)
+
+Example:
+
+"ERROR" → ERROR
+🔹 5. Read First Line
+STATUS=$(sed -n '1p' QG.txt)
+
+👉 Extract first line from file
+
+Stored in variable:
+
+STATUS
+🔹 6. Print Status
+echo "status=$STATUS"
+
+👉 Output:
+
+status=ERROR
+🔹 7. Condition Check
+if [ "$STATUS" == "ERROR" ]
+
+👉 If Quality Gate failed
+
+🔹 8. If Block
+then
+🔹 9. Print Error Message
+echo -e "******** QUALITY GATE ERROR ********"
+
+👉 Displays alert
+
+🔹 10. Print Dashboard Link
+echo "To validate check https://sonar/dashboard?id=${sonarProjectKey}"
+
+👉 Gives link to check issue in SonarQube
+
+🔹 11. End If
+fi
+
+
+
+
 
 
 ===================================================================================================
