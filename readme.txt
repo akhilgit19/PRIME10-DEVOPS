@@ -2558,6 +2558,37 @@ mvn -U versions:set -DnewVersion="$new_version" -DgenerateBackupPoms=false
 echo "Version updated successfully!"
 
 
+=====================
+#!/usr/bin/env python3
+
+import subprocess
+
+# Get current version
+version = subprocess.getoutput(
+    "mvn -q -Dexpression=project.version -DforceStdout help:evaluate"
+).strip()
+
+print("Current version:", version)
+
+# Remove -SNAPSHOT
+version = version.replace("-SNAPSHOT", "")
+
+# Split version
+parts = version.split(".")
+major = int(parts[0])
+minor = int(parts[1])
+patch = int(parts[2])
+
+# Increment (change what you need)
+# major += 1
+minor += 1
+# patch += 1
+
+# New version
+new_version = f"{major}.{minor}.{patch}"
+
+print("New version:", new_version)
+
 
 Maven Commands: 
 ================
@@ -8136,7 +8167,7 @@ built and executable
 apiVersion: batch/v1
 kind: CronJob
 metadata: 
-  name: vuild
+  name: build
 spec:
   schedule: "*****"
   concurrencyPolicy: Forbid
