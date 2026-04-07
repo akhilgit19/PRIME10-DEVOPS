@@ -16450,8 +16450,65 @@ fi
 Automatino 9 pending:
 
 
+#!/bin/bash
 
+echo "=== Automation: Check JAR Process & System Usage ==="
 
+##############################################
+# 1. Get JAR Process Details
+##############################################
+
+JAR_NAME="helloworld-20.1.2.3.jar"
+
+PID=$(ps -ef | grep -i "$JAR_NAME" | grep -v grep | awk '{print $2}')
+
+echo "PID: $PID"
+
+if [ -n "$PID" ]; then
+    echo "Process is running"
+
+    # CPU & Memory usage
+    ps -p $PID -o %cpu,%mem,cmd
+
+else
+    echo "Process not running"
+fi
+
+##############################################
+# 2. Replace content in XML
+##############################################
+
+sed -i 's/mdreject.html/index.html/g' web.xml
+
+##############################################
+# 3. Replace version in script
+##############################################
+
+version="1.0"
+newversionCode="2.0"
+
+sed -i "s/$version/$newversionCode/g" test.sh
+
+##############################################
+# 4. Clean date string
+##############################################
+
+date=$(date)
+date1=$(echo "$date" | sed 's/-s//g')
+
+echo "Cleaned date: $date1"
+
+##############################################
+# 5. Extract branch name from JSON
+##############################################
+
+cat branch.json | jq '.branches[0].name' | tr -d '"' >> branch.txt
+
+##############################################
+# 6. Show latest files
+##############################################
+
+ls -ltr | head -10		
 
 
 SHELL SCRIPTING TASKS
@@ -16472,7 +16529,6 @@ Get the token:
  1) Log in
 https://id.atlassian.com/manage-profile/security/api-token s
 2) Click Create API token.
-3) From the dialog that appears, enter a memorable and
 concise Label for your token and click Create.
 Step 4 - Run the Automation2 script and replace your token and username
 https://github.com/praveen1994dec/ShellScripting_Autom ation/blob/main/automation2.sh
@@ -22763,6 +22819,8 @@ files- cotains files required to transfer or deployed to the target machines via
 templates- contains templates which can be deployed via this role 
 
 meta- defines some data/information about this role(author, dependecy,version,examples,etc.)
+
+
 
 
 Ansible HandsON
