@@ -5240,7 +5240,7 @@ Code----->jar--------------->|Image|--------------------------------- >| Docker-
 |  COPY< >                               |             |                                        | 
 |  EXPOSE<PORT>                          |             |                                        | 
 |  ENTRYPOINT< >                         |             |                                        |
-|  volume /map target                    |             |                                        |
+|  volume /host /target                    |             |                                        |
 |                                        |             |                                        |
 ------------------------------------------             ------------------------------------------
 
@@ -5354,8 +5354,8 @@ Docker containers
 4. To star the container- docker start c39b83a46949
 5. To find the complete skeleton json of container- docker inspect c39b83a46949
 6. To stop the container - docker stop c39b83a46949
-7. docker network ls
-8. docker inspect dockerid
+7. TO Check on how many network drivers are avialble - docker network ls
+8. To inspect the docker container - docker inspect dockerid
 
 3 types of docker network
 ---------------------------
