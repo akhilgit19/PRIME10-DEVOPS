@@ -6635,6 +6635,9 @@ docker run --name artifactory -d -p 8081:8081 -p 8082:8082 -v /jfrog/artifactory
 
 now in the security grou change ito alltrafic ip4 and check with the IP address 
 
+or do this code-PRIME10-DEVOPS/Kubernetes
+/Assignment 9 Jfrog docker setup.pdf
+
 
 
 Docker Project3:
