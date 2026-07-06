@@ -3883,22 +3883,6 @@ sudo apt-get update -y
 sudo apt-get install jenkins -y
 
 
-For any erros:
-==============================
-dpkg -l | grep openjdk
-sudo apt remove openjdk-17-jre -y
-sudo apt remove openjdk-17-jre openjdk-17-jre-headless -y
-sudo apt remove openjdk-17-jdk openjdk-17-jdk-headless openjdk-17-jre openjdk-17-jre-headless -y
-
-gpg --show-keys /etc/apt/keyrings/jenkins-keyring.asc
-curl -I https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-apt-key list
-
-sudo journalctl -u jenkins -n 100 --no-pager
-sudo cat /var/log/jenkins/jenkins.log
-sudo ls -l /var/log/jenkins
-fatal: couldn't find remote ref refs/heads/master
-
 
 1:32
 
@@ -4612,6 +4596,1025 @@ Step 19 - Once pipeline is Run Check
 
 
 
+
+
+For any erros:
+==============================
+dpkg -l | grep openjdk
+sudo apt remove openjdk-17-jre -y
+sudo apt remove openjdk-17-jre openjdk-17-jre-headless -y
+sudo apt remove openjdk-17-jdk openjdk-17-jdk-headless openjdk-17-jre openjdk-17-jre-headless -y
+
+gpg --show-keys /etc/apt/keyrings/jenkins-keyring.asc
+curl -I https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+apt-key list
+
+sudo journalctl -u jenkins -n 100 --no-pager
+sudo cat /var/log/jenkins/jenkins.log
+sudo ls -l /var/log/jenkins
+fatal: couldn't find remote ref refs/heads/master
+
+
+cat /etc/systemd/system/jenkins.service.d/override.conf
+sudo rm -f /etc/systemd/system/jenkins.service.d/override.conf
+sudo systemctl daemon-reload
+
+Then install Java 21:
+
+sudo apt update
+sudo apt install -y openjdk-21-jdk
+
+Verify it is installed:
+
+ls -l /usr/lib/jvm/
+
+You should now see something like:
+
+java-17-openjdk-amd64
+java-21-openjdk-amd64
+
+Now point Jenkins to Java 21:
+
+sudo systemctl edit jenkins
+
+Paste:
+
+[Service]
+Environment="JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64"
+Environment="PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+Then reload and restart:
+sudo systemctl daemon-reload
+sudo systemctl restart jenkins
+
+Verify:
+sudo systemctl status jenkins
+sudo -u jenkins java -version
+sudo update-alternatives --config java
+
+
+Step 1: Check if SonarQube is actually running
+docker ps
+docker logs sonarqube
+docker logs cbe6a7d2b9b7
+ss -tulnp | grep 9000
+curl http://localhost:9000
+docker port sonarqube
+docker logs --tail 100 sonarqube
+docker exec -it sonarqube bash
+free -h
+df -h
+sudo ufw status
+sudo ufw allow 9000/tcp
+curl http://localhost:9000
+
+# Install prerequisites
+sudo apt update
+sudo apt install -y wget gnupg lsb-release curl
+
+# Create keyrings directory
+sudo mkdir -p /etc/apt/keyrings
+
+# Download and install the Trivy GPG key
+curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key \
+| gpg --dearmor \
+| sudo tee /etc/apt/keyrings/trivy.gpg > /dev/null
+
+# Add the Trivy repository
+echo "deb [signed-by=/etc/apt/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" \
+| sudo tee /etc/apt/sources.list.d/trivy.list
+
+# Update package list
+sudo apt update
+
+# Install Trivy
+sudo apt install -y trivy
+
+# Verify installation
+trivy --version
+
+If sudo apt update fails with a repository error,
+First, remove the old repository and key:
+sudo rm -f /etc/apt/sources.list.d/trivy.list
+sudo rm -f /etc/apt/keyrings/trivy.gpg
+
+sudo apt update
+cat /etc/os-release
+
+This is a Maven compilation failure, and the key part of the error is:
+
+java.lang.NoSuchFieldError:
+Class com.sun.tools.javac.tree.JCTree$JCImport
+does not have member field
+'com.sun.tools.javac.tree.JCTree qualid'
+
+Failed to execute goal
+The real error
+maven-compiler-plugin:3.8.1:compile
+n
+java.lang.NoSuchFieldError
+
+Cause 1 (Most common)
+
+Old Lombok + New JDK
+
+Example:
+
+Lombok 1.18.20
+
+running on
+
+Java 21
+
+or
+
+Java 24
+
+Lombok accesses Java compiler internals.
+
+When Oracle changes them...
+
+Old Lombok crashes.
+
+Cause 2
+
+Using
+
+JDK 21
+
+with
+
+Spring Boot 2.x
+
+Older Spring Boot versions don't fully support newer JDKs.
+
+Cause 3
+
+Old Maven Compiler Plugin
+
+Example:
+
+<plugin>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.8.1</version>
+</plugin>
+
+Version 3.8.1 is several years old.
+
+Cause 4
+
+Jenkins is using a different Java version than your local machine.
+
+For example:
+
+Local:
+
+Java 17
+
+Jenkins:
+
+Java 24
+
+Example:
+
+Apache Maven 3.9.9
+
+Java version: 24
+Step 3
+
+Check Jenkins Java version.
+
+In Jenkins Pipeline:
+
+sh 'java -version'
+sh 'mvn -version'
+
+Step 4
+
+Look for Lombok.
+
+Search inside your pom.xml.
+
+Example:
+
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+</dependency>
+
+If you're using an older Lombok version, upgrade it. Newer JDKs require recent Lombok releases.
+
+Recommended versions
+Component	Recommended Version
+Java	17 or 21 (LTS)
+Maven	3.9.x
+Maven Compiler Plugin	3.11.0 or later
+Lombok	Latest stable release
+Spring Boot	3.x (if using Java 21+)
+
+
+is almost always caused by an older version of Lombok or another annotation processor running on Java 21.
+
+Step 1: Check your Maven version
+
+Run:
+
+mvn -version
+Step 2: Check if you're using Lombok
+
+Run:
+
+grep -i lombok pom.xml
+
+or
+
+cat pom.xml
+Step 3: Check the Java version configured in your project
+
+Run:
+
+grep -A5 -B5 maven-compiler-plugin pom.xml
+
+or
+
+grep -A5 -B5 "<java.version>" pom.xml
+If your project uses Lombok
+
+Upgrade it to a recent version (for Java 21 compatibility), for example:
+
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.38</version>
+    <scope>provided</scope>
+</dependency>
+
+Also update the Maven Compiler Plugin
+
+If you have:
+
+<plugin>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.8.1</version>
+</plugin>
+
+replace it with:
+
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.14.0</version>
+    <configuration>
+        <source>21</source>
+        <target>21</target>
+    </configuration>
+</plugin>
+
+The error:
+
+java.lang.NoSuchFieldError:
+com.sun.tools.javac.tree.JCTree$JCImport.qualid
+
+is commonly caused by one of these:
+
+Old Lombok (most common)
+MapStruct with an old annotation processor
+Error Prone
+Google AutoValue
+Any annotation processor that uses javac internals
+An older maven-compiler-plugin used with incompatible processors
+Next step: inspect your project configuration
+
+From your Jenkins workspace, run:
+
+cd /var/lib/jenkins/workspace/jenkins
+
+Then execute:
+
+cat pom.xml
+
+or, if the file is long:
+
+grep -A5 -B5 "lombok" pom.xml
+grep -A20 -B5 "maven-compiler-plugin" pom.xml
+grep "<java.version>" pom.xml
+Also check if Lombok is present
+grep -i lombok pom.xml
+If this is a Spring Boot project
+
+Run:
+
+grep spring-boot pom.xml
+My current suspicion
+
+If your pom.xml contains something like:
+
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.20</version>
+</dependency>
+
+or any version older than the latest releases, that's very likely the cause. Upgrading Lombok typically resolves this issue on Java 21.
+
+Please paste your pom.xml
+
+The quickest way is:
+
+cd /var/lib/jenkins/workspace/jenkins
+cat pom.xml
+
+Step 4: If Jenkins is using Java 8 and the error still occurs
+
+Then the issue is likely Lombok. Your pom.xml currently has:
+
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.20</version>
+</dependency>
+
+Try updating it to:
+
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.38</version>
+    <scope>provided</scope>
+</dependency>
+
+1. Check if your override was applied
+
+Run:
+
+systemctl cat jenkins
+
+Paste the entire output.
+
+2. Check the service environment
+
+Run:
+
+sudo systemctl show jenkins -p Environment
+
+If you don't see:
+
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+then the override isn't being applied.
+
+3. Restart correctly
+
+Run these commands:
+
+sudo systemctl daemon-reload
+sudo systemctl restart jenkins
+sudo systemctl status jenkins
+
+Then verify again:
+
+sudo -u jenkins java -version
+
+sudo systemctl edit jenkins
+
+Paste only this:
+
+[Service]
+Environment="JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
+Environment="PATH=/usr/lib/jvm/java-8-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+Save and exit.
+
+Step 3: Reload and restart
+
+Run:
+
+sudo systemctl daemon-reload
+sudo systemctl restart jenkins
+Step 4: Verify the override is active
+
+Run:
+
+systemctl cat jenkins
+
+This time you should see something like:
+
+# /usr/lib/systemd/system/jenkins.service
+...
+
+# /etc/systemd/system/jenkins.service.d/override.conf
+[Service]
+Environment="JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
+Environment="PATH=/usr/lib/jvm/java-8-openjdk-amd64/bin:..."
+
+Then check:
+
+sudo -u jenkins java -version
+One more question
+
+================================================================================
+                JENKINS PIPELINE TROUBLESHOOTING GUIDE
+================================================================================
+
+Scenario #1 : Maven Compilation Failure (NoSuchFieldError)
+================================================================================
+
+Error Log
+--------------------------------------------------------------------------------
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 3 source files to
+/var/lib/jenkins/workspace/jenkins/target/classes
+
+[INFO] BUILD FAILURE
+
+Failed to execute goal
+org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile
+
+Fatal error compiling:
+
+java.lang.NoSuchFieldError:
+Class com.sun.tools.javac.tree.JCTree$JCImport
+does not have member field
+com.sun.tools.javac.tree.JCTree qualid
+
+--------------------------------------------------------------------------------
+What does this error mean?
+--------------------------------------------------------------------------------
+
+During compilation Maven invokes the Java compiler (javac).
+
+Before Java source files are compiled, annotation processors execute.
+
+One of the annotation processors is Lombok.
+
+Lombok internally accesses Java compiler classes
+(com.sun.tools.javac.*).
+
+Java 21 changed the internal compiler APIs.
+
+Older Lombok versions are not compatible with Java 21.
+
+Therefore compilation immediately fails with
+
+java.lang.NoSuchFieldError
+
+--------------------------------------------------------------------------------
+Root Cause
+--------------------------------------------------------------------------------
+
+Project was using
+
+Lombok Version
+--------------
+1.18.20
+
+Compiler Plugin
+---------------
+3.8.1
+
+Java Runtime
+------------
+Java 21
+
+Lombok 1.18.20 does not support Java 21.
+
+--------------------------------------------------------------------------------
+How to Identify
+--------------------------------------------------------------------------------
+
+Run
+
+mvn clean compile -X
+
+Look for
+
+lombok.javac
+
+or
+
+LombokProcessor
+
+inside the stack trace.
+
+If present,
+the problem is Lombok compatibility.
+
+--------------------------------------------------------------------------------
+Resolution Steps
+--------------------------------------------------------------------------------
+
+Step 1
+
+Open pom.xml
+
+Update Lombok
+
+FROM
+
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.20</version>
+</dependency>
+
+TO
+
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.38</version>
+</dependency>
+
+
+Step 2
+
+Update Compiler Plugin
+
+FROM
+
+<version>3.8.1</version>
+
+TO
+
+<version>3.14.0</version>
+
+
+Step 3
+
+Clear Maven Cache
+
+rm -rf ~/.m2/repository/org/projectlombok
+
+Step 4
+
+Compile Again
+
+mvn clean package
+
+--------------------------------------------------------------------------------
+Verification
+--------------------------------------------------------------------------------
+
+Compilation completes successfully.
+
+BUILD SUCCESS
+
+================================================================================
+Scenario #2 : Jenkins Running with Wrong Java Version
+================================================================================
+
+Error
+
+Jenkins failed to start.
+
+Journal Logs
+
+Running with Java 17
+
+Supported Java versions
+
+21
+25
+
+--------------------------------------------------------------------------------
+Root Cause
+--------------------------------------------------------------------------------
+
+Latest Jenkins requires Java 21.
+
+System Java was Java 17.
+
+Jenkins refused to start.
+
+--------------------------------------------------------------------------------
+How to Identify
+--------------------------------------------------------------------------------
+
+Check system Java
+
+java -version
+
+Check Jenkins Java
+
+sudo -u jenkins java -version
+
+Check Jenkins logs
+
+sudo journalctl -u jenkins -n 100
+
+--------------------------------------------------------------------------------
+Resolution Steps
+--------------------------------------------------------------------------------
+
+Install Java 21
+
+sudo apt install openjdk-21-jdk
+
+Configure Java
+
+sudo update-alternatives --config java
+
+Select Java 21
+
+Restart Jenkins
+
+sudo systemctl daemon-reload
+
+sudo systemctl restart jenkins
+
+--------------------------------------------------------------------------------
+Verification
+--------------------------------------------------------------------------------
+
+sudo -u jenkins java -version
+
+Output
+
+Java 21
+
+systemctl status jenkins
+
+Output
+
+Active (running)
+
+================================================================================
+Scenario #3 : Jenkins Service Failed to Start
+================================================================================
+
+Error
+
+Failed to start Jenkins
+
+Start request repeated too quickly
+
+--------------------------------------------------------------------------------
+Root Cause
+--------------------------------------------------------------------------------
+
+Jenkins attempted to start using Java 17.
+
+Latest Jenkins only supports Java 21.
+
+Therefore Jenkins exited immediately.
+
+Systemd kept retrying.
+
+After several failures
+
+Start request repeated too quickly
+
+--------------------------------------------------------------------------------
+How to Identify
+--------------------------------------------------------------------------------
+
+systemctl status jenkins
+
+journalctl -u jenkins -n 100
+
+Look for
+
+Running with Java 17
+
+Supported Java versions
+
+21
+25
+
+--------------------------------------------------------------------------------
+Resolution Steps
+--------------------------------------------------------------------------------
+
+Install Java 21
+
+Configure alternatives
+
+Restart Jenkins
+
+sudo systemctl restart jenkins
+
+--------------------------------------------------------------------------------
+Verification
+--------------------------------------------------------------------------------
+
+systemctl status jenkins
+
+Should show
+
+Active (running)
+
+================================================================================
+Scenario #4 : Permission Denied During Maven Build
+================================================================================
+
+Error Log
+
+BUILD FAILURE
+
+Failed to execute goal
+
+maven-resources-plugin
+
+Permission denied
+
+application.yml
+
+--------------------------------------------------------------------------------
+Root Cause
+--------------------------------------------------------------------------------
+
+Project was previously built using
+
+root
+
+Target folder became
+
+Owner
+
+root
+
+Jenkins runs using
+
+jenkins
+
+User
+
+Therefore Jenkins could not overwrite files inside
+
+target/classes
+
+--------------------------------------------------------------------------------
+How to Identify
+--------------------------------------------------------------------------------
+
+Check permissions
+
+ls -ld target
+
+Output
+
+root root
+
+Check files
+
+ls -la target/classes
+
+Output
+
+application.yml
+
+Owner
+
+root
+
+--------------------------------------------------------------------------------
+Resolution Steps
+--------------------------------------------------------------------------------
+
+Delete target
+
+sudo rm -rf target
+
+Run Jenkins again.
+
+Jenkins recreates target directory automatically.
+
+Never build Jenkins workspace using root.
+
+Always allow Jenkins user to create files.
+
+--------------------------------------------------------------------------------
+Verification
+--------------------------------------------------------------------------------
+
+ls -ld target
+
+Owner should become
+
+jenkins jenkins
+
+================================================================================
+Scenario #5 : SonarQube Credential Not Found
+================================================================================
+
+Error Log
+
+java.lang.IllegalStateException
+
+Unable to find credential
+
+sonarqubetoken
+
+--------------------------------------------------------------------------------
+Root Cause
+--------------------------------------------------------------------------------
+
+Pipeline expected
+
+Credential ID
+
+sonarqubetoken
+
+Actual Jenkins Credential
+
+sonarqube-token
+
+IDs did not match.
+
+--------------------------------------------------------------------------------
+How to Identify
+--------------------------------------------------------------------------------
+
+Open Jenkinsfile
+
+Find
+
+def SonarQubecredentialsId='sonarqubetoken'
+
+Go to
+
+Manage Jenkins
+
+↓
+
+Credentials
+
+Verify the actual credential ID.
+
+--------------------------------------------------------------------------------
+Resolution Steps
+--------------------------------------------------------------------------------
+
+Option 1
+
+Rename Credential
+
+FROM
+
+sonarqube-token
+
+TO
+
+sonarqubetoken
+
+OR
+
+Option 2
+
+Modify Jenkinsfile
+
+FROM
+
+def SonarQubecredentialsId='sonarqubetoken'
+
+TO
+
+def SonarQubecredentialsId='sonarqube-token'
+
+Both names must match exactly.
+
+--------------------------------------------------------------------------------
+Verification
+--------------------------------------------------------------------------------
+
+Run pipeline again.
+
+SonarQube Analysis stage should execute successfully.
+
+================================================================================
+Scenario #6 : Remaining Pipeline Stages Skipped
+================================================================================
+
+Pipeline Output
+
+Stage skipped due to earlier failure(s)
+
+Quality Gate
+
+Docker Build
+
+Docker Push
+
+Docker Cleanup
+
+--------------------------------------------------------------------------------
+Root Cause
+--------------------------------------------------------------------------------
+
+Declarative Pipelines stop executing downstream stages
+after the first failure.
+
+Since SonarQube Analysis failed,
+
+every stage after it was skipped automatically.
+
+--------------------------------------------------------------------------------
+How to Identify
+--------------------------------------------------------------------------------
+
+Console output shows
+
+Stage skipped due to earlier failure(s)
+
+--------------------------------------------------------------------------------
+Resolution Steps
+--------------------------------------------------------------------------------
+
+Fix the first failing stage.
+
+Run pipeline again.
+
+Skipped stages will execute automatically.
+
+Never troubleshoot skipped stages before fixing the first failure.
+
+--------------------------------------------------------------------------------
+Verification
+--------------------------------------------------------------------------------
+
+Pipeline executes sequentially
+
+Git Checkout
+↓
+
+Unit Test
+↓
+
+Integration Test
+↓
+
+SonarQube Analysis
+↓
+
+Quality Gate
+
+↓
+
+Docker Build
+
+↓
+
+Docker Push
+
+↓
+
+Cleanup
+
+================================================================================
+FINAL STATUS OF THE PIPELINE
+================================================================================
+
+Git Checkout                 : SUCCESS
+
+Unit Test                    : SUCCESS
+
+Integration Test             : SUCCESS
+
+Maven Package                : SUCCESS
+
+SonarQube Analysis           : FAILED
+(Credential ID mismatch)
+
+Quality Gate                 : SKIPPED
+
+Docker Image Build           : SKIPPED
+
+Trivy Scan                   : SKIPPED
+
+Docker Push                  : SKIPPED
+
+Docker Cleanup               : SKIPPED
+
+================================================================================
+LESSONS LEARNED
+================================================================================
+
+1. Always verify the Java version required by Jenkins.
+
+2. Ensure Lombok version is compatible with the installed JDK.
+
+3. Never build the Jenkins workspace as the root user.
+
+4. Verify ownership of the workspace before troubleshooting Maven issues.
+
+5. Credential IDs in Jenkinsfile must exactly match the IDs stored in Jenkins.
+
+6. Always fix the first failing stage before investigating skipped stages.
+
+7. Use 'mvn clean package -X' to obtain detailed Maven debug information.
+
+8. Check Jenkins service logs using:
+   sudo journalctl -u jenkins -n 100
+
+9. Verify Jenkins Java version using:
+   sudo -u jenkins java -version
+
+10. Verify workspace permissions using:
+    ls -la /var/lib/jenkins/workspace/<job_name>
+
+================================================================================
+END OF DOCUMENT
+================================================================================
 
 =======================================================
 Assigments -1
