@@ -3855,6 +3855,7 @@ sudo apt update -y ( is for system)
 
 sudo apt upgrade -y  ( is for software)
 sudo apt install openjdk-17-jre -y
+sudo apt install openjdk-21-jre -y
 
 8.
 
@@ -3959,6 +3960,153 @@ docker --version
 sudo chmod 777 /var/run/docker.sock
 
 
+Project repo-https://github.com/akhilgit19/Java_app_3.0/blob/main/Jenkinsfile
+===========================================================================================
+
+Jenkins file:
+-----------------
+@Library('my-shared-library') _
+
+pipeline {
+
+    agent any
+
+    parameters {
+        choice(name: 'action', choices: 'create\ndelete', description: 'Choose create/Destroy')
+        string(name: 'ImageName', description: "name of the docker build", defaultValue: 'javapp')
+        string(name: 'ImageTag', description: "tag of the docker build", defaultValue: 'v1')
+        string(name: 'DockerHubUser', description: "name of the Application", defaultValue: 'akhilpagadapoola')
+    }
+
+    stages {
+
+        stage('Git Checkout') {
+            when { expression { params.action == 'create' } }
+            steps {
+                gitCheckout(
+                    branch: "main",
+                    url: "https://github.com/akhilgit19/Java_app_3.0.git"
+                )
+            }
+        }
+
+        stage('Unit Test maven') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    mvnTest()
+                }
+            }
+        }
+
+        stage('Integration Test maven') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    mvnIntegrationTest()
+                }
+            }
+        }
+
+        stage('Static code analysis: Sonarqube') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    def SonarQubecredentialsId = 'sonarqubetoken'
+                    statiCodeAnalysis(SonarQubecredentialsId)
+                }
+            }
+        }
+
+        stage('Quality Gate Status Check : Sonarqube') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    def SonarQubecredentialsId = 'sonarqubetoken'
+                    QualityGateStatus(SonarQubecredentialsId)
+                }
+            }
+        }
+
+        stage('Maven Build : maven') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    mvnBuild()
+                }
+            }
+        }
+
+        // 📦 New JFrog Upload Stage Inserted Here
+        // stage('Build and Add Artifact to the repo : JFrog') {
+        //     when { expression { params.action == 'create' } }
+        //     steps {
+        //         script {
+        //             // Artifactory configuration
+        //             def artifactoryUrl = 'http://35.172.128.222:8082/artifactory'
+        //             def repoName = 'example-repo-local'
+        //             def targetPath = 'kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar'
+        //             def localArtifactPath = '/var/lib/jenkins/.m2/repository/com/minikube/sample/kubernetes-configmap-reload/0.0.1-SNAPSHOT/kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar'
+        //             def apiKeyOrUsername = 'admin'
+        //             def apiKeyOrPassword = 'Goodday@143'
+
+        //             // Extract the filename
+        //             def fileName = localArtifactPath.split('/').last()
+        //             def uploadUrl = "${artifactoryUrl}/${repoName}/${targetPath}/${fileName}"
+
+        //             // Upload using curl
+        //             def uploadCommand = """
+        //             curl -X PUT -u ${apiKeyOrUsername}:${apiKeyOrPassword} -T ${localArtifactPath} ${uploadUrl}
+        //             """.stripIndent()
+
+        //             def uploadResult = sh(script: uploadCommand, returnStatus: true)
+
+        //             if (uploadResult == 0) {
+        //                 echo "Artifact successfully uploaded to Artifactory."
+        //             } else {
+        //                 error "Failed to upload artifact to Artifactory. Exit code: ${uploadResult}"
+        //             }
+        //         }
+        //     }
+        // }
+
+        stage('Docker Image Build') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    dockerBuild("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
+                }
+            }
+        }
+
+        stage('Docker Image Scan: trivy') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    dockerImageScan("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
+                }
+            }
+        }
+
+        stage('Docker Image Push : DockerHub') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    dockerImagePush("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
+                }
+            }
+        }
+
+        stage('Docker Image Cleanup : DockerHub') {
+            when { expression { params.action == 'create' } }
+            steps {
+                script {
+                    dockerImageCleanup("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
+                }
+            }
+        }
+    }
+}
 
 Project repo:
 https://github.com/DEVOPS-WITH-WEB-DEV/spring-cloud-kubernetes/blob/main/kubernetes-configmap-reload/Jenkinsfile
@@ -7688,6 +7836,240 @@ now in the security grou change ito alltrafic ip4 and check with the IP address
 
 or do this code-PRIME10-DEVOPS/Kubernetes
 /Assignment 9 Jfrog docker setup.pdf
+
+
+
+
+or 
+
+JFrog Artifactory OSS Installation (Ubuntu 24.04 / AWS EC2)
+
+###############################################################################
+# STEP-1 : Update Ubuntu
+###############################################################################
+
+sudo apt update -y
+sudo apt upgrade -y
+
+###############################################################################
+# STEP-2 : Install Required Packages
+###############################################################################
+
+sudo apt install -y \
+ca-certificates \
+curl \
+gnupg \
+lsb-release
+
+###############################################################################
+# STEP-3 : Install Docker Repository
+###############################################################################
+
+sudo install -m 0755 -d /etc/apt/keyrings
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo \
+"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/ubuntu \
+$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+
+###############################################################################
+# STEP-4 : Install Docker
+###############################################################################
+
+sudo apt update -y
+
+sudo apt install -y \
+docker-ce \
+docker-ce-cli \
+containerd.io \
+docker-buildx-plugin \
+docker-compose-plugin
+
+###############################################################################
+# STEP-5 : Enable Docker
+###############################################################################
+
+sudo systemctl enable docker
+
+sudo systemctl start docker
+
+sudo systemctl status docker
+
+docker --version
+
+###############################################################################
+# STEP-6 : Allow Current User to Run Docker
+###############################################################################
+
+sudo usermod -aG docker $USER
+
+newgrp docker
+
+###############################################################################
+# STEP-7 : Verify Docker
+###############################################################################
+
+docker run hello-world
+
+###############################################################################
+# STEP-8 : CLEAN OLD ARTIFACTORY INSTALLATION
+###############################################################################
+
+docker stop artifactory 2>/dev/null
+
+docker rm -f artifactory 2>/dev/null
+
+docker image rm releases-docker.jfrog.io/jfrog/artifactory-oss:latest 2>/dev/null
+
+docker image prune -af
+
+docker container prune -f
+
+docker volume prune -f
+
+sudo rm -rf /jfrog
+
+###############################################################################
+# STEP-9 : Create Persistent Storage
+###############################################################################
+
+sudo mkdir -p /jfrog/artifactory
+
+sudo mkdir -p /jfrog/artifactory/etc/security
+
+###############################################################################
+# STEP-10 : Create Master Key
+###############################################################################
+
+sudo openssl rand -hex 32 | sudo tee /jfrog/artifactory/etc/security/master.key >/dev/null
+
+###############################################################################
+# STEP-11 : Set Permissions
+###############################################################################
+
+sudo chown -R 1030:1030 /jfrog/artifactory
+
+sudo chmod 600 /jfrog/artifactory/etc/security/master.key
+
+###############################################################################
+# STEP-12 : Pull Latest Artifactory Image
+###############################################################################
+
+docker pull releases-docker.jfrog.io/jfrog/artifactory-oss:latest
+
+###############################################################################
+# STEP-13 : Start Artifactory
+###############################################################################
+
+docker run -d \
+--name artifactory \
+-p 8081:8081 \
+-p 8082:8082 \
+-v /jfrog/artifactory:/var/opt/jfrog/artifactory \
+--restart unless-stopped \
+releases-docker.jfrog.io/jfrog/artifactory-oss:latest
+
+###############################################################################
+# STEP-14 : Verify Container
+###############################################################################
+
+docker ps
+
+###############################################################################
+# STEP-15 : Watch Startup Logs
+###############################################################################
+
+docker logs -f artifactory
+
+###############################################################################
+# STEP-16 : Wait 3-5 Minutes
+###############################################################################
+
+Artifactory performs its initial setup during the first startup.
+
+Wait until you see a message similar to:
+
+Artifactory started successfully
+
+or
+
+Server startup completed
+
+###############################################################################
+# STEP-17 : Verify Ports
+###############################################################################
+
+docker ps
+
+sudo ss -tulpn | grep 808
+
+###############################################################################
+# STEP-18 : Open Security Group
+###############################################################################
+
+AWS EC2
+→ Security Groups
+→ Inbound Rules
+
+Allow:
+
+Type: Custom TCP
+Port: 8082
+Source: Anywhere (0.0.0.0/0)
+
+(Optional)
+
+Port: 8081
+
+###############################################################################
+# STEP-19 : Access Artifactory
+###############################################################################
+
+Browser
+
+http://<EC2-PUBLIC-IP>:8082
+
+Example
+
+http://44.xxx.xxx.xxx:8082
+
+###############################################################################
+# STEP-20 : Initial Login
+###############################################################################
+
+Username
+
+admin
+
+Password
+
+The initial password is generated automatically.
+
+Retrieve it with:
+
+docker exec artifactory cat /var/opt/jfrog/artifactory/var/etc/security/bootstrap.creds
+
+If the file does not exist, check:
+
+docker logs artifactory
+
+The initial password is often printed during the first startup.
+
+###############################################################################
+# STEP-21 : Verify Health
+###############################################################################
+
+curl http://localhost:8082
+
+or
+
+curl http://<EC2-PUBLIC-IP>:8082
 
 
 
