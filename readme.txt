@@ -8072,7 +8072,420 @@ or
 curl http://<EC2-PUBLIC-IP>:8082
 
 
+Erros:
 
+JFrog Artifactory OSS Docker Installation - Troubleshooting Notes
+Environment
+Component	Value
+Platform	AWS EC2
+OS	Ubuntu
+Docker	Installed Successfully
+Artifactory Image	releases-docker.jfrog.io/jfrog/artifactory-oss:latest
+Artifactory Version	7.146.25
+RAM	4 GB
+CPU	2 vCPU
+Storage	19 GB
+Initial Verification
+Docker Container Status
+docker ps -a
+
+Output
+
+STATUS: Up
+PORTS: 8081-8082
+NAME: artifactory
+Result
+
+✅ Docker container started successfully.
+
+Verify master.key
+docker exec artifactory ls -l /var/opt/jfrog/artifactory/etc/security
+
+Output
+
+master.key
+keys/
+Result
+
+✅ master.key exists.
+
+Check Container Health
+docker inspect artifactory --format='{{.State.Health.Status}}'
+
+Output
+
+template parsing error:
+map has no entry for key "Health"
+Observation
+
+The container image does not define a Docker HEALTHCHECK.
+
+This is not the root cause.
+
+System Resource Check
+Memory
+free -h
+
+Output
+
+RAM : 3.8 GB
+Used : 1.9 GB
+Available : 1.9 GB
+
+Result
+
+Memory is limited but the server is not out of memory.
+
+CPU
+nproc
+
+Output
+
+2
+
+Result
+
+2 vCPUs available.
+
+Disk
+df -h
+
+Output
+
+19 GB total
+12 GB free
+36% used
+
+Result
+
+Enough disk space.
+
+Verify Artifactory Processes
+
+Command
+
+docker exec artifactory ps -ef
+
+Observation
+
+Running services included
+
+EntryPoint
+Artifactory
+Access
+Router
+Metadata
+Frontend
+
+Java processes were running.
+
+Result
+
+Application startup begins correctly.
+
+Verify Access Service
+
+Command
+
+docker exec artifactory curl http://localhost:8046/access/api/v1/system/ping
+
+Output
+
+curl: (7)
+
+Failed to connect to localhost port 8046
+Connection refused
+Observation
+
+Access service never opened port 8046.
+
+This became the first major indicator of the real issue.
+
+Log Verification
+Available Logs
+
+Command
+
+docker exec artifactory ls -lh /opt/jfrog/artifactory/var/log
+
+Observation
+
+Important logs found
+
+access-service.log
+artifactory-service.log
+router-service.log
+metadata-service.log
+jfconfig-service.log
+Console Log
+
+Command
+
+docker exec artifactory tail -100 /opt/jfrog/artifactory/var/log/console.log
+
+Output
+
+No such file
+
+Observation
+
+Newer Artifactory versions do not create console.log.
+
+Environment Variables
+
+Command
+
+docker exec artifactory env
+
+Important Output
+
+ARTIFACTORY_VERSION=7.146.25
+JF_PRODUCT_HOME=/opt/jfrog/artifactory
+
+This confirmed the installed version.
+
+Root Cause Analysis
+
+The most important log entry was:
+
+Caused by:
+
+org.jfrog.storage.dbtype.DbTypeNotAllowedException
+
+DB Type derby is not allowed
+
+Cannot start the application with a database other than PostgreSQL.
+Error Flow
+Artifactory Starts
+        │
+        ▼
+Access Service Starts
+        │
+        ▼
+Access initializes database
+        │
+        ▼
+Attempts to use Derby
+        │
+        ▼
+Derby rejected
+        │
+        ▼
+DbTypeNotAllowedException
+        │
+        ▼
+Access Service crashes
+        │
+        ▼
+Port 8046 never opens
+        │
+        ▼
+Router waits forever
+        │
+        ▼
+Metadata waits forever
+        │
+        ▼
+Frontend waits forever
+        │
+        ▼
+Artifactory never becomes usable
+Root Cause
+
+The image being used is
+
+releases-docker.jfrog.io/jfrog/artifactory-oss:latest
+
+which currently resolves to
+
+Artifactory OSS 7.146.25
+
+Recent Artifactory versions no longer support the embedded Derby database.
+
+Instead, they require an external PostgreSQL database.
+
+Why Older Tutorials Work
+
+Most YouTube videos use versions such as
+
+7.55.x
+7.59.x
+7.63.x
+7.77.x
+
+These versions still support Derby.
+
+Therefore, they work without PostgreSQL.
+
+Issues Ruled Out
+
+The following were verified and are not the cause:
+
+✅ Docker installation
+✅ Container startup
+✅ Port mapping
+✅ master.key availability
+✅ Disk space
+✅ Basic memory availability
+✅ CPU availability
+✅ Java processes running
+✅ Volume mounting
+Final Root Cause
+
+Artifactory OSS version 7.146.25 does not support the embedded Derby database.
+
+Because no PostgreSQL database is configured, the Access service fails during initialization with:
+
+DbTypeNotAllowedException
+
+DB Type derby is not allowed
+
+Cannot start the application with a database other than PostgreSQL.
+
+As a result:
+
+Access service never starts
+Port 8046 never opens
+Router cannot communicate with Access
+Artifactory never finishes startup
+
+
+
+Step 1 - Stop the container
+docker stop artifactory
+Step 2 - Remove the container
+docker rm artifactory
+Step 3 - Remove all Artifactory images
+docker rmi $(docker images | grep artifactory | awk '{print $3}')
+
+If there is only one image, you can also use:
+
+docker rmi releases-docker.jfrog.io/jfrog/artifactory-oss:latest
+Step 4 - Remove old data
+sudo rm -rf /jfrog
+Step 5 - Create storage again
+sudo mkdir -p /jfrog/artifactory
+Step 6 - Set permissions
+sudo chown -R 1030:1030 /jfrog/artifactory
+Step 7 - Pull a stable version
+
+Instead of latest, use a specific version. For example:
+
+docker pull releases-docker.jfrog.io/jfrog/artifactory-oss:7.77.8
+
+(If that exact tag is unavailable, we can choose another known-good OSS tag.)
+
+Step 8 - Run the container
+docker run -d \
+--name artifactory \
+-p 8081:8081 \
+-p 8082:8082 \
+-v /jfrog/artifactory:/var/opt/jfrog/artifactory \
+--restart unless-stopped \
+releases-docker.jfrog.io/jfrog/artifactory-oss:7.77.8
+Step 9 - Verify
+docker ps
+Step 10 - Watch the logs
+docker logs -f artifactory
+
+Wait until you see messages indicating Artifactory has started successfully.
+
+Step 11 - Open in your browser
+http://<EC2-PUBLIC-IP>:8082
+
+
+
+
+tep 1: Create a Jenkins Credential
+
+Go to:
+
+Manage Jenkins
+    └── Credentials
+          └── System
+                └── Global credentials (unrestricted)
+                      └── Add Credentials
+
+Configure it as follows:
+
+Kind        : Username with password
+
+Scope       : Global
+
+Username    : admin
+
+Password    : <Your JFrog Artifactory Password>
+
+ID          : jfrog-creds
+
+Description : JFrog Artifactory Credentials
+
+Click Create.
+
+Step 2: Update Your Jenkinsfile
+
+Replace your hardcoded username and password with withCredentials.
+
+// 📦 Upload Artifact to JFrog Artifactory
+stage('Build and Add Artifact to the repo : JFrog') {
+    when {
+        expression { params.action == 'create' }
+    }
+
+    steps {
+        script {
+
+            // Artifactory Configuration
+            def artifactoryUrl = 'http://23.22.16.56:8082/artifactory'
+            def repoName = 'example-repo-local'
+            def targetPath = 'kubernetes-configmap-reload/0.0.1-SNAPSHOT'
+            def localArtifactPath = '/var/lib/jenkins/.m2/repository/com/minikube/sample/kubernetes-configmap-reload/0.0.1-SNAPSHOT/kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar'
+
+            // Extract filename
+            def fileName = localArtifactPath.tokenize('/').last()
+
+            // Upload URL
+            def uploadUrl = "${artifactoryUrl}/${repoName}/${targetPath}/${fileName}"
+
+            // Securely retrieve credentials from Jenkins
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'jfrog-creds',
+                    usernameVariable: 'JFROG_USER',
+                    passwordVariable: 'JFROG_PASS'
+                )
+            ]) {
+
+                sh """
+                    echo "Uploading artifact to JFrog Artifactory..."
+
+                    curl -v \
+                        -u \$JFROG_USER:\$JFROG_PASS \
+                        -T ${localArtifactPath} \
+                        "${uploadUrl}"
+                """
+            }
+
+            echo "Artifact uploaded successfully."
+        }
+    }
+}
+Step 3: Repository Structure
+
+If your repository is named:
+
+example-repo-local
+
+After a successful upload, you'll see:
+
+example-repo-local
+└── kubernetes-configmap-reload
+    └── 0.0.1-SNAPSHOT
+        └── kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar
+
+
+
+This is production deployment.
 Docker Project3:
 =====================
 
